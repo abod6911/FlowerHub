@@ -167,7 +167,94 @@ export const LUXURY_PALETTES: Record<string, ColorPaletteSettings> = {
     borderSubtle: '#FECDD3',
     isDark: false,
   },
+  minimalOchre: {
+    paletteId: 'minimalOchre',
+    primary: '#B45309',
+    secondary: '#D97706',
+    canvasBg: '#FDFBF7',
+    cardSurface: '#FFFFFF',
+    textMain: '#1C1917',
+    textMuted: '#78716C',
+    priceColor: '#B45309',
+    sandPill: '#F5EBE1',
+    borderSubtle: '#EBE3D5',
+    isDark: false,
+  },
 };
+
+export interface CuratedThemePreset {
+  id: 'royal_rose' | 'french_boutique' | 'nordic_minimal' | 'midnight_noir';
+  nameAr: string;
+  nameEn: string;
+  badge: string;
+  descriptionAr: string;
+  paletteId: 'royalBurgundy' | 'deepForest' | 'rosaNoir' | 'minimalOchre' | 'velvetBlush';
+  cardLayout: 'grid_compact' | 'grid_large' | 'list_classic';
+  specialsStyle: 'marquee' | 'carousel_manual' | 'coverflow';
+  ambientEffect: 'petals' | 'gold_stardust' | 'warm_glow' | 'none';
+  headerFont: string;
+  catalogFont: string;
+  cardRadius: number;
+}
+
+export const CURATED_THEME_PRESETS: CuratedThemePreset[] = [
+  {
+    id: 'royal_rose',
+    nameAr: 'النسخة الملكية الوردية',
+    nameEn: 'Royal Velvet Rose',
+    badge: 'الأكثر طلباً',
+    descriptionAr: 'فخامة ملكية بدرجات البورغندي المخملي والورد الجوري ولمسات الذهب المصقول',
+    paletteId: 'royalBurgundy',
+    cardLayout: 'grid_compact',
+    specialsStyle: 'marquee',
+    ambientEffect: 'petals',
+    headerFont: 'Amiri',
+    catalogFont: 'Readex Pro',
+    cardRadius: 22,
+  },
+  {
+    id: 'french_boutique',
+    nameAr: 'البوتيك الفرنسي الكلاسيكي',
+    nameEn: 'Classic French Atelier',
+    badge: 'طبيعي فاخر',
+    descriptionAr: 'روح البوتيك الباريسي بأخضر الغابات العتيق، أوراق العاج، وتنسيقات زهرية متوازنة',
+    paletteId: 'deepForest',
+    cardLayout: 'grid_large',
+    specialsStyle: 'marquee',
+    ambientEffect: 'warm_glow',
+    headerFont: 'Amiri',
+    catalogFont: 'Alexandria',
+    cardRadius: 24,
+  },
+  {
+    id: 'nordic_minimal',
+    nameAr: 'النمط الاسكندنافي المينيمال',
+    nameEn: 'Nordic Organic Minimal',
+    badge: 'عصري هادئ',
+    descriptionAr: 'بساطة راقية بظلال رمال الصحراء والبيج الدافئ مع بطاقات مريحة للعين وتيبوغرافي فسيح',
+    paletteId: 'minimalOchre',
+    cardLayout: 'grid_compact',
+    specialsStyle: 'carousel_manual',
+    ambientEffect: 'gold_stardust',
+    headerFont: 'Cairo',
+    catalogFont: 'Readex Pro',
+    cardRadius: 18,
+  },
+  {
+    id: 'midnight_noir',
+    nameAr: 'المخمل والليل الفاخر',
+    nameEn: 'Midnight Velvet & Gold Noir',
+    badge: 'نخبة السهرات',
+    descriptionAr: 'أناقة الليل المظلم بأسود مخملي وبريق الذهب الصافي مع تباين درامي يخطف الأنظار',
+    paletteId: 'rosaNoir',
+    cardLayout: 'grid_compact',
+    specialsStyle: 'coverflow',
+    ambientEffect: 'gold_stardust',
+    headerFont: 'Amiri',
+    catalogFont: 'Readex Pro',
+    cardRadius: 20,
+  },
+];
 
 export const DEFAULT_STORE_THEME_CONFIG: StoreThemeConfig = {
   version: 2,

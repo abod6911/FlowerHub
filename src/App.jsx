@@ -23,6 +23,8 @@ import WhatsAppPreviewModal from './components/WhatsAppPreviewModal';
 import FloristAdminPanel from './components/FloristAdminPanel';
 import FloristOrderSlipModal from './components/FloristOrderSlipModal';
 import FlowerStorefrontPage from './components/FlowerStorefrontPage';
+import AmbientRosePetals from './components/AmbientRosePetals';
+import { useStudioStore } from './context/StudioThemeContext';
 import { Sliders, Store, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function App() {
@@ -44,6 +46,21 @@ export default function App() {
 
   // View Mode: 'storefront' | 'admin' | 'split' | 'orderslip'
   const [activeView, setActiveView] = useState('storefront');
+
+  // Search Query for Storefront
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Live Studio Theme Binding
+  let studioStore = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    studioStore = useStudioStore();
+  } catch {
+    // outside provider fallback
+  }
+
+  const liveConfig = studioStore?.config;
+  const cardLayout = liveConfig?.cardLayout || 'grid_compact';
 
   // Order Slip Modal State (for overlay access from WhatsApp or Admin)
   const [isOrderSlipModalOpen, setIsOrderSlipModalOpen] = useState(false);
@@ -118,15 +135,25 @@ export default function App() {
     return newOcc.id;
   };
 
-  // Filter products based on Occasion, Product Type & Budget
+  // Filter products based on Occasion, Product Type, Budget & Search
   const filteredProducts = products.filter((product) => {
     // Hide sold out products from standard customer catalog
     if (product.isSoldOut) return false;
+
+    // Search query real-time filtering
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const matchAr = product.titleAr?.toLowerCase().includes(q) || product.descAr?.toLowerCase().includes(q);
+      const matchEn = product.titleEn?.toLowerCase().includes(q) || product.descEn?.toLowerCase().includes(q);
+      if (!matchAr && !matchEn) return false;
+    }
 
     // 1. Occasion filter from Circular Stories
     if (selectedCategory !== 'all') {
       if (selectedCategory === 'specials') {
         if (!product.isReadyNow && !product.isOneTimeSpecial) return false;
+      } else if (selectedCategory === 'chocolate_flowers') {
+        if (product.productType !== 'chocolate') return false;
       } else if (product.category !== selectedCategory) {
         return false;
       }
@@ -279,17 +306,22 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
     showToast(isAr ? 'تمت أرشفة الباقة لمعرض الأعمال' : 'Arrangement archived to Past Work');
   };
 
-  // Reusable Storefront Content Renderer (Fully Reactive to themeTokens)
+  // Reusable Storefront Content Renderer (Fully Reactive to themeTokens & Live Studio State)
   const renderStorefrontContent = () => (
     <div
       className={`w-full flex flex-col pb-28 relative ${themeTokens.pageBg} transition-colors duration-300`}
     >
-      {/* Shop Header */}
+      {/* Ambient Atmospheric Effects (Petals / Gold Stardust / Warm Glow) */}
+      <AmbientRosePetals />
+
+      {/* Shop Header with Search & Live Pulse */}
       <ShopHeader
         heroStyle={shopConfig.heroStyle}
         lang={lang}
         shopConfig={shopConfig}
         themeTokens={themeTokens}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       {/* Floward-Style Circular Occasion Stories */}
@@ -301,13 +333,13 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         themeTokens={themeTokens}
       />
 
-      {/* Ready in Cooler & Daily Specials Carousel with 4 switchable motion styles */}
+      {/* Ready in Cooler & Daily Specials Carousel with switchable motion styles */}
       {selectedCategory !== 'past_work' && (
         <CoolerSpecialsCarousel
           onSelectProduct={handleOpenProduct}
           lang={lang}
           themeTokens={themeTokens}
-          specialsStyle={shopConfig.specialsStyle}
+          specialsStyle={liveConfig?.specialsStyle || shopConfig.specialsStyle}
           products={products}
         />
       )}
@@ -335,10 +367,10 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         themeTokens={themeTokens}
       />
 
-      {/* Main Product Grid */}
-      <main className="px-4 py-3 flex-1">
+      {/* Main Product Grid (Adaptive Layout: Compact Grid / Large Showcase / Classic List) */}
+      <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1">
         {selectedCategory === 'past_work' ? (
-          <div className="space-y-3">
+          <div className="space-y-4 max-w-7xl mx-auto">
             <div>
               <h3
                 className={`font-bold text-sm sm:text-base ${themeTokens.textMain}`}
@@ -351,11 +383,12 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   : 'Bespoke setups. Request a similar quote'}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {pastWorks.map((item) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {pastWorks.map((item, idx) => (
                 <ProductCard
                   key={item.id}
                   product={item}
+                  index={idx}
                   isPortfolio={true}
                   onRequestPortfolio={handlePortfolioRequest}
                   lang={lang}
@@ -365,11 +398,20 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-            {filteredProducts.map((product) => (
+          <div
+            className={
+              cardLayout === 'grid_large'
+                ? 'grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto'
+                : cardLayout === 'list_classic'
+                ? 'flex flex-col gap-3.5 max-w-3xl mx-auto'
+                : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 max-w-7xl mx-auto'
+            }
+          >
+            {filteredProducts.map((product, idx) => (
               <ProductCard
                 key={product.id}
                 product={product}
+                index={idx}
                 isPortfolio={false}
                 onSelectProduct={handleOpenProduct}
                 lang={lang}
@@ -442,7 +484,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
   );
 
   return (
-    <div className="min-h-screen bg-stone-200 dark:bg-stone-950 flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white">
+    <div className="min-h-screen bg-[var(--bg-canvas,#FAF8F5)] dark:bg-stone-950 flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white transition-colors duration-300 w-full">
       {/* 1. Multi-Tenant Theme, Hero, View & Motion Switcher Bar */}
       <ThemeSwitcherBar
         currentTheme={shopConfig.theme}
@@ -461,13 +503,15 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         setActiveView={setActiveView}
         lang={lang}
         setLang={setLang}
+        bagCount={bagItems.length}
+        onOpenCart={() => setIsCartDrawerOpen(true)}
       />
 
       {/* 2. Main View Canvas */}
-      {/* VIEW A: Storefront (Mobile-First 480px) */}
+      {/* VIEW A: Storefront (Smart Responsive: Full on mobile, Max-W-7xl editorial on Laptop) */}
       {activeView === 'storefront' && (
         <div
-          className={`w-full max-w-[480px] ${themeTokens.pageBg} min-h-screen shadow-2xl flex flex-col relative transition-colors duration-300`}
+          className={`w-full min-h-screen ${themeTokens.pageBg} flex flex-col relative transition-colors duration-300`}
         >
           {renderStorefrontContent()}
         </div>

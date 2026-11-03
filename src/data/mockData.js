@@ -754,6 +754,14 @@ export const INITIAL_OCCASIONS = [
     isVisible: true,
   },
   {
+    id: 'chocolate_flowers',
+    nameEn: 'Flowers & Chocolate',
+    nameAr: 'ورد وشوكولاتة',
+    image: './images/occasions/occasion-chocolate.jpg',
+    isStory: true,
+    isVisible: true,
+  },
+  {
     id: 'past_work',
     nameEn: 'Past Work',
     nameAr: 'من أعمالنا',
