@@ -442,6 +442,41 @@ export const INITIAL_SALES_TRANSACTIONS = [
 ];
 
 /**
+ * Historical Timeline Series for Interactive Analytics Chart
+ */
+export const ANALYTICS_TIMELINES = {
+  // Last 7 Days Daily Breakdown
+  daily: [
+    { period: '28 أكتوبر', revenue: 210, profit: 85.38, margin: 40.7, orders: 1 },
+    { period: '29 أكتوبر', revenue: 155, profit: 91.59, margin: 59.1, orders: 1 },
+    { period: '30 أكتوبر', revenue: 515, profit: 253.67, margin: 49.3, orders: 1 },
+    { period: '31 أكتوبر', revenue: 525, profit: 278.45, margin: 53.0, orders: 1 },
+    { period: '1 نوفمبر', revenue: 345, profit: 183.1, margin: 53.1, orders: 1 },
+    { period: '2 نوفمبر', revenue: 445, profit: 225.21, margin: 50.6, orders: 1 },
+    { period: '3 نوفمبر (اليوم)', revenue: 990, profit: 535.96, margin: 54.1, orders: 3 },
+  ],
+
+  // Hourly Breakdown for Today
+  hourly: [
+    { period: '10:00 ص', revenue: 0, profit: 0, margin: 0, orders: 0 },
+    { period: '11:20 ص', revenue: 315, profit: 177.12, margin: 56.2, orders: 1 },
+    { period: '01:00 م', revenue: 0, profit: 0, margin: 0, orders: 0 },
+    { period: '03:15 م', revenue: 345, profit: 173.1, margin: 50.2, orders: 1 },
+    { period: '05:00 م', revenue: 0, profit: 0, margin: 0, orders: 0 },
+    { period: '06:40 م', revenue: 330, profit: 185.74, margin: 56.3, orders: 1 },
+    { period: '08:00 م', revenue: 385, profit: 211.53, margin: 54.9, orders: 1 },
+  ],
+
+  // Weekly Breakdown for the Month
+  weekly: [
+    { period: 'الأسبوع 1', revenue: 755, profit: 401.39, margin: 53.2, orders: 2 },
+    { period: 'الأسبوع 2', revenue: 1040, profit: 532.12, margin: 51.2, orders: 3 },
+    { period: 'الأسبوع 3', revenue: 840, profit: 461.55, margin: 54.9, orders: 2 },
+    { period: 'الأسبوع 4 (الحالي)', revenue: 1780, profit: 944.27, margin: 53.0, orders: 5 },
+  ],
+};
+
+/**
  * Currency Formatter Utility for Saudi Riyal (SAR / ر.س)
  */
 export function formatCurrency(amount, lang = 'ar') {
