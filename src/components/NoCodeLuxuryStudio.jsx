@@ -14,11 +14,11 @@ import {
   Check,
   Smartphone,
   Sliders,
-  Shuffle,
   Layers,
   Zap,
 } from 'lucide-react';
 import { useStudioStore } from '../context/StudioThemeContext';
+import TypeGardenStudioSection from './TypeGardenStudioSection';
 
 export default function NoCodeLuxuryStudio({
   isOpen,
@@ -79,12 +79,6 @@ export default function NoCodeLuxuryStudio({
     } else {
       alert('خطأ: صيغة JSON غير صالحة');
     }
-  };
-
-  const shuffleBotanicalSeed = () => {
-    const newSeed = Math.floor(Math.random() * 90000) + 10000;
-    updateField('botanicalSeed', newSeed);
-    showToast(`تم تغيير بذرة الورود #${newSeed}`);
   };
 
   return (
@@ -357,170 +351,8 @@ export default function NoCodeLuxuryStudio({
                     </div>
                   </div>
 
-                  {/* Botanical Engine Controls */}
-                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-sm text-stone-900 flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-rose-700" />
-                        محرك حديقة الحروف (Type-Garden)
-                      </h3>
-                      <button
-                        type="button"
-                        onClick={() => updateField('botanicalEnabled', !config.botanicalEnabled)}
-                        className={`w-11 h-6 rounded-full transition-colors relative ${
-                          config.botanicalEnabled ? 'bg-[#7E1529]' : 'bg-stone-300'
-                        }`}
-                      >
-                        <span
-                          className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                            config.botanicalEnabled ? 'left-1' : 'right-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-
-                    {config.botanicalEnabled && (
-                      <div className="space-y-4 pt-1 animate-fade-in">
-                        {/* Seed Shuffle */}
-                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-white border border-stone-200">
-                          <div>
-                            <span className="text-xs font-bold text-stone-800 block">بذرة التوزيع العشوائي:</span>
-                            <span className="text-xs font-mono font-bold text-rose-800">#{config.botanicalSeed}</span>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={shuffleBotanicalSeed}
-                            className="px-3 py-1.5 rounded-xl bg-[#7E1529] hover:bg-[#600f1f] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-95"
-                          >
-                            <Shuffle className="w-3.5 h-3.5 text-amber-300" />
-                            <span>تغيير البذرة</span>
-                          </button>
-                        </div>
-
-                        {/* Motion Mode Radio Pills */}
-                        <div>
-                          <label className="text-xs font-semibold text-stone-700 block mb-1.5">
-                            نمط الحركة التفاعلية (Physics Motion Mode)
-                          </label>
-                          <div className="grid grid-cols-3 gap-1.5 text-xs">
-                            {[
-                              { id: 'gust', label: 'عاصفة نسيم (Gust)' },
-                              { id: 'reach', label: 'تتبع الفأرة (Reach)' },
-                              { id: 'breathe', label: 'نبض حيوي (Breathe)' },
-                              { id: 'grow', label: 'نمو تدريجي (Grow)' },
-                              { id: 'visitor', label: 'فراشة تطير (Visitor)' },
-                            ].map((mode) => (
-                              <button
-                                key={mode.id}
-                                type="button"
-                                onClick={() => updateField('botanicalMotion', mode.id)}
-                                className={`py-1.5 px-2 rounded-xl border text-center transition-all ${
-                                  config.botanicalMotion === mode.id
-                                    ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
-                                    : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
-                                }`}
-                              >
-                                {mode.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Density Selector */}
-                        <div>
-                          <label className="text-xs font-semibold text-stone-700 block mb-1.5">
-                            كثافة الورود (Density)
-                          </label>
-                          <div className="grid grid-cols-3 gap-1.5 text-xs">
-                            {[
-                              { id: 'light', label: 'خفيفة (Light)' },
-                              { id: 'balanced', label: 'متوازنة (Balanced)' },
-                              { id: 'dense', label: 'كثيفة (Dense)' },
-                            ].map((d) => (
-                              <button
-                                key={d.id}
-                                type="button"
-                                onClick={() => updateField('botanicalDensity', d.id)}
-                                className={`py-1.5 rounded-xl border text-center transition-all ${
-                                  config.botanicalDensity === d.id
-                                    ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
-                                    : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
-                                }`}
-                              >
-                                {d.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Sliders: Bloom Size & Stem Thickness */}
-                        <div className="space-y-3 pt-2">
-                          <div>
-                            <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
-                              <span>مقياس حجم الورد (Bloom Size)</span>
-                              <span className="font-mono text-rose-800 font-bold">{config.bloomSize}px</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="30"
-                              max="80"
-                              value={config.bloomSize}
-                              onChange={(e) => updateField('bloomSize', Number(e.target.value))}
-                              className="w-full accent-[#7E1529] cursor-pointer"
-                            />
-                          </div>
-
-                          <div>
-                            <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
-                              <span>سماكة السيقان (Stem Thickness)</span>
-                              <span className="font-mono text-rose-800 font-bold">{config.stemThickness}px</span>
-                            </div>
-                            <input
-                              type="range"
-                              min="1.0"
-                              max="3.5"
-                              step="0.2"
-                              value={config.stemThickness}
-                              onChange={(e) => updateField('stemThickness', Number(e.target.value))}
-                              className="w-full accent-[#7E1529] cursor-pointer"
-                            />
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3 pt-1">
-                            <div>
-                              <div className="flex justify-between text-[11px] font-semibold text-stone-700 mb-1">
-                                <span>سرعة الرياح</span>
-                                <span className="font-mono text-rose-800 font-bold">{config.animationSpeed}x</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="0.5"
-                                max="2.0"
-                                step="0.1"
-                                value={config.animationSpeed}
-                                onChange={(e) => updateField('animationSpeed', Number(e.target.value))}
-                                className="w-full accent-[#7E1529] cursor-pointer"
-                              />
-                            </div>
-                            <div>
-                              <div className="flex justify-between text-[11px] font-semibold text-stone-700 mb-1">
-                                <span>سعة التمايل</span>
-                                <span className="font-mono text-rose-800 font-bold">{config.swayIntensity}°</span>
-                              </div>
-                              <input
-                                type="range"
-                                min="1"
-                                max="10"
-                                value={config.swayIntensity}
-                                onChange={(e) => updateField('swayIntensity', Number(e.target.value))}
-                                className="w-full accent-[#7E1529] cursor-pointer"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  {/* Botanical Engine Controls - Type Garden Arabic Engine */}
+                  <TypeGardenStudioSection />
                 </div>
               )}
 

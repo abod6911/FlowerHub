@@ -5,6 +5,20 @@ import { saveBotanicalBrandConfig } from '../types/botanical';
 export const STUDIO_STORAGE_KEY = 'flowerhub_studio_theme_config';
 export const STUDIO_SYNC_EVENT = 'studio_theme_synced';
 
+export const DEFAULT_TYPE_GARDEN_CONFIG = {
+  enabled: true,
+  text: 'دار الورد للمناسبات',
+  flowerSpecies: 'royal_rose', // 'royal_rose' | 'sakura' | 'camellia' | 'minimal_gold'
+  density: 65, // 10 to 100
+  growthSpeed: 1.0, // 0.5 to 2.5
+  windSway: 1.0, // 0 to 2.5
+  branchReach: 55, // 20 to 100
+  stemColor: '#1B3B2B', // '#1B3B2B' (emerald) | '#2D3A1E' (dark olive) | '#B45309' (antique gold)
+  petalColor: '#9B1B36', // '#9B1B36' (royal burgundy) | '#F472B6' (pastel pink) | '#F8FAFC' (white) | '#F59E0B' (gold)
+  seed: 48271,
+  replayKey: 0,
+};
+
 export const DEFAULT_STUDIO_CONFIG = {
   // Brand & Botanical
   storeName: 'دار الورد للمناسبات',
@@ -19,6 +33,9 @@ export const DEFAULT_STUDIO_CONFIG = {
   safeZoneOffset: 0,
   animationSpeed: 1.0,
   swayIntensity: 4,
+
+  // Generative Type Garden Engine
+  typeGarden: DEFAULT_TYPE_GARDEN_CONFIG,
 
   // Identity & Badges
   statusText: 'مفتوح الآن • التجهيز خلال ٢٠ دقيقة',
@@ -89,6 +106,10 @@ export const loadStoredStudioConfig = () => {
       typography: {
         ...DEFAULT_STUDIO_CONFIG.typography,
         ...(parsed.typography || {}),
+      },
+      typeGarden: {
+        ...DEFAULT_TYPE_GARDEN_CONFIG,
+        ...(parsed.typeGarden || {}),
       },
       sections: parsed.sections && parsed.sections.length > 0 ? parsed.sections : DEFAULT_STUDIO_CONFIG.sections,
       hasUnsavedChanges: false,
@@ -283,6 +304,58 @@ export function StudioThemeProvider({ children }) {
     }
   }, []);
 
+  // Type Garden Arabic Engine Methods
+  const updateTypeGarden = useCallback((partial) => {
+    setConfig((prev) => {
+      const nextTypeGarden = {
+        ...(prev.typeGarden || DEFAULT_TYPE_GARDEN_CONFIG),
+        ...partial,
+      };
+      const updated = {
+        ...prev,
+        typeGarden: nextTypeGarden,
+        hasUnsavedChanges: true,
+      };
+      try {
+        localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent(STUDIO_SYNC_EVENT, { detail: updated }));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  }, []);
+
+  const updateTypeGardenField = useCallback((field, value) => {
+    updateTypeGarden({ [field]: value });
+  }, [updateTypeGarden]);
+
+  const regenerateTypeGardenSeed = useCallback(() => {
+    const newSeed = Math.floor(Math.random() * 900000) + 10000;
+    updateTypeGarden({ seed: newSeed, replayKey: Date.now() });
+    return newSeed;
+  }, [updateTypeGarden]);
+
+  const replayTypeGardenGrowth = useCallback(() => {
+    updateTypeGarden({ replayKey: Date.now() });
+  }, [updateTypeGarden]);
+
+  const exportTypeGardenJson = useCallback(() => {
+    const tgConfig = config.typeGarden || DEFAULT_TYPE_GARDEN_CONFIG;
+    const jsonStr = JSON.stringify(tgConfig, null, 2);
+    try {
+      navigator.clipboard?.writeText(jsonStr);
+    } catch {
+      // ignore
+    }
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonStr);
+    const dlAnchor = document.createElement('a');
+    dlAnchor.setAttribute('href', dataStr);
+    dlAnchor.setAttribute('download', `type_garden_arabic_config_${Date.now()}.json`);
+    dlAnchor.click();
+    return jsonStr;
+  }, [config.typeGarden]);
+
   // Backwards-compatible adapter so existing components reading config.catalog, config.brand, etc. continue working!
   const legacyConfigAdapter = useMemo(() => {
     return {
@@ -355,6 +428,13 @@ export function StudioThemeProvider({ children }) {
       resetConfig,
       exportConfig,
       importConfig,
+      // Type Garden Engine Live Hooks
+      typeGarden: config.typeGarden || DEFAULT_TYPE_GARDEN_CONFIG,
+      updateTypeGarden,
+      updateTypeGardenField,
+      regenerateTypeGardenSeed,
+      replayTypeGardenGrowth,
+      exportTypeGardenJson,
       // Section aliases
       toggleSectionVisibility: toggleSection,
       exportJson: exportConfig,
@@ -419,6 +499,11 @@ export function StudioThemeProvider({ children }) {
       resetConfig,
       exportConfig,
       importConfig,
+      updateTypeGarden,
+      updateTypeGardenField,
+      regenerateTypeGardenSeed,
+      replayTypeGardenGrowth,
+      exportTypeGardenJson,
     ]
   );
 

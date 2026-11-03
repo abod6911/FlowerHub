@@ -36,6 +36,7 @@ import {
 } from '../data/mockData';
 import { t } from '../utils/translations';
 import DarAlwardAnimatedTitle from './DarAlwardAnimatedTitle';
+import TypeGardenStudioSection from './TypeGardenStudioSection';
 import { DEFAULT_BOTANICAL_BRAND_CONFIG } from '../types/botanical';
 
 export default function FloristAdminPanel({
@@ -994,6 +995,10 @@ export default function FloristAdminPanel({
               </button>
             )}
           </div>
+
+          {/* Type Garden Arabic Engine Studio Controls */}
+          <TypeGardenStudioSection lang={lang} />
+
           {/* 1. LIVE MINI-STOREFRONT PREVIEW CARD AT TOP */}
           <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-sm space-y-2.5">
             <div className="flex items-center justify-between">

@@ -2,7 +2,7 @@ import React from 'react';
 import { MapPin, Phone, Star, MessageCircle, Heart, Search } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
-import DarAlwardAnimatedTitle from './DarAlwardAnimatedTitle';
+import TypeGardenCanvas from './TypeGardenCanvas';
 import { useStoreTheme } from '../context/StoreThemeContext';
 import { BreathingText } from './fancy/breathing-text';
 import { FloatingHeroPetals } from './AmbientRosePetals';
@@ -31,7 +31,7 @@ export default function ShopHeader({
   lang = 'ar',
   shopConfig,
   _themeTokens = THEME_TOKENS.botanical,
-  botanicalBrandConfig,
+  _botanicalBrandConfig,
   searchQuery = '',
   onSearchChange,
 }) {
@@ -48,7 +48,6 @@ export default function ShopHeader({
 
   const rawStudio = storeThemeCtx?.rawConfig || storeThemeCtx?.config;
   const brand = storeThemeCtx?.config?.brand;
-  const colors = storeThemeCtx?.config?.colors;
 
   const shopName =
     rawStudio?.storeName ||
@@ -66,7 +65,6 @@ export default function ShopHeader({
       : shopConfig?.taglineEn || strings.shopTagline);
 
   const statusText = rawStudio?.statusText || brand?.statusText || (isAr ? 'مفتوح الآن • تجهيز فوري' : 'Open Now');
-  const ratingText = rawStudio?.rating || brand?.rating || '٤.٩';
   const avatarText = rawStudio?.avatarText || brand?.avatarText || 'د.و';
   const avatarUrl = brand?.avatarUrl;
   const locationLabel = rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
@@ -74,22 +72,6 @@ export default function ShopHeader({
   const instagramUrl = brand?.instagramUrl || 'https://instagram.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
   const callLabel = brand?.callLabel || strings.callUs;
-
-  const effectiveBotanicalConfig = {
-    ...(botanicalBrandConfig || {}),
-    ...(brand?.botanical || {}),
-    text: shopName,
-    paletteId: rawStudio?.botanicalPalette || brand?.botanical?.paletteId || colors?.paletteId || 'royalBurgundy',
-    motionMode: rawStudio?.botanicalMotion || brand?.botanical?.motionMode || 'gust',
-    density: rawStudio?.botanicalDensity || brand?.botanical?.density || 'balanced',
-    seed: rawStudio?.botanicalSeed || brand?.botanical?.seed || 48271,
-    bloomSize: rawStudio?.bloomSize || brand?.botanical?.bloomSize || 52,
-    stemThickness: rawStudio?.stemThickness || brand?.botanical?.stemThickness || 1.8,
-    botanicalEnabled: rawStudio?.botanicalEnabled !== undefined ? rawStudio.botanicalEnabled : (brand?.botanical?.enabled !== false),
-  };
-
-  // Clean numeric rating without extra parentheses
-  const cleanRating = String(ratingText).replace(/[()（）]/g, '').replace(/[٠-٩0-9]+\+?\s*(تقييم|reviews|ratings)?/gi, '').trim() || '٤.٩';
 
   return (
     <header className="px-4 pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
@@ -141,34 +123,31 @@ export default function ShopHeader({
             </span>
           </div>
 
-          {/* Left: Rating Badge */}
+          {/* Left: Rating Badge - Fixed full label "4.9 ★" inside robust capsule */}
           <div className="flex items-center justify-end">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-amber-50/90 dark:bg-stone-800 text-stone-900 dark:text-amber-100 border border-amber-200/70 dark:border-stone-700 shadow-xs backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-50/90 dark:bg-stone-800 text-stone-900 dark:text-amber-100 border border-amber-200/70 dark:border-stone-700 shadow-xs backdrop-blur-md whitespace-nowrap">
               <Star className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)] shrink-0" />
-              <span className="font-bold text-[11px] sm:text-xs">{cleanRating || '٤.٩'}</span>
-              <span className="text-[10px] text-stone-400 font-normal">★</span>
+              <span className="font-bold text-xs tracking-tight">4.9 ★</span>
             </span>
           </div>
         </div>
 
-        {/* 2. CALLIGRAPHY SECTION: Unobstructed vertical breathing room */}
-        <div className="w-full py-2 my-0.5 relative z-10 flex items-center justify-center overflow-visible">
-          {isAr ? (
-            <div className="w-full max-w-[440px] mx-auto">
-              <DarAlwardAnimatedTitle
-                config={effectiveBotanicalConfig}
-                text={shopName}
-                textColor="var(--text-main, #1C1917)"
-              />
-            </div>
-          ) : (
-            <h1
-              className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-center transition-colors duration-300"
-              style={{ color: 'var(--text-main, #1C1917)' }}
-            >
-              {shopName}
-            </h1>
-          )}
+        {/* 2. GENERATIVE TYPE GARDEN ARABIC ENGINE */}
+        <div className="w-full py-1 my-0.5 relative z-10 flex items-center justify-center overflow-visible">
+          <TypeGardenCanvas
+            text={rawStudio?.typeGarden?.text || shopName}
+            species={rawStudio?.typeGarden?.flowerSpecies || 'royal_rose'}
+            density={rawStudio?.typeGarden?.density ?? 65}
+            growthSpeed={rawStudio?.typeGarden?.growthSpeed ?? 1.0}
+            windSway={rawStudio?.typeGarden?.windSway ?? 1.0}
+            branchReach={rawStudio?.typeGarden?.branchReach ?? 55}
+            stemColor={rawStudio?.typeGarden?.stemColor || '#1B3B2B'}
+            petalColor={rawStudio?.typeGarden?.petalColor || '#9B1B36'}
+            seed={rawStudio?.typeGarden?.seed || 48271}
+            replayKey={rawStudio?.typeGarden?.replayKey || 0}
+            interactive={true}
+            textColor="var(--text-main, #1C1917)"
+          />
         </div>
 
         {/* 3. ELEGANT SINGLE TAGLINE & RIYADH LOCATION CAPSULE */}
