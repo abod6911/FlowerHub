@@ -109,10 +109,9 @@ export default function CoolerSpecialsCarousel({
           <div
             className={`${
               isAr ? 'animate-marquee-rtl' : 'animate-marquee-ltr'
-            } flex items-stretch gap-3 cursor-grab active:cursor-grabbing hover:[animation-play-state:paused] group-hover:[animation-play-state:paused] focus-within:[animation-play-state:paused]`}
+            } flex items-stretch gap-3 hover-pause cursor-grab active:cursor-grabbing`}
             style={{
-              animationDuration: '38s',
-              animationTimingFunction: 'linear',
+              animationDuration: `${motionSpeed}s`,
               willChange: 'transform',
             }}
           >

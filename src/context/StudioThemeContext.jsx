@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { LUXURY_PALETTES, CURATED_THEME_PRESETS } from '../types/storeThemeConfig';
+import { LUXURY_PALETTES } from '../types/storeThemeConfig';
 import { saveBotanicalBrandConfig } from '../types/botanical';
 
 export const STUDIO_STORAGE_KEY = 'flowerhub_studio_theme_config';
@@ -29,11 +29,7 @@ export const DEFAULT_STUDIO_CONFIG = {
   phone: '966500000000',
 
   // Layout & Cards (Tab: البطاقات والأقسام)
-  presetId: 'royal_rose',
-  cardLayout: 'grid_compact', // 'grid_compact' | 'grid_large' | 'list_classic'
-  specialsStyle: 'marquee', // 'marquee' | 'carousel_manual' | 'coverflow'
-  ambientEffect: 'petals', // 'petals' | 'gold_stardust' | 'warm_glow' | 'none'
-  gridLayout: 'bento', // legacy
+  gridLayout: 'bento', // '2cols' | '1col' | 'bento'
   cardBorderRadius: 22, // 0 to 28px
   cardShadow: 'soft', // 'none' | 'soft' | 'medium' | 'high'
   buyButtonStyle: 'pill_add', // 'circle_plus' | 'pill_add' | 'full_width'
@@ -179,55 +175,13 @@ export function StudioThemeProvider({ children }) {
   const applyPalette = useCallback((paletteId) => {
     const pal = LUXURY_PALETTES[paletteId];
     if (!pal) return;
-    setConfig((prev) => {
-      const next = {
-        ...prev,
-        paletteId,
-        botanicalPalette: paletteId,
-        colors: pal,
-        hasUnsavedChanges: false,
-      };
-      try {
-        localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(next));
-      } catch (e) {
-        console.error(e);
-      }
-      return next;
-    });
-  }, []);
-
-  // One-click Curated Preset Switcher (Applying full visual world)
-  const applyPreset = useCallback((presetId) => {
-    const preset = CURATED_THEME_PRESETS.find((p) => p.id === presetId);
-    if (!preset) return;
-    const pal = LUXURY_PALETTES[preset.paletteId] || LUXURY_PALETTES.royalBurgundy;
-
-    setConfig((prev) => {
-      const next = {
-        ...prev,
-        presetId: preset.id,
-        paletteId: preset.paletteId,
-        botanicalPalette: preset.paletteId,
-        colors: pal,
-        cardLayout: preset.cardLayout,
-        specialsStyle: preset.specialsStyle,
-        ambientEffect: preset.ambientEffect,
-        cardBorderRadius: preset.cardRadius,
-        typography: {
-          ...prev.typography,
-          headerFont: preset.headerFont,
-          catalogFont: preset.catalogFont,
-        },
-        hasUnsavedChanges: false,
-      };
-      try {
-        localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(next));
-        window.dispatchEvent(new CustomEvent(STUDIO_SYNC_EVENT, { detail: next }));
-      } catch (e) {
-        console.error(e);
-      }
-      return next;
-    });
+    setConfig((prev) => ({
+      ...prev,
+      paletteId,
+      botanicalPalette: paletteId,
+      colors: pal,
+      hasUnsavedChanges: true,
+    }));
   }, []);
 
   // Sections manager
@@ -395,9 +349,6 @@ export function StudioThemeProvider({ children }) {
       updateField,
       setActiveTab,
       applyPalette,
-      applyPreset,
-      presets: CURATED_THEME_PRESETS,
-      palettes: LUXURY_PALETTES,
       toggleSection,
       moveSection,
       publishConfig,
@@ -462,7 +413,6 @@ export function StudioThemeProvider({ children }) {
       updateField,
       setActiveTab,
       applyPalette,
-      applyPreset,
       toggleSection,
       moveSection,
       publishConfig,

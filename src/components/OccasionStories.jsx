@@ -172,10 +172,10 @@ export default function OccasionStories({
             >
               {/* Outer Golden / Brand Shimmer Ring */}
                 <div
-                  className={`relative w-[62px] h-[62px] sm:w-[68px] sm:h-[68px] rounded-full p-[2.5px] transition-all duration-300 ${
+                  className={`relative w-[60px] h-[60px] rounded-full p-[2.5px] transition-all duration-300 ${
                     isSelected
-                      ? 'scale-105 shadow-md ring-2 ring-amber-400/40'
-                      : 'hover:scale-105 opacity-90 hover:opacity-100'
+                      ? 'scale-105 animate-story-active'
+                      : 'hover:scale-102 opacity-90 hover:opacity-100'
                   }`}
                   style={{
                     background: isSelected
@@ -206,17 +206,17 @@ export default function OccasionStories({
                     </div>
                   </div>
 
-                  {/* Live Pulse Badge for Ready Today Specials (Neatly positioned at bottom) */}
+                  {/* Live Pulse Badge for Ready Today Specials */}
                   {isSpecials && (
-                    <div className="absolute -bottom-1 inset-x-0 mx-auto w-max px-1.5 py-0.2 rounded-full bg-emerald-600 text-[8px] font-bold text-white flex items-center gap-0.5 shadow-xs border border-white dark:border-stone-900 z-10">
+                    <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-emerald-600 text-[8px] font-bold text-white flex items-center gap-0.5 shadow-xs border border-white dark:border-stone-900">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping" />
-                      <Flame className="w-2 h-2 text-amber-300" />
+                      <Flame className="w-2.5 h-2.5 text-amber-300" />
                     </div>
                   )}
 
                   {/* Selected Checkmark Indicator Badge */}
                   {isSelected && !isSpecials && (
-                    <div className="absolute -bottom-1 inset-x-0 mx-auto w-4 h-4 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xs border border-white dark:border-stone-900 z-10">
+                    <div className="absolute -bottom-0.5 right-0.5 w-4 h-4 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xs border border-white dark:border-stone-900">
                       <Check className="w-2.5 h-2.5 stroke-[3]" />
                     </div>
                   )}

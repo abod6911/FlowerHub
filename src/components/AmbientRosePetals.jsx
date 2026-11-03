@@ -57,9 +57,12 @@ export function FloatingHeroPetals({ className = '' }) {
 
   return (
     <div
-      className={`absolute inset-0 pointer-events-none overflow-hidden z-0 ${className}`}
+      className={`absolute inset-0 pointer-events-none overflow-hidden z-10 ${className}`}
       aria-hidden="true"
     >
+      {/* Multi-axis Float Ambient Rose Petals creating Depth of Field */}
+      <FloatingHeroPetals />
+
       {petals.map((p) => (
         <div key={p.id} className={`absolute ${p.className}`}>
           <Float
@@ -101,11 +104,8 @@ export function FloatingHeroPetals({ className = '' }) {
 
 /**
  * AmbientRosePetals
- * Multi-mode Ambient Atmosphere Component:
- * 1. 'petals': 60fps lightweight floating rose petal animation overlay across the viewport
- * 2. 'gold_stardust': Micro gold shimmering stardust particles
- * 3. 'warm_glow': Soft ambient radial glow gradients
- * 4. 'none': Clean background
+ * 60fps lightweight floating rose petal animation overlay across the viewport
+ * + 3 to 4 multi-axis Float petals in the hero background
  */
 export default function AmbientRosePetals({
   enabled = true,
@@ -120,21 +120,20 @@ export default function AmbientRosePetals({
     // outside provider fallback
   }
 
-  const ambientMode = storeCtx?.config?.ambientEffect || 'petals'; // 'petals' | 'gold_stardust' | 'warm_glow' | 'none'
   const isEnabled = storeCtx?.config?.floatingPetalsEnabled !== undefined
     ? storeCtx.config.floatingPetalsEnabled
     : enabled;
   const activeOpacity = storeCtx?.config?.petalsOpacity ?? opacity;
   const activeCount = storeCtx?.config?.petalsCount ?? count;
 
-  // Petals Data
   const petals = useMemo(() => {
-    return Array.from({ length: Math.min(activeCount, 24) }, (_, i) => {
+    return Array.from({ length: Math.min(activeCount, 30) }, (_, i) => {
+      // Deterministic spread without Math.random() for pure render
       const pseudoRand = ((i * 37) % 100) / 100;
       const left = (i * 100) / activeCount + (pseudoRand * 8 - 4);
       const delay = (i * 0.7) % 8;
       const duration = 7 + (i % 5) * 1.5;
-      const size = 15 + (i % 4) * 5;
+      const size = 16 + (i % 4) * 6;
       const rotation = (i * 45) % 360;
       const swayDuration = 3 + (i % 3);
       return {
@@ -149,90 +148,11 @@ export default function AmbientRosePetals({
     });
   }, [activeCount]);
 
-  // Gold Stardust Data
-  const stardust = useMemo(() => {
-    return Array.from({ length: 20 }, (_, i) => {
-      const left = (i * 5 + ((i * 13) % 17)) % 96;
-      const top = (i * 7 + ((i * 19) % 23)) % 94;
-      const delay = (i * 0.4) % 6;
-      const duration = 4 + (i % 4) * 1.2;
-      const size = 2 + (i % 3);
-      return {
-        id: i,
-        left: `${left}%`,
-        top: `${top}%`,
-        delay: `${delay}s`,
-        duration: `${duration}s`,
-        size,
-      };
-    });
-  }, []);
+  if (!isEnabled) return null;
 
-  if (!isEnabled || ambientMode === 'none') return null;
-
-  // Mode 2: Gold Stardust
-  if (ambientMode === 'gold_stardust') {
-    return (
-      <div
-        className="fixed inset-0 pointer-events-none z-10 overflow-hidden"
-        style={{ opacity: activeOpacity * 0.85 }}
-        aria-hidden="true"
-      >
-        <style>{`
-          @keyframes stardustTwinkle {
-            0%, 100% { opacity: 0.15; transform: translateY(0px) scale(0.8); }
-            50% { opacity: 0.95; transform: translateY(-12px) scale(1.3); }
-          }
-        `}</style>
-        {stardust.map((s) => (
-          <div
-            key={s.id}
-            className="absolute rounded-full bg-gradient-to-tr from-amber-300 via-amber-200 to-yellow-100 shadow-[0_0_8px_rgba(251,191,36,0.6)]"
-            style={{
-              left: s.left,
-              top: s.top,
-              width: `${s.size}px`,
-              height: `${s.size}px`,
-              animation: `stardustTwinkle ${s.duration} ease-in-out infinite alternate`,
-              animationDelay: `${s.delay}s`,
-              willChange: 'transform, opacity',
-            }}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  // Mode 3: Warm Ambient Glow
-  if (ambientMode === 'warm_glow') {
-    return (
-      <div
-        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
-        style={{ opacity: activeOpacity * 0.7 }}
-        aria-hidden="true"
-      >
-        <style>{`
-          @keyframes glowBreathe {
-            0%, 100% { opacity: 0.35; transform: scale(0.98); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-          }
-        `}</style>
-        <div
-          className="absolute -top-32 start-1/4 w-96 h-96 rounded-full bg-gradient-to-br from-amber-300/20 via-rose-300/10 to-transparent blur-3xl"
-          style={{ animation: 'glowBreathe 8s ease-in-out infinite' }}
-        />
-        <div
-          className="absolute top-1/2 end-0 w-[30rem] h-[30rem] rounded-full bg-gradient-to-tl from-rose-400/15 via-amber-200/10 to-transparent blur-3xl"
-          style={{ animation: 'glowBreathe 10s ease-in-out infinite alternate' }}
-        />
-      </div>
-    );
-  }
-
-  // Mode 1: Rose Petals (Default)
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-20 overflow-hidden"
+      className="fixed inset-0 pointer-events-none z-30 overflow-hidden"
       style={{ opacity: activeOpacity }}
       aria-hidden="true"
     >
@@ -263,7 +183,7 @@ export default function AmbientRosePetals({
         }
       `}</style>
 
-      {/* Floating Hero Petals for depth */}
+      {/* Multi-axis Float Ambient Rose Petals creating Depth of Field */}
       <FloatingHeroPetals />
 
       {petals.map((p) => (
@@ -295,9 +215,9 @@ export default function AmbientRosePetals({
             >
               <defs>
                 <linearGradient id={`petal-grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.85" />
-                  <stop offset="60%" stopColor="#881337" stopOpacity="0.75" />
-                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.9" />
+                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.9" />
+                  <stop offset="60%" stopColor="#881337" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.95" />
                 </linearGradient>
               </defs>
               <path
