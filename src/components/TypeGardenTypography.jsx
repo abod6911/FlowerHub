@@ -161,12 +161,13 @@ export default function TypeGardenTypography({
     const prng = createPrng(seed);
     const normDensity = density > 10 ? Math.max(1, Math.min(10, Math.round(density / 10))) : Math.max(1, Math.min(10, density));
     // Number of vine clusters based on text length and density
-    const charCount = Math.max(4, (text || '').trim().length);
-    const clusterCount = Math.round(3 + (normDensity / 10) * 8);
+    const charCount = Math.max(3, (text || '').trim().length);
+    const clusterCount = Math.round(5 + (normDensity / 10) * 8);
 
+    // SVG coordinate space: 820 width x 220 height
     const centerY = 120;
     // Dynamic span adjusted to text length so botanical vines grow directly around words
-    const textHalfSpan = Math.min(270, Math.max(130, charCount * 13));
+    const textHalfSpan = Math.min(280, Math.max(140, charCount * 14));
     const textStart = 410 - textHalfSpan;
     const textEnd = 410 + textHalfSpan;
     const textSpan = textEnd - textStart;
@@ -179,31 +180,31 @@ export default function TypeGardenTypography({
     // Distribute anchor points along the word spans
     for (let c = 0; c < clusterCount; c++) {
       const frac = c / (clusterCount - 1 || 1);
-      const anchorX = textStart + frac * textSpan + (prng() - 0.5) * 45;
-      const anchorY = centerY + (prng() - 0.5) * 35;
+      const anchorX = textStart + frac * textSpan + (prng() - 0.5) * 35;
+      const anchorY = centerY + (prng() - 0.5) * 30;
 
       // 1. Determine vine direction: some climb up, some sweep under, some trail right/left
       const isTopClimber = c % 2 === 0;
       const targetY = isTopClimber
-        ? 25 + prng() * 35 // Reach into upper margin (Y: 25 - 60)
-        : 175 + prng() * 35; // Sweep below baseline (Y: 175 - 210)
-      const targetX = anchorX + (prng() - 0.5) * 110 * curliness;
+        ? 35 + prng() * 32 // Reach into upper margin (Y: 35 - 67)
+        : 165 + prng() * 32; // Sweep below baseline (Y: 165 - 197)
+      const targetX = anchorX + (prng() - 0.5) * 100 * curliness;
 
       // Cubic Bezier curve control points
-      const cp1X = anchorX + (prng() - 0.5) * 80 * curliness;
-      const cp1Y = anchorY + (isTopClimber ? -35 : 35);
-      const cp2X = targetX + (prng() - 0.5) * 60 * curliness;
-      const cp2Y = targetY + (isTopClimber ? 35 : -35);
+      const cp1X = anchorX + (prng() - 0.5) * 70 * curliness;
+      const cp1Y = anchorY + (isTopClimber ? -38 : 38);
+      const cp2X = targetX + (prng() - 0.5) * 55 * curliness;
+      const cp2Y = targetY + (isTopClimber ? 38 : -38);
 
       const vinePath = `M ${anchorX.toFixed(1)} ${anchorY.toFixed(1)} C ${cp1X.toFixed(1)} ${cp1Y.toFixed(1)}, ${cp2X.toFixed(1)} ${cp2Y.toFixed(1)}, ${targetX.toFixed(1)} ${targetY.toFixed(1)}`;
       vines.push({
         id: `vine-${c}`,
         d: vinePath,
-        strokeWidth: 2.2 + prng() * 1.2,
+        strokeWidth: 2.4 + prng() * 1.0,
       });
 
       // 2. Coiling spiral tendril off the mid-curve
-      if (prng() > 0.25) {
+      if (prng() > 0.2) {
         const tendrilAngle = (isTopClimber ? -Math.PI / 2 : Math.PI / 2) + (prng() - 0.5) * 0.8;
         const tendrilRadius = (16 + prng() * 14) * curliness;
         const curlDir = prng() > 0.5 ? 1 : -1;
@@ -218,31 +219,30 @@ export default function TypeGardenTypography({
         tendrils.push({
           id: `tendril-${c}`,
           d: tendrilD,
-          strokeWidth: 1.2,
+          strokeWidth: 1.3,
         });
       }
 
       // 3. Botanical leaves with veins along this vine (2 to 4 leaves)
-      const numLeaves = Math.round(1 + prng() * 3);
+      const numLeaves = Math.round(2 + prng() * 2);
       for (let l = 0; l < numLeaves; l++) {
-        const leafT = 0.25 + (l / numLeaves) * 0.65;
-        // Interpolate point along Bezier
+        const leafT = 0.2 + (l / numLeaves) * 0.7;
         const mt = 1 - leafT;
         const lx = mt * mt * mt * anchorX + 3 * mt * mt * leafT * cp1X + 3 * mt * leafT * leafT * cp2X + leafT * leafT * leafT * targetX;
         const ly = mt * mt * mt * anchorY + 3 * mt * mt * leafT * cp1Y + 3 * mt * leafT * leafT * cp2Y + leafT * leafT * leafT * targetY;
-        const leafAngle = (isTopClimber ? -Math.PI / 3 : Math.PI / 3) + (prng() - 0.5) * 1.2;
-        const leafLen = 16 + prng() * 10;
-        const leafW = 8 + prng() * 5;
+        const leafAngle = (isTopClimber ? -Math.PI / 3 : Math.PI / 3) + (prng() - 0.5) * 1.1;
+        const leafLen = 17 + prng() * 9;
+        const leafW = 9 + prng() * 4;
         const leafSide = l % 2 === 0 ? 1 : -1;
 
         leaves.push(generateLeafData(lx, ly, leafLen, leafW, leafAngle, leafSide));
       }
 
-      // 4. Layered Two-Tone Illustrated Rose at the tip or prominent junction
-      const isForeground = prng() > 0.35; // 65% in foreground for true 3D botanical depth
-      const roseRadius = (16 + prng() * 16) * flowerScale;
+      // 4. Primary Layered Illustrated Rose at the vine tip
+      const isForeground = prng() > 0.3; // 70% in foreground for lush 3D botanical layering
+      const roseRadius = (18 + prng() * 14) * flowerScale;
       const roseRot = prng() * Math.PI * 2;
-      const roseObj = generateRoseData(
+      const tipRose = generateRoseData(
         targetX,
         targetY,
         roseRadius,
@@ -250,10 +250,51 @@ export default function TypeGardenTypography({
         primaryPetalColor,
         secondaryPetalColor
       );
-      roseObj.isForeground = isForeground;
-      roseObj.id = `rose-${c}`;
-      roses.push(roseObj);
+      tipRose.isForeground = isForeground;
+      tipRose.id = `rose-tip-${c}`;
+      roses.push(tipRose);
+
+      // 5. Complementary Mid-Vine Blossom or Bud
+      if (prng() > 0.35) {
+        const midRoseRadius = (12 + prng() * 8) * flowerScale;
+        const midRose = generateRoseData(
+          cp1X + (prng() - 0.5) * 20,
+          cp1Y + (prng() - 0.5) * 20,
+          midRoseRadius,
+          prng() * Math.PI * 2,
+          primaryPetalColor,
+          secondaryPetalColor
+        );
+        midRose.isForeground = prng() > 0.4;
+        midRose.id = `rose-mid-${c}`;
+        roses.push(midRose);
+      }
     }
+
+    // 6. Framing Rosettes at Text Start & End
+    const leftFramingRose = generateRoseData(
+      textStart - 25,
+      centerY + 5,
+      22 * flowerScale,
+      0.4,
+      primaryPetalColor,
+      secondaryPetalColor
+    );
+    leftFramingRose.isForeground = true;
+    leftFramingRose.id = 'rose-frame-left';
+    roses.push(leftFramingRose);
+
+    const rightFramingRose = generateRoseData(
+      textEnd + 25,
+      centerY + 5,
+      22 * flowerScale,
+      -0.4,
+      primaryPetalColor,
+      secondaryPetalColor
+    );
+    rightFramingRose.isForeground = true;
+    rightFramingRose.id = 'rose-frame-right';
+    roses.push(rightFramingRose);
 
     return { vines, tendrils, leaves, roses };
   }, [text, density, seed, curliness, flowerScale, primaryPetalColor, secondaryPetalColor]);
@@ -289,8 +330,8 @@ export default function TypeGardenTypography({
             transform: scale(0);
             opacity: 0;
           }
-          65% {
-            transform: scale(1.18);
+          70% {
+            transform: scale(1.15);
             opacity: 1;
           }
           100% {
@@ -303,20 +344,21 @@ export default function TypeGardenTypography({
             transform: rotate(0deg);
           }
           50% {
-            transform: rotate(2.2deg) translateY(-2px);
+            transform: rotate(1.8deg) translateY(-2px);
           }
         }
         .animate-vine-grow {
           stroke-dasharray: 600;
-          animation: typeGardenGrow 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: typeGardenGrow 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         .animate-bloom-pop {
+          transform-box: fill-box;
           transform-origin: center;
-          animation: typeGardenPop 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+          animation: typeGardenPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
         .animate-breeze-subtle {
-          transform-origin: 50% 60%;
-          animation: typeGardenBreeze 6s ease-in-out infinite alternate;
+          transform-origin: 410px 120px;
+          animation: typeGardenBreeze 7s ease-in-out infinite alternate;
         }
       `}</style>
 
@@ -372,67 +414,67 @@ export default function TypeGardenTypography({
 
           {/* Illustrated Leaves with Inner Midrib & Side Veins */}
           {gardenData.leaves.map((lf, i) => (
-            <g
-              key={`leaf-${i}`}
-              transform={lf.transform}
-              className="animate-bloom-pop"
-              style={{ animationDelay: `${(0.5 + (i % 6) * 0.1).toFixed(2)}s` }}
-            >
-              {/* Pointed Leaf Blade */}
-              <path
-                d={lf.leafPath}
-                fill={stemColor}
-                opacity="0.92"
-                filter="url(#tg-soft-shadow)"
-              />
-              {/* Inner Central Midrib */}
-              <path
-                d={lf.midribPath}
-                fill="none"
-                stroke="rgba(255, 255, 255, 0.45)"
-                strokeWidth="1.0"
-                strokeLinecap="round"
-              />
-              {/* Delicate Angled Side Ribs */}
-              <path
-                d={lf.lateralVeins}
-                fill="none"
-                stroke="rgba(255, 255, 255, 0.3)"
-                strokeWidth="0.7"
-                strokeLinecap="round"
-              />
+            <g key={`leaf-${i}`} transform={lf.transform}>
+              <g
+                className="animate-bloom-pop"
+                style={{ animationDelay: `${(0.4 + (i % 6) * 0.08).toFixed(2)}s` }}
+              >
+                {/* Pointed Leaf Blade */}
+                <path
+                  d={lf.leafPath}
+                  fill={stemColor}
+                  opacity="0.92"
+                  filter="url(#tg-soft-shadow)"
+                />
+                {/* Inner Central Midrib */}
+                <path
+                  d={lf.midribPath}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.45)"
+                  strokeWidth="1.0"
+                  strokeLinecap="round"
+                />
+                {/* Delicate Angled Side Ribs */}
+                <path
+                  d={lf.lateralVeins}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.3)"
+                  strokeWidth="0.7"
+                  strokeLinecap="round"
+                />
+              </g>
             </g>
           ))}
 
           {/* Background Layered Roses */}
           {backgroundRoses.map((rose, i) => (
-            <g
-              key={rose.id}
-              transform={rose.transform}
-              className="animate-bloom-pop"
-              style={{ animationDelay: `${(0.8 + i * 0.12).toFixed(2)}s` }}
-              filter="url(#tg-soft-shadow)"
-            >
-              {/* Tier 1: Outer Wavy Scalloped Petals */}
-              <g fill={rose.primaryColor}>
-                {rose.outerPetals.map((op, idx) => (
-                  <path key={`op-${idx}`} d={op.d} transform={op.transform} />
-                ))}
-              </g>
+            <g key={rose.id} transform={rose.transform}>
+              <g
+                className="animate-bloom-pop"
+                style={{ animationDelay: `${(0.6 + i * 0.1).toFixed(2)}s` }}
+                filter="url(#tg-soft-shadow)"
+              >
+                {/* Tier 1: Outer Wavy Scalloped Petals */}
+                <g fill={rose.primaryColor}>
+                  {rose.outerPetals.map((op, idx) => (
+                    <path key={`op-${idx}`} d={op.d} transform={op.transform} />
+                  ))}
+                </g>
 
-              {/* Tier 2: Mid Cupped Dual-Tone Petals */}
-              <g fill={rose.secondaryColor} opacity="0.95">
-                {rose.midPetals.map((mp, idx) => (
-                  <path key={`mp-${idx}`} d={mp.d} transform={mp.transform} />
-                ))}
-              </g>
+                {/* Tier 2: Mid Cupped Dual-Tone Petals */}
+                <g fill={rose.secondaryColor} opacity="0.95">
+                  {rose.midPetals.map((mp, idx) => (
+                    <path key={`mp-${idx}`} d={mp.d} transform={mp.transform} />
+                  ))}
+                </g>
 
-              {/* Tier 3: Inner Concentric Swirl Core */}
-              <circle cx="0" cy="0" r={rose.coreRadius} fill={rose.primaryColor} />
-              <g fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round">
-                {rose.heartFolds.map((hf, idx) => (
-                  <path key={`hf-${idx}`} d={hf} />
-                ))}
+                {/* Tier 3: Inner Concentric Swirl Core */}
+                <circle cx="0" cy="0" r={rose.coreRadius} fill={rose.primaryColor} />
+                <g fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth="1.2" strokeLinecap="round">
+                  {rose.heartFolds.map((hf, idx) => (
+                    <path key={`hf-${idx}`} d={hf} />
+                  ))}
+                </g>
               </g>
             </g>
           ))}
@@ -462,33 +504,33 @@ export default function TypeGardenTypography({
         {/* ======================================================== */}
         <g id="type-garden-foreground-layer" className="animate-breeze-subtle">
           {foregroundRoses.map((rose, i) => (
-            <g
-              key={rose.id}
-              transform={rose.transform}
-              className="animate-bloom-pop"
-              style={{ animationDelay: `${(0.95 + i * 0.12).toFixed(2)}s` }}
-              filter="url(#tg-soft-shadow)"
-            >
-              {/* Outer Scalloped Petals */}
-              <g fill={rose.primaryColor}>
-                {rose.outerPetals.map((op, idx) => (
-                  <path key={`fg-op-${idx}`} d={op.d} transform={op.transform} />
-                ))}
-              </g>
+            <g key={rose.id} transform={rose.transform}>
+              <g
+                className="animate-bloom-pop"
+                style={{ animationDelay: `${(0.75 + i * 0.1).toFixed(2)}s` }}
+                filter="url(#tg-soft-shadow)"
+              >
+                {/* Outer Scalloped Petals */}
+                <g fill={rose.primaryColor}>
+                  {rose.outerPetals.map((op, idx) => (
+                    <path key={`fg-op-${idx}`} d={op.d} transform={op.transform} />
+                  ))}
+                </g>
 
-              {/* Mid Layer Contrasting Dual-Tone Petals */}
-              <g fill={rose.secondaryColor} opacity="0.96">
-                {rose.midPetals.map((mp, idx) => (
-                  <path key={`fg-mp-${idx}`} d={mp.d} transform={mp.transform} />
-                ))}
-              </g>
+                {/* Mid Layer Contrasting Dual-Tone Petals */}
+                <g fill={rose.secondaryColor} opacity="0.96">
+                  {rose.midPetals.map((mp, idx) => (
+                    <path key={`fg-mp-${idx}`} d={mp.d} transform={mp.transform} />
+                  ))}
+                </g>
 
-              {/* Inner Swirl Heart */}
-              <circle cx="0" cy="0" r={rose.coreRadius} fill={rose.primaryColor} />
-              <g fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.3" strokeLinecap="round">
-                {rose.heartFolds.map((hf, idx) => (
-                  <path key={`fg-hf-${idx}`} d={hf} />
-                ))}
+                {/* Inner Swirl Heart */}
+                <circle cx="0" cy="0" r={rose.coreRadius} fill={rose.primaryColor} />
+                <g fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.3" strokeLinecap="round">
+                  {rose.heartFolds.map((hf, idx) => (
+                    <path key={`fg-hf-${idx}`} d={hf} />
+                  ))}
+                </g>
               </g>
             </g>
           ))}
