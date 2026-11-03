@@ -1,0 +1,205 @@
+@import "tailwindcss";
+@import "./components/soap-bubble/soap-bubble.css";
+
+@theme {
+  --color-grayscale-1: #ffffff;
+  --color-grayscale-2: #fcfcfc;
+  --color-grayscale-3: #f4f4f5;
+  --color-grayscale-4: #e4e4e7;
+  --color-grayscale-5: #d4d4d8;
+  --color-grayscale-6: #a1a1aa;
+  --color-grayscale-7: #71717a;
+  --color-grayscale-8: #52525b;
+  --color-grayscale-9: #3f3f46;
+  --color-grayscale-10: #27272a;
+  --color-grayscale-11: #18181b;
+  --color-grayscale-12: #09090b;
+  --color-green-9: #16a34a;
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Alexandria', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-script: 'Great Vibes', cursive;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom scrollbar hiding for smooth mobile story reels and carousels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Drawer backdrop blur and animation utilities */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Shimmer animation for live status and specials */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 2.5s infinite ease-in-out;
+}
+
+/* Luxury Story Ring Shimmer & Pulse */
+@keyframes storyRingSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes storyRingPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.15); }
+}
+
+.animate-story-spin {
+  animation: storyRingSpin 8s linear infinite;
+}
+
+.animate-story-active {
+  animation: storyRingPulse 2.2s infinite ease-in-out;
+}
+
+/* Continuous Smooth Marquee for Specials Showcase */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-rtl {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
+}
+
+@keyframes marqueeLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(50%); }
+}
+
+.animate-marquee-ltr {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+
+.animate-marquee-rtl {
+  display: flex;
+  width: max-content;
+  animation: marquee-rtl 28s linear infinite;
+}
+
+.animate-marquee-ltr:hover,
+.animate-marquee-rtl:hover,
+.animate-marquee-ltr:focus-within,
+.animate-marquee-rtl:focus-within,
+.animate-marquee-ltr:active,
+.animate-marquee-rtl:active,
+.hover-pause:hover {
+  animation-play-state: paused !important;
+}
+
+/* 3D Perspective and Card Physics for Coverflow */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.perspective-600 {
+  perspective: 600px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+
+/* Print Styles for Florist Thermal POS 80mm Order Slip & A6 Gift Card */
+@media print {
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #thermal-pos-slip,
+  #thermal-pos-slip *,
+  #printable-a6-giftcard,
+  #printable-a6-giftcard * {
+    visibility: visible;
+  }
+  #thermal-pos-slip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 4mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+  #printable-a6-giftcard {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 105mm;
+    height: 148mm;
+    box-shadow: none !important;
+    border: 1px solid #000000 !important;
+    margin: 0 !important;
+    padding: 12mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
