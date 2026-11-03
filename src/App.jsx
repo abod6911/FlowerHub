@@ -52,6 +52,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedType, setSelectedType] = useState('all');
   const [selectedBudget, setSelectedBudget] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Drawers & Modals States
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -141,6 +142,16 @@ export default function App() {
     if (selectedBudget === 'under_150' && product.price >= 150) return false;
     if (selectedBudget === '150_250' && (product.price < 150 || product.price > 250)) return false;
     if (selectedBudget === 'over_250' && product.price <= 250) return false;
+
+    // 4. Live Search Query filter
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase().trim();
+      const matchTitle = (product.titleAr && product.titleAr.toLowerCase().includes(q)) ||
+                         (product.titleEn && product.titleEn.toLowerCase().includes(q));
+      const matchDesc = (product.descAr && product.descAr.toLowerCase().includes(q)) ||
+                        (product.descEn && product.descEn.toLowerCase().includes(q));
+      if (!matchTitle && !matchDesc) return false;
+    }
 
     return true;
   });
@@ -290,6 +301,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         lang={lang}
         shopConfig={shopConfig}
         themeTokens={themeTokens}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       {/* Floward-Style Circular Occasion Stories */}
@@ -366,10 +379,11 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, idx) => (
               <ProductCard
                 key={product.id}
                 product={product}
+                index={idx}
                 isPortfolio={false}
                 onSelectProduct={handleOpenProduct}
                 lang={lang}

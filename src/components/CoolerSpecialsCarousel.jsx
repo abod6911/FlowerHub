@@ -27,6 +27,7 @@ export default function CoolerSpecialsCarousel({
   );
 
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef(null);
 
   if (coolerItems.length === 0) return null;
@@ -70,48 +71,63 @@ export default function CoolerSpecialsCarousel({
     const marqueeItems = [...coolerItems, ...coolerItems];
 
     return (
-      <section className="py-2.5 px-4 w-full overflow-hidden transition-colors duration-300">
+      <section className="py-2.5 px-4 w-full overflow-hidden transition-colors duration-300 select-none">
         <div className="flex items-center justify-between mb-2.5">
-          <div>
-            <h2
-              className="text-sm sm:text-base font-bold tracking-tight transition-colors duration-300"
-              style={{ color: 'var(--text-main, #1C1917)' }}
-            >
-              <VariableFontHoverByRandomLetter
-                label={isAr ? 'جاهز للاستلام اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
-                fromFontVariationSettings="'wght' 300"
-                toFontVariationSettings="'wght' 800"
-                staggerDuration={0.035}
-                className="inline-block cursor-pointer"
-              />
-            </h2>
-            <p
-              className="text-[11px] transition-colors duration-300"
-              style={{ color: 'var(--text-muted, #78716C)' }}
-            >
-              {strings.coolerSubtitle}
-            </p>
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <div>
+              <h2
+                className="text-sm sm:text-base font-bold tracking-tight transition-colors duration-300"
+                style={{ color: 'var(--text-main, #1C1917)' }}
+              >
+                <VariableFontHoverByRandomLetter
+                  label={isAr ? 'جاهز للاستلام اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
+                  fromFontVariationSettings="'wght' 300"
+                  toFontVariationSettings="'wght' 800"
+                  staggerDuration={0.035}
+                  className="inline-block cursor-pointer"
+                />
+              </h2>
+              <p
+                className="text-[11px] transition-colors duration-300"
+                style={{ color: 'var(--text-muted, #78716C)' }}
+              >
+                {strings.coolerSubtitle}
+              </p>
+            </div>
           </div>
           <span
-            className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 border"
+            className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1.5 border backdrop-blur-md"
             style={{
               backgroundColor: 'var(--surface-card, #FFFFFF)',
               color: 'var(--text-main, #1C1917)',
               borderColor: 'var(--border-subtle, #E7E5E4)',
             }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+            </span>
             <span>{isAr ? 'حركة حية مستمرة' : 'Live Motion'}</span>
           </span>
         </div>
 
-        <div className="relative w-full overflow-hidden py-1 group">
+        <div
+          className="relative w-full overflow-hidden py-1 group"
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+          onTouchCancel={() => setIsPaused(false)}
+        >
           <div
             className={`${
               isAr ? 'animate-marquee-rtl' : 'animate-marquee-ltr'
-            } flex items-stretch gap-3 hover-pause cursor-grab active:cursor-grabbing`}
+            } flex items-stretch gap-3 hover-pause cursor-grab active:cursor-grabbing touch-pan-x`}
             style={{
-              animationDuration: `${motionSpeed}s`,
+              animationDuration: `${Math.max(motionSpeed, 30)}s`,
+              animationPlayState: isPaused ? 'paused' : 'running',
               willChange: 'transform',
             }}
           >
@@ -121,7 +137,7 @@ export default function CoolerSpecialsCarousel({
                 <div
                   key={`${product.id}-${index}`}
                   onClick={() => onSelectProduct(product)}
-                  className="flex-none w-44 sm:w-48 rounded-3xl bg-white border border-neutral-100 shadow-xs hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 overflow-hidden cursor-pointer group/card flex flex-col justify-between"
+                  className="flex-none w-44 sm:w-48 rounded-2xl bg-white border border-neutral-100 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer group/card flex flex-col justify-between active:scale-95"
                 >
                   <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100">
                     <img
@@ -131,9 +147,9 @@ export default function CoolerSpecialsCarousel({
                       loading="lazy"
                     />
                     {badgeCfg && (
-                      <div className="absolute top-2.5 left-2.5 z-10">
+                      <div className="absolute top-2.5 right-2.5 z-10">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${badgeCfg.className}`}
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold backdrop-blur-md shadow-xs ${badgeCfg.className}`}
                         >
                           {badgeCfg.icon}
                           <span>{badgeCfg.text}</span>
@@ -142,15 +158,15 @@ export default function CoolerSpecialsCarousel({
                     )}
                   </div>
 
-                  <div className="p-3 sm:p-3.5 flex flex-col justify-between flex-1 gap-2">
+                  <div className="p-3 flex flex-col justify-between flex-1 gap-2">
                     <h3
-                      className="text-xs sm:text-sm font-bold text-[#1A1A1A] line-clamp-2 min-h-[2.5rem] leading-snug transition-colors duration-200"
+                      className="text-xs sm:text-sm font-bold text-stone-900 line-clamp-2 min-h-[2.5rem] leading-snug transition-colors duration-200"
                       style={{ fontFamily: "'Readex Pro', 'Cairo', 'Alexandria', sans-serif" }}
                     >
                       {isAr ? product.titleAr : product.titleEn}
                     </h3>
 
-                    <div className="pt-1.5 flex items-center justify-between gap-1 border-t border-neutral-100">
+                    <div className="pt-1.5 flex items-center justify-between gap-1 border-t border-stone-100">
                       <div className="flex items-baseline gap-1">
                         <span
                           className="text-sm sm:text-base font-bold text-[#123524] tracking-tight"
@@ -158,11 +174,11 @@ export default function CoolerSpecialsCarousel({
                         >
                           {isAr ? toArabicDigits(product.price) : product.price}
                         </span>
-                        <span className="text-[10px] font-semibold text-neutral-500">
+                        <span className="text-[10px] font-semibold text-stone-500">
                           {strings.sar}
                         </span>
                         {product.originalPrice && (
-                          <span className="text-[10px] line-through text-neutral-400 ms-1">
+                          <span className="text-[10px] line-through text-stone-400 ms-1">
                             {isAr ? toArabicDigits(product.originalPrice) : product.originalPrice}
                           </span>
                         )}
@@ -174,11 +190,11 @@ export default function CoolerSpecialsCarousel({
                           e.stopPropagation();
                           onSelectProduct(product);
                         }}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#123524] hover:bg-[#0c2519] text-white text-[11px] font-medium shadow-xs hover:scale-105 active:scale-95 transition-all duration-200 group/btn"
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#123524] hover:bg-[#0c2519] text-white text-xs font-medium shadow-xs active:scale-95 transition-all duration-200"
                         aria-label="Add to order"
                       >
-                        <Plus className="w-3 h-3 stroke-[2.5] transition-transform duration-200 group-hover/btn:rotate-90" />
-                        <span>{isAr ? 'أضف' : 'Add'}</span>
+                        <Plus className="w-3 h-3 stroke-[2.5]" />
+                        <span>{isAr ? '+ أضف' : '+ Add'}</span>
                       </button>
                     </div>
                   </div>

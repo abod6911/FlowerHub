@@ -4,65 +4,73 @@ import { Float } from './fancy/float';
 
 /**
  * FloatingHeroPetals
- * 3 to 4 delicate SVG rose petals in the hero background wrapped in <Float>
- * creating authentic depth of field (foreground blur, crisp midground, background soft)
+ * 4 to 5 delicate SVG rose petals in the hero background wrapped in <Float>
+ * Very subtle, semi-transparent (opacity-20 blur-[1px]) drifting slowly without obstructing text
  */
 export function FloatingHeroPetals({ className = '' }) {
   const petals = [
     {
       id: 'hero-petal-1',
-      className: 'top-[8%] start-[6%] w-10 h-13 opacity-75 blur-[0.5px]',
-      speed: 0.35,
-      amplitude: [8, 14, 10],
-      rotationRange: [12, 12, 6],
+      className: 'top-[6%] right-[4%] w-8 h-10 opacity-20 blur-[1px]',
+      speed: 0.22,
+      amplitude: [6, 10, 8],
+      rotationRange: [10, 10, 5],
       timeOffset: 0,
-      scale: 1.0,
+      scale: 0.9,
       color1: '#9B1B36',
       color2: '#680D21',
     },
     {
       id: 'hero-petal-2',
-      className: 'top-[20%] end-[8%] w-14 h-18 opacity-85',
-      speed: 0.42,
-      amplitude: [10, 16, 12],
-      rotationRange: [14, 14, 8],
-      timeOffset: 1.8,
-      scale: 1.15,
+      className: 'top-[16%] left-[6%] w-10 h-13 opacity-25 blur-[1.2px]',
+      speed: 0.28,
+      amplitude: [8, 12, 10],
+      rotationRange: [12, 12, 6],
+      timeOffset: 1.5,
+      scale: 1.05,
       color1: '#BE123C',
       color2: '#4C0519',
     },
     {
       id: 'hero-petal-3',
-      className: 'top-[52%] start-[12%] w-8 h-10 opacity-60 blur-[1px]',
-      speed: 0.28,
-      amplitude: [6, 10, 8],
+      className: 'top-[45%] right-[8%] w-7 h-9 opacity-15 blur-[0.8px]',
+      speed: 0.18,
+      amplitude: [5, 8, 6],
       rotationRange: [8, 8, 4],
-      timeOffset: 3.4,
-      scale: 0.8,
+      timeOffset: 3.1,
+      scale: 0.75,
       color1: '#881337',
       color2: '#3A0311',
     },
     {
       id: 'hero-petal-4',
-      className: 'top-[70%] end-[14%] w-16 h-20 opacity-90 blur-[1.5px]',
-      speed: 0.48,
-      amplitude: [12, 20, 14],
-      rotationRange: [16, 16, 10],
-      timeOffset: 5.1,
-      scale: 1.3,
+      className: 'top-[65%] left-[10%] w-11 h-14 opacity-20 blur-[1.4px]',
+      speed: 0.32,
+      amplitude: [9, 15, 11],
+      rotationRange: [14, 14, 8],
+      timeOffset: 4.6,
+      scale: 1.15,
       color1: '#BE123C',
       color2: '#7E1529',
+    },
+    {
+      id: 'hero-petal-5',
+      className: 'top-[30%] left-[45%] w-6 h-8 opacity-15 blur-[0.8px]',
+      speed: 0.15,
+      amplitude: [4, 7, 5],
+      rotationRange: [6, 6, 3],
+      timeOffset: 2.2,
+      scale: 0.7,
+      color1: '#9B1B36',
+      color2: '#5A0B1B',
     },
   ];
 
   return (
     <div
-      className={`absolute inset-0 pointer-events-none overflow-hidden z-10 ${className}`}
+      className={`absolute inset-0 pointer-events-none overflow-hidden -z-10 ${className}`}
       aria-hidden="true"
     >
-      {/* Multi-axis Float Ambient Rose Petals creating Depth of Field */}
-      <FloatingHeroPetals />
-
       {petals.map((p) => (
         <div key={p.id} className={`absolute ${p.className}`}>
           <Float
@@ -74,14 +82,14 @@ export function FloatingHeroPetals({ className = '' }) {
             <svg
               viewBox="0 0 30 40"
               fill="none"
-              className="w-full h-full drop-shadow-md"
+              className="w-full h-full drop-shadow-xs"
               style={{ transform: `scale(${p.scale})` }}
             >
               <defs>
                 <linearGradient id={`grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor={p.color1} stopOpacity="0.95" />
-                  <stop offset="60%" stopColor={p.color2} stopOpacity="0.85" />
-                  <stop offset="100%" stopColor="#2A020B" stopOpacity="0.95" />
+                  <stop offset="0%" stopColor={p.color1} stopOpacity="0.85" />
+                  <stop offset="60%" stopColor={p.color2} stopOpacity="0.75" />
+                  <stop offset="100%" stopColor="#2A020B" stopOpacity="0.85" />
                 </linearGradient>
               </defs>
               <path
@@ -90,7 +98,7 @@ export function FloatingHeroPetals({ className = '' }) {
               />
               <path
                 d="M15 6 Q14 22 15 36"
-                stroke="rgba(255,255,255,0.3)"
+                stroke="rgba(255,255,255,0.2)"
                 strokeWidth="0.8"
                 strokeLinecap="round"
               />
@@ -104,13 +112,12 @@ export function FloatingHeroPetals({ className = '' }) {
 
 /**
  * AmbientRosePetals
- * 60fps lightweight floating rose petal animation overlay across the viewport
- * + 3 to 4 multi-axis Float petals in the hero background
+ * Subtle background ambient petals across the viewport (default low opacity)
  */
 export default function AmbientRosePetals({
-  enabled = true,
-  opacity = 0.55,
-  count = 14,
+  enabled = false,
+  opacity = 0.25,
+  count = 8,
 }) {
   let storeCtx = null;
   try {
@@ -127,15 +134,14 @@ export default function AmbientRosePetals({
   const activeCount = storeCtx?.config?.petalsCount ?? count;
 
   const petals = useMemo(() => {
-    return Array.from({ length: Math.min(activeCount, 30) }, (_, i) => {
-      // Deterministic spread without Math.random() for pure render
+    return Array.from({ length: Math.min(activeCount, 12) }, (_, i) => {
       const pseudoRand = ((i * 37) % 100) / 100;
       const left = (i * 100) / activeCount + (pseudoRand * 8 - 4);
       const delay = (i * 0.7) % 8;
-      const duration = 7 + (i % 5) * 1.5;
-      const size = 16 + (i % 4) * 6;
+      const duration = 10 + (i % 5) * 2;
+      const size = 14 + (i % 4) * 4;
       const rotation = (i * 45) % 360;
-      const swayDuration = 3 + (i % 3);
+      const swayDuration = 4 + (i % 3);
       return {
         id: i,
         left: `${Math.max(2, Math.min(96, left))}%`,
@@ -152,7 +158,7 @@ export default function AmbientRosePetals({
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-30 overflow-hidden"
+      className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
       style={{ opacity: activeOpacity }}
       aria-hidden="true"
     >
@@ -163,10 +169,10 @@ export default function AmbientRosePetals({
             opacity: 0;
           }
           10% {
-            opacity: 1;
+            opacity: 0.6;
           }
           90% {
-            opacity: 0.9;
+            opacity: 0.5;
           }
           100% {
             transform: translateY(105vh) rotate(360deg);
@@ -178,13 +184,10 @@ export default function AmbientRosePetals({
             transform: translateX(0px) rotate(-15deg);
           }
           50% {
-            transform: translateX(25px) rotate(15deg);
+            transform: translateX(20px) rotate(15deg);
           }
         }
       `}</style>
-
-      {/* Multi-axis Float Ambient Rose Petals creating Depth of Field */}
-      <FloatingHeroPetals />
 
       {petals.map((p) => (
         <div
@@ -204,7 +207,6 @@ export default function AmbientRosePetals({
               height: `${p.size * 1.3}px`,
             }}
           >
-            {/* SVG Organic Rose Petal */}
             <svg
               viewBox="0 0 30 40"
               fill="none"
@@ -215,9 +217,9 @@ export default function AmbientRosePetals({
             >
               <defs>
                 <linearGradient id={`petal-grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.9" />
-                  <stop offset="60%" stopColor="#881337" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.95" />
+                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.8" />
+                  <stop offset="60%" stopColor="#881337" stopOpacity="0.7" />
+                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.85" />
                 </linearGradient>
               </defs>
               <path
@@ -226,7 +228,7 @@ export default function AmbientRosePetals({
               />
               <path
                 d="M15 6 Q14 22 15 36"
-                stroke="rgba(255,255,255,0.25)"
+                stroke="rgba(255,255,255,0.2)"
                 strokeWidth="0.75"
                 strokeLinecap="round"
               />

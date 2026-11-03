@@ -1,14 +1,14 @@
 import React from 'react';
-import { MapPin, Phone, Star, MessageCircle } from 'lucide-react';
+import { MapPin, Phone, Star, MessageCircle, Heart, Search } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
 import DarAlwardAnimatedTitle from './DarAlwardAnimatedTitle';
 import { useStoreTheme } from '../context/StoreThemeContext';
 import { BreathingText } from './fancy/breathing-text';
-import { SoapBubbleSearch, SoapBubbleIconButton } from './soap-bubble';
+import { FloatingHeroPetals } from './AmbientRosePetals';
 
 // Clean stroke Instagram Icon
-function InstagramIcon({ className = 'w-3.5 h-3.5' }) {
+function InstagramIcon({ className = 'w-4 h-4' }) {
   return (
     <svg
       className={className}
@@ -27,11 +27,13 @@ function InstagramIcon({ className = 'w-3.5 h-3.5' }) {
 }
 
 export default function ShopHeader({
-  heroStyle = 'qlub',
+  _heroStyle = 'qlub',
   lang = 'ar',
   shopConfig,
-  themeTokens = THEME_TOKENS.botanical,
+  _themeTokens = THEME_TOKENS.botanical,
   botanicalBrandConfig,
+  searchQuery = '',
+  onSearchChange,
 }) {
   const strings = t[lang] || t.ar;
   const isAr = lang === 'ar';
@@ -63,14 +65,12 @@ export default function ShopHeader({
       ? shopConfig?.taglineAr || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب'
       : shopConfig?.taglineEn || strings.shopTagline);
 
-  const statusText = rawStudio?.statusText || brand?.statusText || (isAr ? strings.statusOpen : 'Open Now');
-  const statusPulse = rawStudio?.statusPulse !== undefined ? rawStudio.statusPulse : (brand?.statusPulse !== false);
-  const ratingText = rawStudio?.rating || brand?.rating || '٤.٩ (٨٥٠+ تقييم)';
+  const statusText = rawStudio?.statusText || brand?.statusText || (isAr ? 'مفتوح الآن • تجهيز فوري' : 'Open Now');
+  const ratingText = rawStudio?.rating || brand?.rating || '٤.٩';
   const avatarText = rawStudio?.avatarText || brand?.avatarText || 'د.و';
   const avatarUrl = brand?.avatarUrl;
-  const locationLabel = rawStudio?.locationLabel || brand?.locationLabel || strings.location;
+  const locationLabel = rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
-  const instagramLabel = brand?.instagramLabel || strings.instagram;
   const instagramUrl = brand?.instagramUrl || 'https://instagram.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
   const callLabel = brand?.callLabel || strings.callUs;
@@ -88,421 +88,172 @@ export default function ShopHeader({
     botanicalEnabled: rawStudio?.botanicalEnabled !== undefined ? rawStudio.botanicalEnabled : (brand?.botanical?.enabled !== false),
   };
 
-  // Render status badge helper with BreathingText
-  const renderStatusBadge = (isDark = themeTokens.isDark) => {
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium transition-colors ${
-          isDark
-            ? 'bg-white/15 text-white backdrop-blur-md border border-white/20'
-            : 'bg-emerald-50/90 text-emerald-900 border border-emerald-200/60 shadow-xs'
-        }`}
+  // Clean numeric rating without extra parentheses
+  const cleanRating = String(ratingText).replace(/[()（）]/g, '').replace(/[٠-٩0-9]+\+?\s*(تقييم|reviews|ratings)?/gi, '').trim() || '٤.٩';
+
+  return (
+    <header className="px-4 pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
+      {/* Floating Header Card Container */}
+      <div
+        className="relative p-4 sm:p-5 shadow-xs flex flex-col gap-3 transition-all duration-300 overflow-hidden"
+        style={{
+          backgroundColor: 'var(--surface-card, #FFFFFF)',
+          borderRadius: 'var(--radius-unit, 20px)',
+          border: '1px solid var(--border-subtle, #E7E5E4)',
+          boxShadow: '0 4px 24px -2px rgba(0, 0, 0, 0.05)',
+        }}
       >
-        {statusPulse && (
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-        )}
-        <BreathingText
-          fromFontVariationSettings="'wght' 400"
-          toFontVariationSettings="'wght' 650"
-          staggerFrom="center"
-          duration={2.2}
-          className="font-medium tracking-normal"
-        >
-          {isAr ? 'مفتوح الآن • تجهيز فوري' : statusText}
-        </BreathingText>
-      </span>
-    );
-  };
+        {/* Subtle, non-intrusive floating petals in the header background */}
+        <FloatingHeroPetals />
 
-  // Soap Bubble Morning Dew Action Bar
-  const renderSoapBubbleActionBar = (isDark = themeTokens.isDark) => {
-    return (
-      <div className="w-full flex items-center gap-2 pt-2.5">
-        <div className="flex-1 min-w-0">
-          <SoapBubbleSearch
-            placeholder={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-            aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-            iridescence={isDark ? 0.6 : 0.35}
-            glass={0.92}
-            className="w-full"
-          />
-        </div>
-        <SoapBubbleIconButton
-          aria-label={isAr ? 'المفضلة' : 'Wishlist'}
-          className="text-sm shrink-0"
-          title={isAr ? 'المفضلة' : 'Wishlist'}
-          iridescence={isDark ? 0.7 : 0.4}
-        >
-          🤍
-        </SoapBubbleIconButton>
-        <a
-          href={`https://wa.me/${phone}`}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={isAr ? 'واتساب' : 'WhatsApp'}
-          className="inline-flex"
-        >
-          <SoapBubbleIconButton
-            aria-label={isAr ? 'واتساب' : 'WhatsApp'}
-            className="shrink-0 text-emerald-600 dark:text-emerald-400"
-            title={isAr ? 'واتساب' : 'WhatsApp'}
-            iridescence={isDark ? 0.7 : 0.4}
-          >
-            <MessageCircle className="w-4 h-4" />
-          </SoapBubbleIconButton>
-        </a>
-        <a href={`tel:+${phone}`} aria-label={callLabel} className="inline-flex">
-          <SoapBubbleIconButton
-            aria-label={callLabel}
-            className="shrink-0 text-stone-800 dark:text-stone-200"
-            title={callLabel}
-            iridescence={isDark ? 0.7 : 0.4}
-          >
-            <Phone className="w-4 h-4" />
-          </SoapBubbleIconButton>
-        </a>
-      </div>
-    );
-  };
-
-  // =========================================================
-  // 1. QLUB COMPACT CARD STYLE (Floating rounded card with side logo)
-  // =========================================================
-  if (heroStyle === 'qlub' || heroStyle === 'qlub_card') {
-    return (
-      <header className="px-4 pt-4 pb-2 w-full transition-colors duration-300">
-        <div
-          className="p-4 sm:p-5 shadow-xs flex flex-col gap-3 transition-all duration-300"
-          style={{
-            backgroundColor: 'var(--surface-card, #FFFFFF)',
-            borderRadius: 'var(--radius-unit, 16px)',
-            border: '1px solid var(--border-subtle, #E7E5E4)',
-            boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-          }}
-        >
-          <div className="flex items-start gap-3.5">
-            {/* Elegant Monogram Avatar */}
+        {/* 1. TOP ROW: Avatar Right | Status Badge Center | Rating Left */}
+        <div className="flex items-center justify-between w-full relative z-10">
+          {/* Right: Store Monogram Icon (د.و) */}
+          <div className="flex items-center">
             <div
-              className="w-14 h-14 overflow-hidden shrink-0 flex items-center justify-center font-serif text-xl font-bold tracking-wider text-white shadow-xs transition-all duration-300"
-              style={{
-                backgroundColor: 'var(--accent-primary, #022C22)',
-                borderRadius: 'calc(var(--radius-unit, 16px) * 0.75)',
-              }}
+              className="w-11 h-11 rounded-2xl flex items-center justify-center font-serif text-base font-bold text-white shadow-xs ring-1 ring-emerald-950/20 shrink-0 select-none"
+              style={{ backgroundColor: 'var(--accent-primary, #022C22)' }}
             >
               {avatarUrl ? (
-                <img src={avatarUrl} alt={shopName} className="w-full h-full object-cover" />
+                <img src={avatarUrl} alt={shopName} className="w-full h-full object-cover rounded-2xl" />
               ) : (
                 avatarText
               )}
             </div>
-
-            {/* Shop Details */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                {renderStatusBadge()}
-
-                <div
-                  className="flex items-center gap-1 text-[11px] font-semibold ms-auto"
-                  style={{ color: 'var(--text-main, #1C1917)' }}
-                >
-                  <Star
-                    className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)]"
-                  />
-                  <span>{ratingText}</span>
-                </div>
-              </div>
-
-              {isAr ? (
-                <div className="w-full my-0.5">
-                  <DarAlwardAnimatedTitle
-                    config={effectiveBotanicalConfig}
-                    text={shopName}
-                    textColor="var(--text-main, #1C1917)"
-                  />
-                </div>
-              ) : (
-                <h1
-                  className="text-lg sm:text-xl font-bold tracking-tight truncate transition-colors duration-300"
-                  style={{ color: 'var(--text-main, #1C1917)' }}
-                >
-                  {shopName}
-                </h1>
-              )}
-
-              <p
-                className="text-xs mt-0.5 line-clamp-1 transition-colors duration-300"
-                style={{ color: 'var(--text-muted, #78716C)' }}
-              >
-                {shopTagline}
-              </p>
-
-              <div
-                className="flex items-center gap-1 text-xs mt-1 transition-colors duration-300"
-                style={{ color: 'var(--text-muted, #78716C)' }}
-              >
-                <MapPin className="w-3.5 h-3.5 shrink-0 opacity-70" />
-                <span className="truncate">{locationLabel}</span>
-              </div>
-            </div>
           </div>
 
-          {/* Action Pills */}
-          <div className="flex items-center gap-2 pt-1 text-xs">
-            <a
-              href={locationUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 border hover:opacity-85 transition-all font-medium"
-              style={{
-                backgroundColor: 'var(--bg-canvas, #FAF8F5)',
-                borderColor: 'var(--border-subtle, #E7E5E4)',
-                color: 'var(--text-main, #1C1917)',
-                borderRadius: 'var(--radius-btn, 9999px)',
-              }}
-            >
-              <MapPin className="w-3.5 h-3.5 opacity-80" />
-              <span>{locationLabel}</span>
-            </a>
-            <a
-              href={instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 border hover:opacity-85 transition-all font-medium"
-              style={{
-                backgroundColor: 'var(--bg-canvas, #FAF8F5)',
-                borderColor: 'var(--border-subtle, #E7E5E4)',
-                color: 'var(--text-main, #1C1917)',
-                borderRadius: 'var(--radius-btn, 9999px)',
-              }}
-            >
-              <InstagramIcon className="w-3.5 h-3.5 opacity-80" />
-              <span>{instagramLabel}</span>
-            </a>
-            <a
-              href={`tel:+${phone}`}
-              className="flex-none flex items-center justify-center p-2 border hover:opacity-85 transition-all font-medium"
-              style={{
-                backgroundColor: 'var(--bg-canvas, #FAF8F5)',
-                borderColor: 'var(--border-subtle, #E7E5E4)',
-                color: 'var(--text-main, #1C1917)',
-                borderRadius: 'var(--radius-btn, 9999px)',
-              }}
-              title={callLabel}
-            >
-              <Phone className="w-4 h-4 opacity-80" />
-            </a>
-          </div>
-
-          {/* Soap Bubble Morning Dew Action Bar */}
-          {renderSoapBubbleActionBar(false)}
-        </div>
-      </header>
-    );
-  }
-
-  // =========================================================
-  // 2. EDITORIAL FULL-BLEED HERO COVER STYLE (Extended Floral Heritage)
-  // =========================================================
-  if (heroStyle === 'editorial') {
-    return (
-      <header className="relative w-full overflow-hidden mb-2 transition-colors duration-300">
-        <div className="relative h-64 sm:h-72 w-full bg-stone-950">
-          <img
-            src="./images/hero/hero-atelier-banner.jpg"
-            alt="Florist Atelier"
-            className="w-full h-full object-cover object-center filter brightness-[0.65]"
-          />
-          {/* Multi-layered Gradient Overlay for High Editorial Depth */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/20" />
-
-          {/* Content overlay */}
-          <div className="absolute inset-0 px-4 sm:px-6 flex flex-col justify-end pb-4 text-white">
-            <div className="flex items-center gap-2 mb-2">
-              {renderStatusBadge(true)}
-              <div className="flex items-center gap-1 text-[11px] text-white/95 bg-black/40 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/15">
-                <Star className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)]" />
-                <span className="font-bold">{ratingText}</span>
-              </div>
-            </div>
-
-            {isAr ? (
-              <div className="w-full max-w-sm -my-2">
-                <DarAlwardAnimatedTitle
-                  config={effectiveBotanicalConfig}
-                  text={shopName}
-                  isDark={true}
-                  textColor="#FFFFFF"
-                />
-              </div>
-            ) : (
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-extrabold tracking-tight drop-shadow-md text-white">
-                {shopName}
-              </h1>
-            )}
-
-            <p className="text-xs sm:text-sm text-white/90 mt-1 line-clamp-1 drop-shadow-xs font-light">
-              {shopTagline}
-            </p>
-
-            <div className="flex items-center justify-between gap-2 mt-3.5 pt-2.5 text-xs border-t border-white/20">
-              <span className="flex items-center gap-1.5 text-white/85 text-[11px]">
-                <MapPin className="w-3.5 h-3.5 text-white/70 shrink-0" />
-                <span className="truncate">{locationLabel}</span>
+          {/* Center: Live Status Badge Capsule with Dual-Pulse Glow */}
+          <div className="flex items-center justify-center px-1">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-200/80 dark:border-emerald-800 shadow-xs backdrop-blur-md">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
               </span>
-              <div className="flex items-center gap-2">
-                <a
-                  href={locationUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-all text-[11px] font-semibold border border-white/25 flex items-center gap-1.5 shadow-xs"
-                  style={{ borderRadius: 'var(--radius-btn, 9999px)' }}
-                >
-                  <MapPin className="w-3 h-3" />
-                  <span>{locationLabel}</span>
-                </a>
-                <a
-                  href={instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors border border-white/25 shadow-xs"
-                  style={{ borderRadius: 'var(--radius-btn, 9999px)' }}
-                >
-                  <InstagramIcon className="w-3.5 h-3.5" />
-                </a>
-                <a
-                  href={`tel:+${phone}`}
-                  className="p-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition-colors border border-white/25 shadow-xs"
-                  style={{ borderRadius: 'var(--radius-btn, 9999px)' }}
-                  title={callLabel}
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
+              <BreathingText
+                fromFontVariationSettings="'wght' 450"
+                toFontVariationSettings="'wght' 700"
+                staggerFrom="center"
+                duration={2.2}
+                className="tracking-normal whitespace-nowrap text-[11px] sm:text-xs font-semibold"
+              >
+                {isAr ? 'مفتوح الآن • تجهيز فوري' : statusText}
+              </BreathingText>
+            </span>
+          </div>
 
-            {/* Soap Bubble Search & Actions */}
-            <div className="pt-2">
-              {renderSoapBubbleActionBar(true)}
-            </div>
+          {/* Left: Rating Badge */}
+          <div className="flex items-center justify-end">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-amber-50/90 dark:bg-stone-800 text-stone-900 dark:text-amber-100 border border-amber-200/70 dark:border-stone-700 shadow-xs backdrop-blur-md">
+              <Star className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)] shrink-0" />
+              <span className="font-bold text-[11px] sm:text-xs">{cleanRating || '٤.٩'}</span>
+              <span className="text-[10px] text-stone-400 font-normal">★</span>
+            </span>
           </div>
         </div>
-      </header>
-    );
-  }
 
-  // =========================================================
-  // 3. MINIMAL CENTERED BOUTIQUE STYLE (Circular Double-Ring Logo)
-  // =========================================================
-  return (
-    <header className="px-4 pt-5 pb-3 w-full text-center transition-colors duration-300">
-      {/* Centered Circular Logo with Double Ring & Subtle Gold Touch */}
-      <div className="relative inline-flex items-center justify-center mb-2.5">
-        <div
-          className="w-16 h-16 rounded-full p-1 flex items-center justify-center transition-all duration-300 shadow-xs"
-          style={{
-            border: '1.5px dashed var(--accent-gold, #D4AF37)',
-            backgroundColor: 'transparent',
-          }}
-        >
-          <div
-            className="w-full h-full rounded-full flex items-center justify-center font-serif font-bold text-lg text-white shadow-xs transition-colors duration-300 overflow-hidden"
-            style={{ backgroundColor: 'var(--accent-primary, #022C22)' }}
+        {/* 2. CALLIGRAPHY SECTION: Unobstructed vertical breathing room */}
+        <div className="w-full py-2 my-0.5 relative z-10 flex items-center justify-center overflow-visible">
+          {isAr ? (
+            <div className="w-full max-w-[440px] mx-auto">
+              <DarAlwardAnimatedTitle
+                config={effectiveBotanicalConfig}
+                text={shopName}
+                textColor="var(--text-main, #1C1917)"
+              />
+            </div>
+          ) : (
+            <h1
+              className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-center transition-colors duration-300"
+              style={{ color: 'var(--text-main, #1C1917)' }}
+            >
+              {shopName}
+            </h1>
+          )}
+        </div>
+
+        {/* 3. ELEGANT SINGLE TAGLINE & RIYADH LOCATION CAPSULE */}
+        <div className="flex flex-col items-center gap-1 text-center relative z-10">
+          <p
+            className="text-xs font-light text-stone-600 dark:text-stone-300 max-w-sm mx-auto leading-relaxed"
+            style={{ color: 'var(--text-muted, #78716C)' }}
           >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={shopName} className="w-full h-full object-cover" />
-            ) : (
-              avatarText
-            )}
+            {shopTagline}
+          </p>
+
+          <a
+            href={locationUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 mt-1 rounded-full text-[11px] font-medium bg-stone-100/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200/60 dark:border-stone-700 hover:bg-stone-200/80 transition-colors"
+          >
+            <MapPin className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />
+            <span>{locationLabel}</span>
+          </a>
+        </div>
+
+        {/* 4. UNIFIED ACTIONS ROW (WhatsApp, Instagram, Call, Wishlist) */}
+        <div className="flex items-center justify-center gap-3 pt-1.5 relative z-10">
+          {/* WhatsApp */}
+          <a
+            href={`https://wa.me/${phone}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={isAr ? 'واتساب' : 'WhatsApp'}
+            className="w-10 h-10 rounded-full bg-stone-50 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 shadow-xs flex items-center justify-center text-emerald-600 dark:text-emerald-400 hover:scale-105 active:scale-95 transition-transform"
+            title={isAr ? 'واتساب' : 'WhatsApp'}
+          >
+            <MessageCircle className="w-4 h-4 stroke-[2.2]" />
+          </a>
+
+          {/* Instagram */}
+          <a
+            href={instagramUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={isAr ? 'انستقرام' : 'Instagram'}
+            className="w-10 h-10 rounded-full bg-stone-50 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 shadow-xs flex items-center justify-center text-rose-600 dark:text-rose-400 hover:scale-105 active:scale-95 transition-transform"
+            title={isAr ? 'انستقرام' : 'Instagram'}
+          >
+            <InstagramIcon className="w-4 h-4" />
+          </a>
+
+          {/* Direct Call */}
+          <a
+            href={`tel:+${phone}`}
+            aria-label={callLabel}
+            className="w-10 h-10 rounded-full bg-stone-50 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 shadow-xs flex items-center justify-center text-stone-700 dark:text-stone-300 hover:scale-105 active:scale-95 transition-transform"
+            title={callLabel}
+          >
+            <Phone className="w-4 h-4 stroke-[2.2]" />
+          </a>
+
+          {/* Wishlist / Favorites */}
+          <button
+            type="button"
+            aria-label={isAr ? 'المفضلة' : 'Wishlist'}
+            className="w-10 h-10 rounded-full bg-stone-50 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 shadow-xs flex items-center justify-center text-rose-500 hover:scale-105 active:scale-95 transition-transform"
+            title={isAr ? 'المفضلة' : 'Wishlist'}
+          >
+            <Heart className="w-4 h-4 stroke-[2.2]" />
+          </button>
+        </div>
+
+        {/* 5. 100% FULL-WIDTH SEARCH BAR (Unclipped, Crisp Focus Animation) */}
+        <div className="w-full pt-1.5 relative z-10">
+          <div className="relative w-full group">
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+              placeholder={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
+              aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
+              className="w-full py-2.5 pr-10 pl-4 rounded-2xl bg-stone-50/90 dark:bg-stone-800/90 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-800/30 dark:focus:ring-emerald-500/40 focus:border-emerald-800 dark:focus:border-emerald-500 transition-all duration-200 shadow-xs"
+            />
+            <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-stone-400 group-focus-within:text-emerald-700 transition-colors">
+              <Search className="w-4 h-4" />
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex items-center justify-center gap-2 text-xs font-medium mb-1.5">
-        {renderStatusBadge()}
-        <div
-          className="flex items-center gap-1 text-[11px] font-semibold"
-          style={{ color: 'var(--text-main, #1C1917)' }}
-        >
-          <Star className="w-3 h-3 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)]" />
-          <span>{ratingText}</span>
-          <span style={{ color: 'var(--text-muted, #78716C)' }}>(850+)</span>
-        </div>
-      </div>
-
-      {isAr ? (
-        <div className="w-full max-w-sm mx-auto -my-2">
-          <DarAlwardAnimatedTitle
-            config={effectiveBotanicalConfig}
-            text={shopName}
-            textColor="var(--text-main, #1C1917)"
-          />
-        </div>
-      ) : (
-        <h1
-          className="text-2xl sm:text-3xl font-serif font-bold tracking-tight transition-colors duration-300"
-          style={{ color: 'var(--text-main, #1C1917)' }}
-        >
-          {shopName}
-        </h1>
-      )}
-
-      <p
-        className="text-xs max-w-xs mx-auto mt-1 transition-colors duration-300 font-light"
-        style={{ color: 'var(--text-muted, #78716C)' }}
-      >
-        {shopTagline}
-      </p>
-
-      {/* Clean Centered Ghost Action Pills */}
-      <div className="flex items-center justify-center gap-2 mt-3 text-xs">
-        <a
-          href={locationUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-1.5 py-1.5 px-3 border transition-all font-medium text-[11px] hover:shadow-xs hover:opacity-80"
-          style={{
-            borderColor: 'var(--border-subtle, #E7E5E4)',
-            color: 'var(--text-main, #1C1917)',
-            backgroundColor: 'transparent',
-            borderRadius: 'var(--radius-btn, 9999px)',
-          }}
-        >
-          <MapPin className="w-3 h-3 opacity-80" />
-          <span>{locationLabel}</span>
-        </a>
-        <a
-          href={instagramUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-1.5 py-1.5 px-3 border transition-all font-medium text-[11px] hover:shadow-xs hover:opacity-80"
-          style={{
-            borderColor: 'var(--border-subtle, #E7E5E4)',
-            color: 'var(--text-main, #1C1917)',
-            backgroundColor: 'transparent',
-            borderRadius: 'var(--radius-btn, 9999px)',
-          }}
-        >
-          <InstagramIcon className="w-3.5 h-3.5 opacity-80" />
-          <span>{instagramLabel}</span>
-        </a>
-        <a
-          href={`tel:+${phone}`}
-          className="flex items-center justify-center p-2 border transition-all font-medium text-[11px] hover:shadow-xs hover:opacity-80"
-          style={{
-            borderColor: 'var(--border-subtle, #E7E5E4)',
-            color: 'var(--text-main, #1C1917)',
-            backgroundColor: 'transparent',
-            borderRadius: 'var(--radius-btn, 9999px)',
-          }}
-          title={callLabel}
-        >
-          <Phone className="w-3.5 h-3.5 opacity-80" />
-        </a>
-      </div>
-
-      {/* Soap Bubble Morning Dew Action Bar */}
-      <div className="max-w-md mx-auto pt-2">
-        {renderSoapBubbleActionBar(false)}
       </div>
     </header>
   );
