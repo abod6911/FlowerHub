@@ -8,6 +8,7 @@ import {
   ChevronUp,
   Store,
   Sliders,
+  TrendingUp,
 } from 'lucide-react';
 import { THEMES, HERO_STYLES, SPECIALS_STYLES } from '../data/mockData';
 import { t } from '../utils/translations';
@@ -89,6 +90,20 @@ export default function ThemeSwitcherBar({
               >
                 <Sliders className="w-3 h-3 text-amber-400" />
                 <span>{isAr ? 'لوحة المنسق' : 'Admin'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveView('sales')}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
+                  activeView === 'sales'
+                    ? 'bg-emerald-950 text-emerald-200 border border-emerald-500/50 shadow-xs font-semibold'
+                    : 'text-neutral-400 hover:text-emerald-300'
+                }`}
+                title="متابعة الإيرادات وصافي الأرباح"
+              >
+                <TrendingUp className="w-3 h-3 text-emerald-400" />
+                <span>{isAr ? 'المبيعات' : 'Sales'}</span>
               </button>
             </div>
           </div>

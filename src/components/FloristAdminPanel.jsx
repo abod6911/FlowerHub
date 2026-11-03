@@ -22,7 +22,9 @@ import {
   Shuffle,
   Wind,
   Type,
+  TrendingUp,
 } from 'lucide-react';
+import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import {
   THEME_TOKENS,
   HERO_STYLES,
@@ -60,11 +62,12 @@ export default function FloristAdminPanel({
   botanicalBrandConfig,
   onPublishBotanicalConfig,
   onOpenBotanicalTypography,
+  initialTab = 'menu',
 }) {
   const strings = t[lang];
   const isAr = lang === 'ar';
 
-  const [activeTab, setActiveTab] = useState('menu'); // 'menu' | 'add' | 'design'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'menu' | 'add' | 'sales' | 'design'
   const [menuFilter, setMenuFilter] = useState('all'); // 'all' | 'ready_today' | 'one_time' | 'sold_out' | 'past_work'
 
   // Quick Add Form State
@@ -229,7 +232,7 @@ export default function FloristAdminPanel({
   );
 
   return (
-    <div className="w-full max-w-[500px] bg-[#FAF9F6] min-h-screen text-stone-900 flex flex-col pb-28">
+    <div className="w-full max-w-6xl mx-auto bg-[#FAF9F6] min-h-screen text-stone-900 flex flex-col pb-28 transition-all">
       {/* 1. Florist Admin Top Live Status Bar */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80 px-4 py-3 shadow-xs">
         <div className="flex items-center justify-between gap-2 mb-2">
@@ -291,10 +294,10 @@ export default function FloristAdminPanel({
 
       {/* 2. Admin Navigation Tabs */}
       <div className="px-4 pt-3 pb-1">
-        <div className="flex items-center gap-1 border-b border-stone-200 pb-2">
+        <div className="flex items-center gap-1.5 border-b border-stone-200 pb-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('menu')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'menu'
                 ? 'bg-stone-900 text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -309,7 +312,7 @@ export default function FloristAdminPanel({
 
           <button
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'add'
                 ? 'bg-stone-900 text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -320,8 +323,23 @@ export default function FloristAdminPanel({
           </button>
 
           <button
+            onClick={() => setActiveTab('sales')}
+            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              activeTab === 'sales'
+                ? 'bg-emerald-900 text-emerald-100 shadow-xs'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            }`}
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{isAr ? 'المبيعات والأرباح' : 'Sales & Profits'}</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-800 text-emerald-200 font-mono">
+              Live
+            </span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('design')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
               activeTab === 'design'
                 ? 'bg-stone-900 text-white shadow-xs'
                 : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
@@ -1773,6 +1791,19 @@ export default function FloristAdminPanel({
               />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB 4: Sales & Net Profits Analytics Dashboard */}
+      {/* ========================================================= */}
+      {activeTab === 'sales' && (
+        <div className="p-3 sm:p-5">
+          <SalesAndProfitsDashboard
+            lang={lang}
+            onOpenOrderSlip={onOpenOrderSlip}
+            themeTokens={themeTokens}
+          />
         </div>
       )}
 

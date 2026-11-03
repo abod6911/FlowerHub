@@ -480,9 +480,9 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         </div>
       )}
 
-      {/* VIEW B: Florist Admin Panel (Mobile 500px) */}
+      {/* VIEW B: Florist Admin Panel */}
       {activeView === 'admin' && (
-        <div className="w-full max-w-[500px] bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative">
+        <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
           <FloristAdminPanel
             shopConfig={shopConfig}
             onUpdateShopConfig={setShopConfig}
@@ -498,6 +498,29 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             onAddFormat={handleAddFormat}
             occasions={occasions}
             onAddOccasion={handleAddOccasion}
+          />
+        </div>
+      )}
+
+      {/* VIEW SALES: Direct Coordinator Sales & Profits View */}
+      {activeView === 'sales' && (
+        <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
+          <FloristAdminPanel
+            shopConfig={shopConfig}
+            onUpdateShopConfig={setShopConfig}
+            products={products}
+            onUpdateProduct={handleUpdateProduct}
+            onAddProduct={handleAddProduct}
+            onMoveToPastWork={handleMoveToPastWork}
+            pastWorks={pastWorks}
+            lang={lang}
+            onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+            themeTokens={themeTokens}
+            formats={formats}
+            onAddFormat={handleAddFormat}
+            occasions={occasions}
+            onAddOccasion={handleAddOccasion}
+            initialTab="sales"
           />
         </div>
       )}
