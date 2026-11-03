@@ -1,8 +1,9 @@
-import React from 'react';
-import { MapPin, Phone, Star, MessageCircle, Heart, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Phone, Star, MessageCircle, Heart, Search, Sparkles } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
-import TypeGardenCanvas from './TypeGardenCanvas';
+import TypeGardenTypography from './TypeGardenTypography';
+import TypeGardenFloatingDock from './TypeGardenFloatingDock';
 import { useStoreTheme } from '../context/StoreThemeContext';
 import { BreathingText } from './fancy/breathing-text';
 import { FloatingHeroPetals } from './AmbientRosePetals';
@@ -73,11 +74,40 @@ export default function ShopHeader({
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
   const callLabel = brand?.callLabel || strings.callUs;
 
+  const [showGardenDock, setShowGardenDock] = useState(false);
+  const [isDirectEditing, setIsDirectEditing] = useState(false);
+
+  const typeGardenConfig = rawStudio?.typeGarden || storeThemeCtx?.typeGarden || {};
+
+  const handleTypeGardenChange = (partial) => {
+    if (storeThemeCtx?.updateTypeGarden) {
+      storeThemeCtx.updateTypeGarden(partial);
+    }
+  };
+
+  const handleRegenerateSeed = () => {
+    if (storeThemeCtx?.regenerateTypeGardenSeed) {
+      storeThemeCtx.regenerateTypeGardenSeed();
+    }
+  };
+
+  const handleReplayBloom = () => {
+    if (storeThemeCtx?.replayTypeGardenGrowth) {
+      storeThemeCtx.replayTypeGardenGrowth();
+    }
+  };
+
+  const handleSaveGarden = () => {
+    if (storeThemeCtx?.publishConfig) {
+      storeThemeCtx.publishConfig();
+    }
+  };
+
   return (
     <header className="px-4 pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
-      {/* Floating Header Card Container */}
+      {/* Floating Header Card Container with overflow-visible to prevent botanical clipping */}
       <div
-        className="relative p-4 sm:p-5 shadow-xs flex flex-col gap-3 transition-all duration-300 overflow-hidden"
+        className="relative p-4 sm:p-5 shadow-xs flex flex-col gap-3 transition-all duration-300 overflow-visible"
         style={{
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           borderRadius: 'var(--radius-unit, 20px)',
@@ -132,22 +162,53 @@ export default function ShopHeader({
           </div>
         </div>
 
-        {/* 2. GENERATIVE TYPE GARDEN ARABIC ENGINE */}
-        <div className="w-full py-1 my-0.5 relative z-10 flex items-center justify-center overflow-visible">
-          <TypeGardenCanvas
-            text={rawStudio?.typeGarden?.text || shopName}
-            species={rawStudio?.typeGarden?.flowerSpecies || 'royal_rose'}
-            density={rawStudio?.typeGarden?.density ?? 65}
-            growthSpeed={rawStudio?.typeGarden?.growthSpeed ?? 1.0}
-            windSway={rawStudio?.typeGarden?.windSway ?? 1.0}
-            branchReach={rawStudio?.typeGarden?.branchReach ?? 55}
-            stemColor={rawStudio?.typeGarden?.stemColor || '#1B3B2B'}
-            petalColor={rawStudio?.typeGarden?.petalColor || '#9B1B36'}
-            seed={rawStudio?.typeGarden?.seed || 48271}
-            replayKey={rawStudio?.typeGarden?.replayKey || 0}
-            interactive={true}
-            textColor="var(--text-main, #1C1917)"
+        {/* 2. AUTHENTIC TYPE GARDEN INTERACTIVE BOTANICAL SYSTEM */}
+        <div className="w-full py-4 px-2 sm:px-4 my-0.5 relative z-10 flex flex-col items-center justify-center overflow-visible min-h-[220px]">
+          <TypeGardenTypography
+            text={typeGardenConfig.text || shopName}
+            onTextChange={(newText) => handleTypeGardenChange({ text: newText })}
+            stemColor={typeGardenConfig.stemColor || '#1E3A8A'}
+            primaryPetalColor={typeGardenConfig.primaryPetalColor || '#DC2626'}
+            secondaryPetalColor={typeGardenConfig.secondaryPetalColor || '#F59E0B'}
+            textColor={typeGardenConfig.textColor || 'var(--text-main, #1C1917)'}
+            density={typeGardenConfig.density ?? 6}
+            flowerScale={typeGardenConfig.flowerScale ?? 1.0}
+            curliness={typeGardenConfig.curliness ?? 1.0}
+            seed={typeGardenConfig.seed || 48271}
+            replayKey={typeGardenConfig.replayKey || 0}
+            isEditingDirect={isDirectEditing}
+            onToggleDirectEdit={() => setIsDirectEditing((prev) => !prev)}
           />
+
+          {/* Floating In-Page Customizer Pill Button */}
+          <div className="mt-1 flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setShowGardenDock((prev) => !prev)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 border shadow-xs active:scale-95 ${
+                showGardenDock
+                  ? 'bg-emerald-950 text-white border-emerald-900 shadow-md ring-2 ring-emerald-500/20'
+                  : 'bg-white/90 hover:bg-stone-50 text-stone-700 hover:text-stone-900 border-stone-200/90'
+              }`}
+              title="تخصيص ألوان وتصميم حديقة النص"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${showGardenDock ? 'text-amber-300' : 'text-amber-500'}`} />
+              <span>{isAr ? '🎨 تخصيص حديقة النص (Type Garden)' : '🎨 Customize Type Garden'}</span>
+            </button>
+          </div>
+
+          {/* Floating In-Page Customizer Live Dock */}
+          {showGardenDock && (
+            <TypeGardenFloatingDock
+              config={typeGardenConfig}
+              onChange={handleTypeGardenChange}
+              onRegenerate={handleRegenerateSeed}
+              onReplay={handleReplayBloom}
+              onSave={handleSaveGarden}
+              onClose={() => setShowGardenDock(false)}
+              lang={lang}
+            />
+          )}
         </div>
 
         {/* 3. ELEGANT SINGLE TAGLINE & RIYADH LOCATION CAPSULE */}

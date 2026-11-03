@@ -8,13 +8,19 @@ export const STUDIO_SYNC_EVENT = 'studio_theme_synced';
 export const DEFAULT_TYPE_GARDEN_CONFIG = {
   enabled: true,
   text: 'دار الورد للمناسبات',
+  preset: 'type_garden_classic',
   flowerSpecies: 'royal_rose', // 'royal_rose' | 'sakura' | 'camellia' | 'minimal_gold'
-  density: 65, // 10 to 100
+  density: 6, // 1 to 10
   growthSpeed: 1.0, // 0.5 to 2.5
   windSway: 1.0, // 0 to 2.5
   branchReach: 55, // 20 to 100
-  stemColor: '#1B3B2B', // '#1B3B2B' (emerald) | '#2D3A1E' (dark olive) | '#B45309' (antique gold)
-  petalColor: '#9B1B36', // '#9B1B36' (royal burgundy) | '#F472B6' (pastel pink) | '#F8FAFC' (white) | '#F59E0B' (gold)
+  flowerScale: 1.0, // 0.6 to 1.6
+  curliness: 1.0, // 0.5 to 2.0
+  stemColor: '#1E3A8A', // Cobalt Blue
+  primaryPetalColor: '#DC2626', // Crimson Red
+  secondaryPetalColor: '#F59E0B', // Amber Gold
+  petalColor: '#DC2626', // Backward compatible
+  textColor: '#1C1917',
   seed: 48271,
   replayKey: 0,
 };
