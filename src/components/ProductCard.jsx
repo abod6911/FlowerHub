@@ -11,7 +11,7 @@ const toArabicDigits = (num) => {
   return String(num).replace(/[0-9]/g, (d) => arabicDigits[d]);
 };
 
-export default function ProductCard({
+function ProductCard({
   product,
   index = 0,
   isPortfolio = false,
@@ -47,6 +47,7 @@ export default function ProductCard({
 
   const [heartPop, setHeartPop] = useState(false);
   const [isMorphed, setIsMorphed] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const handleToggleFavorite = (e) => {
     e.stopPropagation();
@@ -118,14 +119,27 @@ export default function ProductCard({
     return (
       <div
         onClick={() => onRequestPortfolio && onRequestPortfolio(product)}
-        className="bg-white border border-neutral-100 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer relative active:scale-98"
+        className="bg-white border border-neutral-100 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer relative active:scale-98 animate-card-entrance"
+        style={{
+          animationDelay: `${(index % 8) * 0.045}s`,
+        }}
       >
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100">
+          {/* Skeleton Shimmer while loading */}
+          <div
+            className={`absolute inset-0 bg-stone-200/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
+              imgLoaded ? 'opacity-0' : 'opacity-100'
+            }`}
+          />
           <img
             src={product.image}
             alt={isAr ? product.titleAr : product.titleEn}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out ${
+              imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            }`}
             loading="lazy"
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
@@ -185,33 +199,31 @@ export default function ProductCard({
   return (
     <div
       onClick={() => onSelectProduct && onSelectProduct(product)}
-      className="bg-white border border-neutral-100/90 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98]"
+      className="bg-white border border-neutral-100/90 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] animate-card-entrance"
       style={{
         borderRadius: `${cardRadius}px`,
-        animation: `cardEntrance 0.35s ease-out ${(index % 8) * 0.05}s both`,
+        animationDelay: `${(index % 8) * 0.045}s`,
       }}
     >
-      <style>{`
-        @keyframes cardEntrance {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-
       {/* 4:5 Aspect Ratio Image with Strict Corner Separation */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100">
+        {/* Skeleton Shimmer while loading */}
+        <div
+          className={`absolute inset-0 bg-stone-200/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
+            imgLoaded ? 'opacity-0' : 'opacity-100'
+          }`}
+        />
+
         <img
           src={product.image}
           alt={isAr ? product.titleAr : product.titleEn}
-          className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500 ease-out"
+          className={`w-full h-full object-cover group-hover:scale-104 transition-all duration-500 ease-out ${
+            imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+          }`}
           loading={index < 4 ? 'eager' : 'lazy'}
           decoding="async"
+          fetchPriority={index === 0 ? 'high' : 'auto'}
+          onLoad={() => setImgLoaded(true)}
         />
 
         <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -309,3 +321,5 @@ export default function ProductCard({
     </div>
   );
 }
+
+export default React.memo(ProductCard);

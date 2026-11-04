@@ -8,7 +8,7 @@ const toArabicDigits = (num) => {
   return String(num).replace(/[0-9]/g, (d) => arabicDigits[d]);
 };
 
-export default function StickyFilterBar({
+function StickyFilterBar({
   selectedType = 'all',
   onSelectType,
   selectedBudget = 'all',
@@ -94,3 +94,5 @@ export default function StickyFilterBar({
     </div>
   );
 }
+
+export default React.memo(StickyFilterBar);

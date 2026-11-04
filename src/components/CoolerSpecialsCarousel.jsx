@@ -11,7 +11,7 @@ const toArabicDigits = (num) => {
   return String(num).replace(/[0-9]/g, (d) => arabicDigits[d]);
 };
 
-export default function CoolerSpecialsCarousel({
+function CoolerSpecialsCarousel({
   onSelectProduct,
   lang = 'ar',
   _themeTokens = THEME_TOKENS.botanical,
@@ -145,6 +145,7 @@ export default function CoolerSpecialsCarousel({
                       alt={isAr ? product.titleAr : product.titleEn}
                       className="w-full h-full object-cover group-hover/card:scale-104 transition-transform duration-500 ease-out"
                       loading="lazy"
+                      decoding="async"
                     />
                     {badgeCfg && (
                       <div className="absolute top-2.5 right-2.5 z-10">
@@ -313,6 +314,7 @@ export default function CoolerSpecialsCarousel({
                     alt={isAr ? product.titleAr : product.titleEn}
                     className="w-full h-full object-cover transition-transform duration-500"
                     loading="lazy"
+                    decoding="async"
                   />
                   {badgeText && (
                     <div className="absolute top-2.5 end-2.5">
@@ -463,6 +465,7 @@ export default function CoolerSpecialsCarousel({
                       alt={isAr ? product.titleAr : product.titleEn}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      decoding="async"
                     />
                     {badgeText && (
                       <div className="absolute top-2.5 end-2.5">
@@ -598,6 +601,7 @@ export default function CoolerSpecialsCarousel({
             alt={isAr ? currentItem.titleAr : currentItem.titleEn}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.88]"
             loading="lazy"
+            decoding="async"
           />
           {badgeText && (
             <div className="absolute top-3 start-3 z-10">
@@ -673,3 +677,5 @@ export default function CoolerSpecialsCarousel({
     </section>
   );
 }
+
+export default React.memo(CoolerSpecialsCarousel);

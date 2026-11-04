@@ -16,13 +16,13 @@ import CoolerSpecialsCarousel from './components/CoolerSpecialsCarousel';
 import CustomOrderBanner from './components/CustomOrderBanner';
 import StickyFilterBar from './components/StickyFilterBar';
 import ProductCard from './components/ProductCard';
-import ProductConfiguratorDrawer from './components/ProductConfiguratorDrawer';
-import CustomOrderDrawer from './components/CustomOrderDrawer';
-import CartDrawer from './components/CartDrawer';
-import WhatsAppPreviewModal from './components/WhatsAppPreviewModal';
-import FloristAdminPanel from './components/FloristAdminPanel';
-import FloristOrderSlipModal from './components/FloristOrderSlipModal';
-import FlowerStorefrontPage from './components/FlowerStorefrontPage';
+const ProductConfiguratorDrawer = React.lazy(() => import('./components/ProductConfiguratorDrawer'));
+const CustomOrderDrawer = React.lazy(() => import('./components/CustomOrderDrawer'));
+const CartDrawer = React.lazy(() => import('./components/CartDrawer'));
+const WhatsAppPreviewModal = React.lazy(() => import('./components/WhatsAppPreviewModal'));
+const FloristAdminPanel = React.lazy(() => import('./components/FloristAdminPanel'));
+const FloristOrderSlipModal = React.lazy(() => import('./components/FloristOrderSlipModal'));
+const FlowerStorefrontPage = React.lazy(() => import('./components/FlowerStorefrontPage'));
 import { Sliders, Store, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function App() {
@@ -489,71 +489,17 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
 
       {/* VIEW LUXURY: FlowerStorefrontPage (Standalone Luxury Showcase) */}
       {activeView === 'luxury_showcase' && (
-        <div className="w-full flex justify-center min-h-screen">
-          <FlowerStorefrontPage />
-        </div>
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <div className="w-full flex justify-center min-h-screen">
+            <FlowerStorefrontPage />
+          </div>
+        </React.Suspense>
       )}
 
       {/* VIEW B: Florist Admin Panel */}
       {activeView === 'admin' && (
-        <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
-          <FloristAdminPanel
-            shopConfig={shopConfig}
-            onUpdateShopConfig={setShopConfig}
-            products={products}
-            onUpdateProduct={handleUpdateProduct}
-            onAddProduct={handleAddProduct}
-            onMoveToPastWork={handleMoveToPastWork}
-            pastWorks={pastWorks}
-            lang={lang}
-            onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
-            themeTokens={themeTokens}
-            formats={formats}
-            onAddFormat={handleAddFormat}
-            occasions={occasions}
-            onAddOccasion={handleAddOccasion}
-          />
-        </div>
-      )}
-
-      {/* VIEW SALES: Direct Coordinator Sales & Profits View */}
-      {activeView === 'sales' && (
-        <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
-          <FloristAdminPanel
-            shopConfig={shopConfig}
-            onUpdateShopConfig={setShopConfig}
-            products={products}
-            onUpdateProduct={handleUpdateProduct}
-            onAddProduct={handleAddProduct}
-            onMoveToPastWork={handleMoveToPastWork}
-            pastWorks={pastWorks}
-            lang={lang}
-            onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
-            themeTokens={themeTokens}
-            formats={formats}
-            onAddFormat={handleAddFormat}
-            occasions={occasions}
-            onAddOccasion={handleAddOccasion}
-            initialTab="sales"
-          />
-        </div>
-      )}
-
-      {/* VIEW C: Split Studio (Side-by-side Live Florist Admin + Live Customer Storefront) */}
-      {activeView === 'split' && (
-        <div className="w-full max-w-6xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          {/* Left Column: Florist Management Workspace */}
-          <div className="w-full bg-[#FAF9F6] rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
-            <div className="bg-stone-900 text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between border-b border-stone-800">
-              <span className="flex items-center gap-1.5">
-                <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                <span>{isAr ? 'لوحة تحكم المنسق المباشرة' : 'Florist Studio Workspace'}</span>
-              </span>
-              <span className="text-[10px] font-mono text-stone-400">
-                Live Sync Active
-              </span>
-            </div>
-
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
             <FloristAdminPanel
               shopConfig={shopConfig}
               onUpdateShopConfig={setShopConfig}
@@ -571,109 +517,183 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               onAddOccasion={handleAddOccasion}
             />
           </div>
+        </React.Suspense>
+      )}
 
-          {/* Right Column: Mobile Device Frame with Live Storefront */}
-          <div className="w-full flex flex-col items-center lg:sticky lg:top-14">
-            <div className="w-full max-w-[430px] flex items-center justify-between mb-2 px-2 text-xs font-bold text-stone-700">
-              <span className="flex items-center gap-1.5">
-                <Store className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{isAr ? 'معاينة متجر العميل الحي' : 'Live Customer Preview'}</span>
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
-                {isAr ? 'محدث لحظياً' : 'Instant Sync'}
-              </span>
-            </div>
+      {/* VIEW SALES: Direct Coordinator Sales & Profits View */}
+      {activeView === 'sales' && (
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
+            <FloristAdminPanel
+              shopConfig={shopConfig}
+              onUpdateShopConfig={setShopConfig}
+              products={products}
+              onUpdateProduct={handleUpdateProduct}
+              onAddProduct={handleAddProduct}
+              onMoveToPastWork={handleMoveToPastWork}
+              pastWorks={pastWorks}
+              lang={lang}
+              onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+              themeTokens={themeTokens}
+              formats={formats}
+              onAddFormat={handleAddFormat}
+              occasions={occasions}
+              onAddOccasion={handleAddOccasion}
+              initialTab="sales"
+            />
+          </div>
+        </React.Suspense>
+      )}
 
-            <div
-              className={`w-full max-w-[430px] ${themeTokens.pageBg} rounded-[2.5rem] border-[5px] border-stone-800 shadow-2xl overflow-hidden relative transition-colors duration-300`}
-            >
-              {/* Smartphone Top Speaker Pill */}
-              <div className="h-4 bg-stone-800 w-full flex items-center justify-center">
-                <div className="w-12 h-1 bg-stone-700 rounded-full" />
+      {/* VIEW C: Split Studio (Side-by-side Live Florist Admin + Live Customer Storefront) */}
+      {activeView === 'split' && (
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <div className="w-full max-w-6xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {/* Left Column: Florist Management Workspace */}
+            <div className="w-full bg-[#FAF9F6] rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
+              <div className="bg-stone-900 text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between border-b border-stone-800">
+                <span className="flex items-center gap-1.5">
+                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isAr ? 'لوحة تحكم المنسق المباشرة' : 'Florist Studio Workspace'}</span>
+                </span>
+                <span className="text-[10px] font-mono text-stone-400">
+                  Live Sync Active
+                </span>
               </div>
 
-              {/* Scrollable Storefront Frame */}
-              <div className="max-h-[80vh] overflow-y-auto no-scrollbar">
-                {renderStorefrontContent()}
+              <FloristAdminPanel
+                shopConfig={shopConfig}
+                onUpdateShopConfig={setShopConfig}
+                products={products}
+                onUpdateProduct={handleUpdateProduct}
+                onAddProduct={handleAddProduct}
+                onMoveToPastWork={handleMoveToPastWork}
+                pastWorks={pastWorks}
+                lang={lang}
+                onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+                themeTokens={themeTokens}
+                formats={formats}
+                onAddFormat={handleAddFormat}
+                occasions={occasions}
+                onAddOccasion={handleAddOccasion}
+              />
+            </div>
+
+            {/* Right Column: Mobile Device Frame with Live Storefront */}
+            <div className="w-full flex flex-col items-center lg:sticky lg:top-14">
+              <div className="w-full max-w-[430px] flex items-center justify-between mb-2 px-2 text-xs font-bold text-stone-700">
+                <span className="flex items-center gap-1.5">
+                  <Store className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{isAr ? 'معاينة متجر العميل الحي' : 'Live Customer Preview'}</span>
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
+                  {isAr ? 'محدث لحظياً' : 'Instant Sync'}
+                </span>
+              </div>
+
+              <div
+                className={`w-full max-w-[430px] ${themeTokens.pageBg} rounded-[2.5rem] border-[5px] border-stone-800 shadow-2xl overflow-hidden relative transition-colors duration-300`}
+              >
+                {/* Smartphone Top Speaker Pill */}
+                <div className="h-4 bg-stone-800 w-full flex items-center justify-center">
+                  <div className="w-12 h-1 bg-stone-700 rounded-full" />
+                </div>
+
+                {/* Scrollable Storefront Frame */}
+                <div className="max-h-[80vh] overflow-y-auto no-scrollbar">
+                  {renderStorefrontContent()}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </React.Suspense>
       )}
 
       {/* VIEW D: Order Slip (/o/8492) Full Dedicated View */}
       {activeView === 'orderslip' && (
-        <div className="w-full max-w-2xl mx-auto p-4 flex flex-col items-center">
-          <div className="w-full max-w-[560px] flex items-center justify-between mb-3 text-xs">
-            <button
-              onClick={() => setActiveView('storefront')}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-stone-800 border border-stone-200 hover:bg-stone-100 font-medium transition-all shadow-xs"
-            >
-              {isAr ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
-              <span>{isAr ? 'العودة للمتجر' : 'Back to Storefront'}</span>
-            </button>
-            <span className="font-mono text-stone-500 font-medium">
-              flowerhub.sa/o/8492
-            </span>
-          </div>
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <div className="w-full max-w-2xl mx-auto p-4 flex flex-col items-center">
+            <div className="w-full max-w-[560px] flex items-center justify-between mb-3 text-xs">
+              <button
+                onClick={() => setActiveView('storefront')}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-stone-800 border border-stone-200 hover:bg-stone-100 font-medium transition-all shadow-xs"
+              >
+                {isAr ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+                <span>{isAr ? 'العودة للمتجر' : 'Back to Storefront'}</span>
+              </button>
+              <span className="font-mono text-stone-500 font-medium">
+                flowerhub.sa/o/8492
+              </span>
+            </div>
 
-          <FloristOrderSlipModal
-            isOpen={true}
-            isModal={false}
-            lang={lang}
-          />
-        </div>
+            <FloristOrderSlipModal
+              isOpen={true}
+              isModal={false}
+              lang={lang}
+            />
+          </div>
+        </React.Suspense>
       )}
 
       {/* Slide-Up Drawer A: Product & Configurator */}
-      <ProductConfiguratorDrawer
-        product={selectedProduct}
-        isOpen={isProductDrawerOpen}
-        onClose={() => setIsProductDrawerOpen(false)}
-        onAddToBag={handleAddToBag}
-        onDirectWhatsAppCheckout={handleDirectWhatsAppCheckout}
-        lang={lang}
-        theme={themeTokens}
-      />
+      <React.Suspense fallback={null}>
+        <ProductConfiguratorDrawer
+          product={selectedProduct}
+          isOpen={isProductDrawerOpen}
+          onClose={() => setIsProductDrawerOpen(false)}
+          onAddToBag={handleAddToBag}
+          onDirectWhatsAppCheckout={handleDirectWhatsAppCheckout}
+          lang={lang}
+          theme={themeTokens}
+        />
+      </React.Suspense>
 
       {/* Slide-Up Drawer B: Custom Order & Gift Wrapping */}
-      <CustomOrderDrawer
-        isOpen={isCustomDrawerOpen}
-        onClose={() => setIsCustomDrawerOpen(false)}
-        onSubmitCustomOrder={handleCustomOrderSubmit}
-        lang={lang}
-        theme={themeTokens}
-      />
+      <React.Suspense fallback={null}>
+        <CustomOrderDrawer
+          isOpen={isCustomDrawerOpen}
+          onClose={() => setIsCustomDrawerOpen(false)}
+          onSubmitCustomOrder={handleCustomOrderSubmit}
+          lang={lang}
+          theme={themeTokens}
+        />
+      </React.Suspense>
 
       {/* Floating Cart Drawer */}
-      <CartDrawer
-        items={bagItems}
-        isOpen={isCartDrawerOpen}
-        onOpen={() => setIsCartDrawerOpen(true)}
-        onClose={() => setIsCartDrawerOpen(false)}
-        onUpdateQuantity={handleUpdateBagQuantity}
-        onRemoveItem={handleRemoveBagItem}
-        onCheckout={handleBagCheckout}
-        lang={lang}
-        theme={themeTokens}
-      />
+      <React.Suspense fallback={null}>
+        <CartDrawer
+          items={bagItems}
+          isOpen={isCartDrawerOpen}
+          onOpen={() => setIsCartDrawerOpen(true)}
+          onClose={() => setIsCartDrawerOpen(false)}
+          onUpdateQuantity={handleUpdateBagQuantity}
+          onRemoveItem={handleRemoveBagItem}
+          onCheckout={handleBagCheckout}
+          lang={lang}
+          theme={themeTokens}
+        />
+      </React.Suspense>
 
       {/* WhatsApp Message Preview Modal with Order Slip button */}
-      <WhatsAppPreviewModal
-        isOpen={isWhatsAppModalOpen}
-        onClose={() => setIsWhatsAppModalOpen(false)}
-        messageText={whatsAppTicketText}
-        lang={lang}
-        onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
-      />
+      <React.Suspense fallback={null}>
+        <WhatsAppPreviewModal
+          isOpen={isWhatsAppModalOpen}
+          onClose={() => setIsWhatsAppModalOpen(false)}
+          messageText={whatsAppTicketText}
+          lang={lang}
+          onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+        />
+      </React.Suspense>
 
       {/* Florist Order Slip Modal (Overlay mode) */}
-      <FloristOrderSlipModal
-        isOpen={isOrderSlipModalOpen}
-        onClose={() => setIsOrderSlipModalOpen(false)}
-        isModal={true}
-        lang={lang}
-      />
+      <React.Suspense fallback={null}>
+        <FloristOrderSlipModal
+          isOpen={isOrderSlipModalOpen}
+          onClose={() => setIsOrderSlipModalOpen(false)}
+          isModal={true}
+          lang={lang}
+        />
+      </React.Suspense>
 
       {/* Toast Notification */}
       {toastMessage && (

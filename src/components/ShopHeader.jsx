@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { MapPin, Phone, Star, MessageCircle, Heart, Search, Sparkles } from 'lucide-react';
+import React from 'react';
+import { MapPin, Phone, Star, MessageCircle, Heart, Search } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
-import TypeGardenTypography from './TypeGardenTypography';
-import TypeGardenFloatingDock from './TypeGardenFloatingDock';
 import { useStoreTheme } from '../context/StoreThemeContext';
 import { BreathingText } from './fancy/breathing-text';
 import { FloatingHeroPetals } from './AmbientRosePetals';
@@ -27,7 +25,7 @@ function InstagramIcon({ className = 'w-4 h-4' }) {
   );
 }
 
-export default function ShopHeader({
+function ShopHeader({
   _heroStyle = 'qlub',
   lang = 'ar',
   shopConfig,
@@ -74,35 +72,6 @@ export default function ShopHeader({
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
   const callLabel = brand?.callLabel || strings.callUs;
 
-  const [showGardenDock, setShowGardenDock] = useState(false);
-  const [isDirectEditing, setIsDirectEditing] = useState(false);
-
-  const typeGardenConfig = rawStudio?.typeGarden || storeThemeCtx?.typeGarden || {};
-
-  const handleTypeGardenChange = (partial) => {
-    if (storeThemeCtx?.updateTypeGarden) {
-      storeThemeCtx.updateTypeGarden(partial);
-    }
-  };
-
-  const handleRegenerateSeed = () => {
-    if (storeThemeCtx?.regenerateTypeGardenSeed) {
-      storeThemeCtx.regenerateTypeGardenSeed();
-    }
-  };
-
-  const handleReplayBloom = () => {
-    if (storeThemeCtx?.replayTypeGardenGrowth) {
-      storeThemeCtx.replayTypeGardenGrowth();
-    }
-  };
-
-  const handleSaveGarden = () => {
-    if (storeThemeCtx?.publishConfig) {
-      storeThemeCtx.publishConfig();
-    }
-  };
-
   return (
     <header className="px-4 pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
       {/* Floating Header Card Container with overflow-visible to prevent botanical clipping */}
@@ -127,7 +96,7 @@ export default function ShopHeader({
               style={{ backgroundColor: 'var(--accent-primary, #022C22)' }}
             >
               {avatarUrl ? (
-                <img src={avatarUrl} alt={shopName} className="w-full h-full object-cover rounded-2xl" />
+                <img src={avatarUrl} alt={shopName} className="w-full h-full object-cover rounded-2xl" loading="eager" decoding="async" />
               ) : (
                 avatarText
               )}
@@ -162,53 +131,26 @@ export default function ShopHeader({
           </div>
         </div>
 
-        {/* 2. AUTHENTIC TYPE GARDEN INTERACTIVE BOTANICAL SYSTEM */}
-        <div className="w-full py-4 px-2 sm:px-4 my-0.5 relative z-10 flex flex-col items-center justify-center overflow-visible min-h-[220px]">
-          <TypeGardenTypography
-            text={typeGardenConfig.text || shopName}
-            onTextChange={(newText) => handleTypeGardenChange({ text: newText })}
-            stemColor={typeGardenConfig.stemColor || '#1E3A8A'}
-            primaryPetalColor={typeGardenConfig.primaryPetalColor || '#DC2626'}
-            secondaryPetalColor={typeGardenConfig.secondaryPetalColor || '#F59E0B'}
-            textColor={typeGardenConfig.textColor || 'var(--text-main, #1C1917)'}
-            density={typeGardenConfig.density ?? 6}
-            flowerScale={typeGardenConfig.flowerScale ?? 1.0}
-            curliness={typeGardenConfig.curliness ?? 1.0}
-            seed={typeGardenConfig.seed || 48271}
-            replayKey={typeGardenConfig.replayKey || 0}
-            isEditingDirect={isDirectEditing}
-            onToggleDirectEdit={() => setIsDirectEditing((prev) => !prev)}
-          />
-
-          {/* Floating In-Page Customizer Pill Button */}
-          <div className="mt-1 flex items-center justify-center">
-            <button
-              type="button"
-              onClick={() => setShowGardenDock((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 border shadow-xs active:scale-95 ${
-                showGardenDock
-                  ? 'bg-emerald-950 text-white border-emerald-900 shadow-md ring-2 ring-emerald-500/20'
-                  : 'bg-white/90 hover:bg-stone-50 text-stone-700 hover:text-stone-900 border-stone-200/90'
-              }`}
-              title="تخصيص ألوان وتصميم حديقة النص"
+        {/* 2. PURE ELEGANT BRAND TYPOGRAPHY HEADER (Only Text, Clean & Fast) */}
+        <div className="w-full py-3 px-2 sm:px-4 my-1 relative z-10 flex flex-col items-center justify-center text-center">
+          <h1
+            className="text-2xl sm:text-3xl font-extrabold tracking-tight select-text transition-colors duration-300"
+            style={{
+              color: 'var(--text-main, #1C1917)',
+            }}
+          >
+            {shopName}
+          </h1>
+          <div className="flex items-center justify-center gap-2 mt-1.5">
+            <span className="h-px w-6 bg-gradient-to-r from-transparent to-[var(--accent-gold,#D4AF37)]" />
+            <span
+              className="text-[11px] sm:text-xs font-serif font-semibold tracking-[0.22em] uppercase"
+              style={{ color: 'var(--accent-gold, #D4AF37)' }}
             >
-              <Sparkles className={`w-3.5 h-3.5 ${showGardenDock ? 'text-amber-300' : 'text-amber-500'}`} />
-              <span>{isAr ? '🎨 تخصيص حديقة النص (Type Garden)' : '🎨 Customize Type Garden'}</span>
-            </button>
+              {isAr ? 'دار الورد • MAISON DES FLEURS' : 'MAISON DES FLEURS • ATELIER'}
+            </span>
+            <span className="h-px w-6 bg-gradient-to-l from-transparent to-[var(--accent-gold,#D4AF37)]" />
           </div>
-
-          {/* Floating In-Page Customizer Live Dock */}
-          {showGardenDock && (
-            <TypeGardenFloatingDock
-              config={typeGardenConfig}
-              onChange={handleTypeGardenChange}
-              onRegenerate={handleRegenerateSeed}
-              onReplay={handleReplayBloom}
-              onSave={handleSaveGarden}
-              onClose={() => setShowGardenDock(false)}
-              lang={lang}
-            />
-          )}
         </div>
 
         {/* 3. ELEGANT SINGLE TAGLINE & RIYADH LOCATION CAPSULE */}
@@ -298,3 +240,5 @@ export default function ShopHeader({
     </header>
   );
 }
+
+export default React.memo(ShopHeader);

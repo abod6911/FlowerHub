@@ -3,7 +3,7 @@ import { Sparkles, Flame, Check } from 'lucide-react';
 import { INITIAL_OCCASIONS, THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
 
-export default function OccasionStories({
+function OccasionStories({
   selectedCategory = 'all',
   onSelectCategory,
   lang = 'ar',
@@ -188,7 +188,8 @@ export default function OccasionStories({
                       src={occ.image}
                       alt={isAr ? occ.nameAr : occ.nameEn}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      loading="lazy"
+                      loading={idx < 3 ? 'eager' : 'lazy'}
+                      decoding="async"
                       draggable={false}
                     />
                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -237,3 +238,5 @@ export default function OccasionStories({
     </section>
   );
 }
+
+export default React.memo(OccasionStories);
