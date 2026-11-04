@@ -33,12 +33,54 @@ import {
 } from '../data/mockSalesData';
 
 /**
- * Ultra-Lightweight Interactive SVG Sparkline Component
+ * Smooth 60fps Exponential Ease-Out Animated Counter Component
+ */
+function AnimatedNumber({ value, duration = 900, formatter }) {
+  const [displayVal, setDisplayVal] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp = null;
+    const startVal = 0;
+    const endVal = Number(value) || 0;
+
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // easeOutCubic curve
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = startVal + (endVal - startVal) * ease;
+      setDisplayVal(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        setDisplayVal(endVal);
+      }
+    };
+
+    const animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [value, duration]);
+
+  if (formatter) {
+    return <>{formatter(displayVal)}</>;
+  }
+  return <>{Math.round(displayVal)}</>;
+}
+
+/**
+ * Ultra-Lightweight Interactive SVG Sparkline with Dynamic Self-Drawing Motion
  */
 function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad', height = 36 }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [isDrawn, setIsDrawn] = useState(false);
   const width = 120;
   const padding = 4;
+
+  useEffect(() => {
+    setIsDrawn(false);
+    const t = setTimeout(() => setIsDrawn(true), 50);
+    return () => clearTimeout(t);
+  }, [data]);
 
   if (!data || data.length < 2) return null;
 
@@ -88,16 +130,26 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
         </defs>
 
         {/* Gradient fill underneath curve */}
-        <path d={areaD} fill={`url(#${gradientId})`} />
+        <path
+          d={areaD}
+          fill={`url(#${gradientId})`}
+          className="transition-opacity duration-700 ease-out"
+          style={{ opacity: isDrawn ? 1 : 0 }}
+        />
 
-        {/* Smooth trend curve */}
+        {/* Smooth trend curve with animated self-drawing stroke */}
         <path
           d={pathD}
           fill="none"
           stroke={color}
-          strokeWidth="2"
+          strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
+          style={{
+            strokeDasharray: 300,
+            strokeDashoffset: isDrawn ? 0 : 300,
+            transition: 'stroke-dashoffset 1.1s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
         />
 
         {/* Interactive hover points */}
@@ -534,241 +586,263 @@ export default function SalesAndProfitsDashboard({
       {/* 3. Main Data Container with Shimmer Transition */}
       {/* ===================================================================== */}
       <div className={`space-y-6 transition-all duration-200 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-        {/* Modern KPI Cards with Interactive Sparklines & Accent Glow */}
+        {/* Modern KPI Cards with Interactive Sparklines, Dynamic Counters & Hover Physics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* KPI 1: Total Revenue */}
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-          <div>
-            <div className="flex items-center justify-between text-stone-500 mb-1">
-              <span className="text-xs font-semibold">{isAr ? 'إجمالي المبيعات' : 'Total Revenue'}</span>
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                <ArrowUpRight className="w-2.5 h-2.5" />
-                +14.2%
-              </span>
+          {/* KPI 1: Total Revenue */}
+          <div
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
+            style={{ animationDelay: '0.05s' }}
+          >
+            <div>
+              <div className="flex items-center justify-between text-stone-500 mb-1">
+                <span className="text-xs font-semibold">{isAr ? 'إجمالي المبيعات' : 'Total Revenue'}</span>
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full group-hover:scale-105 transition-transform">
+                  <ArrowUpRight className="w-2.5 h-2.5" />
+                  +14.2%
+                </span>
+              </div>
+              <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                <AnimatedNumber value={kpis.totalRevenue} formatter={(v) => formatCurrency(v, lang)} />
+              </div>
             </div>
-            <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
-              {formatCurrency(kpis.totalRevenue, lang)}
+
+            <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400">{isAr ? 'منحنى الإيراد' : 'Trend'}</span>
+              <Sparkline
+                data={[240, 310, 275, 420, 380, 490, 525, 990]}
+                color="#0284C7"
+                gradientId="grad-revenue"
+              />
             </div>
           </div>
 
-          <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-            <span className="text-[10px] text-stone-400">{isAr ? 'منحنى الإيراد' : 'Trend'}</span>
-            <Sparkline
-              data={[240, 310, 275, 420, 380, 490, 525, 990]}
-              color="#0284C7"
-              gradientId="grad-revenue"
-            />
+          {/* KPI 2: PRIMARY METRIC - Net Profit (With Subtle Emerald Accent Glow & Pulse) */}
+          <div
+            className="bg-gradient-to-b from-white via-white to-emerald-50/30 rounded-3xl p-4 sm:p-5 border border-emerald-500/40 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.18)] hover:shadow-[0_12px_30px_-4px_rgba(16,185,129,0.28)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer ring-1 ring-emerald-500/10"
+            style={{ animationDelay: '0.12s' }}
+          >
+            {/* Animated Glow Indicator Bar */}
+            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 animate-pulse" />
+
+            <div>
+              <div className="flex items-center justify-between text-stone-600 mb-1">
+                <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 group-hover:rotate-12 transition-transform duration-300" />
+                  <span>{isAr ? 'صافي الأرباح' : 'Net Profit'}</span>
+                </span>
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-1.5 py-0.5 rounded-full shadow-2xs group-hover:scale-105 transition-transform">
+                  <ArrowUpRight className="w-2.5 h-2.5" />
+                  +18.5%
+                </span>
+              </div>
+              <div className="text-lg sm:text-2xl font-bold font-serif text-emerald-900 tracking-tight">
+                <AnimatedNumber value={kpis.netProfit} formatter={(v) => formatCurrency(v, lang)} />
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-end justify-between pt-2 border-t border-emerald-100/70">
+              <span className="text-[10px] font-bold text-emerald-700 font-mono flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                <span>{isAr ? `هامش: ${kpis.overallMargin.toFixed(1)}%` : `Margin: ${kpis.overallMargin.toFixed(1)}%`}</span>
+              </span>
+              <Sparkline
+                data={[135, 177, 156, 225, 278, 253, 350, 535]}
+                color="#059669"
+                gradientId="grad-profit"
+              />
+            </div>
+          </div>
+
+          {/* KPI 3: Successful Orders */}
+          <div
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
+            style={{ animationDelay: '0.19s' }}
+          >
+            <div>
+              <div className="flex items-center justify-between text-stone-500 mb-1">
+                <span className="text-xs font-semibold">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
+                <span className="text-[10px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
+                  98% تسليم
+                </span>
+              </div>
+              <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                <AnimatedNumber value={kpis.totalOrdersCount} />{' '}
+                <span className="text-xs font-normal text-stone-400">{isAr ? 'طلب' : 'orders'}</span>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400">{isAr ? 'معدل الطلب' : 'Velocity'}</span>
+              <Sparkline
+                data={[1, 2, 1, 3, 2, 2, 4, 5]}
+                color="#D97706"
+                gradientId="grad-orders"
+              />
+            </div>
+          </div>
+
+          {/* KPI 4: Average Order Value (AOV) */}
+          <div
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
+            style={{ animationDelay: '0.26s' }}
+          >
+            <div>
+              <div className="flex items-center justify-between text-stone-500 mb-1">
+                <span className="text-xs font-semibold">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
+                <span className="text-[10px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
+                  AOV
+                </span>
+              </div>
+              <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+                <AnimatedNumber value={kpis.aov} formatter={(v) => formatCurrency(v, lang)} />
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400">{isAr ? 'قيمة السلة' : 'Basket'}</span>
+              <Sparkline
+                data={[210, 245, 320, 275, 360, 450, 490, 356]}
+                color="#6366F1"
+                gradientId="grad-aov"
+              />
+            </div>
           </div>
         </div>
 
-        {/* KPI 2: PRIMARY METRIC - Net Profit (With Subtle Emerald Accent Glow) */}
-        <div className="bg-gradient-to-b from-white via-white to-emerald-50/20 rounded-3xl p-4 sm:p-5 border border-emerald-500/30 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.15)] hover:shadow-[0_8px_25px_-4px_rgba(16,185,129,0.22)] transition-all flex flex-col justify-between relative overflow-hidden group">
-          {/* Glow indicator pill */}
-          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400" />
-
-          <div>
-            <div className="flex items-center justify-between text-stone-600 mb-1">
-              <span className="text-xs font-bold text-emerald-950 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-emerald-600" />
-                <span>{isAr ? 'صافي الأرباح' : 'Net Profit'}</span>
-              </span>
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-1.5 py-0.5 rounded-full">
-                <ArrowUpRight className="w-2.5 h-2.5" />
-                +18.5%
-              </span>
-            </div>
-            <div className="text-lg sm:text-2xl font-bold font-serif text-emerald-900 tracking-tight">
-              {formatCurrency(kpis.netProfit, lang)}
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-end justify-between pt-2 border-t border-emerald-100/70">
-            <span className="text-[10px] font-bold text-emerald-700 font-mono">
-              {isAr ? `هامش: ${kpis.overallMargin.toFixed(1)}%` : `Margin: ${kpis.overallMargin.toFixed(1)}%`}
-            </span>
-            <Sparkline
-              data={[135, 177, 156, 225, 278, 253, 350, 535]}
-              color="#059669"
-              gradientId="grad-profit"
-            />
-          </div>
-        </div>
-
-        {/* KPI 3: Successful Orders */}
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-          <div>
-            <div className="flex items-center justify-between text-stone-500 mb-1">
-              <span className="text-xs font-semibold">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
-              <span className="text-[10px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-full font-mono">
-                98% تسليم
-              </span>
-            </div>
-            <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
-              {kpis.totalOrdersCount}{' '}
-              <span className="text-xs font-normal text-stone-400">{isAr ? 'طلب' : 'orders'}</span>
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-            <span className="text-[10px] text-stone-400">{isAr ? 'معدل الطلب' : 'Velocity'}</span>
-            <Sparkline
-              data={[1, 2, 1, 3, 2, 2, 4, 5]}
-              color="#D97706"
-              gradientId="grad-orders"
-            />
-          </div>
-        </div>
-
-        {/* KPI 4: Average Order Value (AOV) */}
-        <div className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group">
-          <div>
-            <div className="flex items-center justify-between text-stone-500 mb-1">
-              <span className="text-xs font-semibold">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
-              <span className="text-[10px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-full font-mono">
-                AOV
-              </span>
-            </div>
-            <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
-              {formatCurrency(kpis.aov, lang)}
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-            <span className="text-[10px] text-stone-400">{isAr ? 'قيمة السلة' : 'Basket'}</span>
-            <Sparkline
-              data={[210, 245, 320, 275, 360, 450, 490, 356]}
-              color="#6366F1"
-              gradientId="grad-aov"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ===================================================================== */}
-      {/* 4. Interactive Hero Analytics Chart Section */}
-      {/* ===================================================================== */}
-      <div className="bg-white rounded-3xl border border-stone-200/90 shadow-xs p-4 sm:p-6 space-y-4">
-        {/* Chart Header Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-stone-100">
-          <div>
-            <h3 className="font-bold text-sm text-stone-900 flex items-center gap-1.5">
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
-              <span>{isAr ? 'المنحنى البياني للإيرادات وصافي الأرباح' : 'Financial Flow & Profit Velocity'}</span>
-            </h3>
-            <p className="text-[11px] text-stone-400 mt-0.5">
-              {isAr ? 'حرك المؤشر أو المس النقاط لاستعراض هوامش الربح لكل فترة' : 'Hover or tap nodes to inspect granular margins'}
-            </p>
-          </div>
-
-          {/* Chart Granularity & Curve Toggles */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Metric Curves Toggle */}
-            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-[11px] font-semibold">
-              <button
-                onClick={() => setShowRevenueArea(!showRevenueArea)}
-                className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                  showRevenueArea ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-400'
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
-                <span>{isAr ? 'المبيعات' : 'Revenue'}</span>
-              </button>
-
-              <button
-                onClick={() => setShowProfitArea(!showProfitArea)}
-                className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
-                  showProfitArea ? 'bg-emerald-900 text-white shadow-2xs' : 'text-stone-400'
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span>{isAr ? 'صافي الربح' : 'Net Profit'}</span>
-              </button>
+        {/* ===================================================================== */}
+        {/* 4. Interactive Hero Analytics Chart Section */}
+        {/* ===================================================================== */}
+        <div
+          className="bg-white rounded-3xl border border-stone-200/90 shadow-xs hover:shadow-md transition-all duration-300 p-4 sm:p-6 space-y-4 animate-card-entrance"
+          style={{ animationDelay: '0.32s' }}
+        >
+          {/* Chart Header Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-stone-100">
+            <div>
+              <h3 className="font-bold text-sm text-stone-900 flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-emerald-600 animate-pulse" />
+                <span>{isAr ? 'المنحنى البياني للإيرادات وصافي الأرباح' : 'Financial Flow & Profit Velocity'}</span>
+              </h3>
+              <p className="text-[11px] text-stone-400 mt-0.5">
+                {isAr ? 'حرك المؤشر أو المس النقاط لاستعراض هوامش الربح لكل فترة' : 'Hover or tap nodes to inspect granular margins'}
+              </p>
             </div>
 
-            {/* Grain Toggle */}
-            <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-[11px] font-semibold">
-              {[
-                { id: 'daily', labelAr: 'يومي', labelEn: 'Daily' },
-                { id: 'hourly', labelAr: 'ساعي', labelEn: 'Hourly' },
-                { id: 'weekly', labelAr: 'أسبوعي', labelEn: 'Weekly' },
-              ].map((g) => (
+            {/* Chart Granularity & Curve Toggles */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Metric Curves Toggle */}
+              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-[11px] font-semibold">
                 <button
-                  key={g.id}
-                  onClick={() => setChartGranularity(g.id)}
-                  className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer ${
-                    chartGranularity === g.id
-                      ? 'bg-stone-900 text-white shadow-2xs font-bold'
-                      : 'text-stone-500 hover:text-stone-800'
+                  onClick={() => setShowRevenueArea(!showRevenueArea)}
+                  className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 active:scale-95 ${
+                    showRevenueArea ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-400'
                   }`}
                 >
-                  {isAr ? g.labelAr : g.labelEn}
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
+                  <span>{isAr ? 'المبيعات' : 'Revenue'}</span>
                 </button>
-              ))}
+
+                <button
+                  onClick={() => setShowProfitArea(!showProfitArea)}
+                  className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 active:scale-95 ${
+                    showProfitArea ? 'bg-emerald-900 text-white shadow-2xs' : 'text-stone-400'
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>{isAr ? 'صافي الربح' : 'Net Profit'}</span>
+                </button>
+              </div>
+
+              {/* Grain Toggle */}
+              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-[11px] font-semibold">
+                {[
+                  { id: 'daily', labelAr: 'يومي', labelEn: 'Daily' },
+                  { id: 'hourly', labelAr: 'ساعي', labelEn: 'Hourly' },
+                  { id: 'weekly', labelAr: 'أسبوعي', labelEn: 'Weekly' },
+                ].map((g) => (
+                  <button
+                    key={g.id}
+                    onClick={() => setChartGranularity(g.id)}
+                    className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                      chartGranularity === g.id
+                        ? 'bg-stone-900 text-white shadow-2xs font-bold'
+                        : 'text-stone-500 hover:text-stone-800'
+                    }`}
+                  >
+                    {isAr ? g.labelAr : g.labelEn}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Responsive Area Chart Viewport */}
-        <div className="w-full h-64 sm:h-72 pt-2" dir="ltr">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                {/* Revenue Curve Gradient */}
-                <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#1C1917" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#1C1917" stopOpacity={0.0} />
-                </linearGradient>
+          {/* Responsive Area Chart Viewport */}
+          <div className="w-full h-64 sm:h-72 pt-2" dir="ltr">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <defs>
+                  {/* Revenue Curve Gradient */}
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#1C1917" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#1C1917" stopOpacity={0.0} />
+                  </linearGradient>
 
-                {/* Profit Curve Vibrant Emerald Gradient */}
-                <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10B981" stopOpacity={0.45} />
-                  <stop offset="95%" stopColor="#10B981" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
+                  {/* Profit Curve Vibrant Emerald Gradient */}
+                  <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.45} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
 
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E7E5E4" opacity={0.6} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E7E5E4" opacity={0.6} />
 
-              <XAxis
-                dataKey="period"
-                tick={{ fontSize: 11, fill: '#78716C', fontFamily: 'sans-serif' }}
-                tickLine={false}
-                axisLine={{ stroke: '#E7E5E4' }}
-              />
-
-              <YAxis
-                tick={{ fontSize: 10, fill: '#A8A29E', fontFamily: 'monospace' }}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(val) => `${val}`}
-              />
-
-              <Tooltip content={<CustomChartTooltip />} />
-
-              {/* Area 1: Revenue Curve */}
-              {showRevenueArea && (
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#1C1917"
-                  strokeWidth={2.5}
-                  fillOpacity={1}
-                  fill="url(#revenueGradient)"
-                  activeDot={{ r: 5, fill: '#1C1917', stroke: '#fff', strokeWidth: 2 }}
+                <XAxis
+                  dataKey="period"
+                  tick={{ fontSize: 11, fill: '#78716C', fontFamily: 'sans-serif' }}
+                  tickLine={false}
+                  axisLine={{ stroke: '#E7E5E4' }}
                 />
-              )}
 
-              {/* Area 2: Net Profit Curve */}
-              {showProfitArea && (
-                <Area
-                  type="monotone"
-                  dataKey="profit"
-                  stroke="#059669"
-                  strokeWidth={2.5}
-                  fillOpacity={1}
-                  fill="url(#profitGradient)"
-                  activeDot={{ r: 6, fill: '#059669', stroke: '#fff', strokeWidth: 2 }}
+                <YAxis
+                  tick={{ fontSize: 10, fill: '#A8A29E', fontFamily: 'monospace' }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(val) => `${val}`}
                 />
-              )}
+
+                <Tooltip content={<CustomChartTooltip />} />
+
+                {/* Area 1: Revenue Curve with smooth entrance animation */}
+                {showRevenueArea && (
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#1C1917"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#revenueGradient)"
+                    activeDot={{ r: 6, fill: '#1C1917', stroke: '#fff', strokeWidth: 2 }}
+                    isAnimationActive={true}
+                    animationDuration={1300}
+                    animationEasing="ease-out"
+                  />
+                )}
+
+                {/* Area 2: Net Profit Curve with smooth entrance animation */}
+                {showProfitArea && (
+                  <Area
+                    type="monotone"
+                    dataKey="profit"
+                    stroke="#059669"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#profitGradient)"
+                    activeDot={{ r: 6, fill: '#059669', stroke: '#fff', strokeWidth: 2 }}
+                    isAnimationActive={true}
+                    animationDuration={1500}
+                    animationEasing="ease-out"
+                  />
+                )}
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -846,11 +920,12 @@ export default function SalesAndProfitsDashboard({
               </thead>
 
               <tbody className="divide-y divide-stone-100">
-                {paginatedTransactions.map((tx) => (
+                {paginatedTransactions.map((tx, idx) => (
                   <tr
                     key={tx.id}
                     onClick={() => setSelectedTx(tx)}
-                    className="hover:bg-stone-50/70 transition-colors cursor-pointer group"
+                    className="hover:bg-emerald-50/25 transition-all duration-200 cursor-pointer group animate-card-entrance"
+                    style={{ animationDelay: `${(idx + 1) * 0.045}s` }}
                   >
                     {/* Column 1: Order ID, Customer Name, and Payment Badge */}
                     <td className="py-3.5 px-5">
@@ -951,11 +1026,12 @@ export default function SalesAndProfitsDashboard({
         {/* MOBILE VIEW: Touch-Friendly Card List */}
         {sortedTransactions.length > 0 && (
           <div className="md:hidden divide-y divide-stone-100 p-2 sm:p-3 space-y-2.5">
-            {paginatedTransactions.map((tx) => (
+            {paginatedTransactions.map((tx, idx) => (
               <div
                 key={tx.id}
                 onClick={() => setSelectedTx(tx)}
-                className="bg-white rounded-2xl p-3.5 border border-stone-200/80 shadow-2xs space-y-2.5 active:scale-[0.99] transition-all cursor-pointer"
+                className="bg-white rounded-2xl p-3.5 border border-stone-200/80 shadow-2xs space-y-2.5 active:scale-[0.98] hover:shadow-md transition-all duration-200 cursor-pointer animate-card-entrance"
+                style={{ animationDelay: `${(idx + 1) * 0.045}s` }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5">

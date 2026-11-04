@@ -257,19 +257,22 @@ export default function FloristAdminPanel({
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200/60 text-xs font-semibold">
           <button
             onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'open_20m' })}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer ${
               shopConfig.status === 'open_20m'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-stone-600 hover:text-stone-900'
             }`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-200" />
+            </span>
             <span>{isAr ? 'مفتوح • ٢٠ د' : 'Open • 20m'}</span>
           </button>
 
           <button
             onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' })}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer ${
               shopConfig.status === 'busy_60m'
                 ? 'bg-amber-600 text-white shadow-xs'
                 : 'text-stone-600 hover:text-stone-900'
@@ -281,7 +284,7 @@ export default function FloristAdminPanel({
 
           <button
             onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'closed' })}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer ${
               shopConfig.status === 'closed'
                 ? 'bg-stone-800 text-white shadow-xs'
                 : 'text-stone-600 hover:text-stone-900'
