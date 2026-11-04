@@ -68,7 +68,7 @@ export function FloatingHeroPetals({ className = '' }) {
 
   return (
     <div
-      className={`absolute inset-0 pointer-events-none overflow-hidden -z-10 ${className}`}
+      className={`absolute inset-0 pointer-events-none overflow-hidden ${className || 'z-0'}`}
       aria-hidden="true"
     >
       {petals.map((p) => (
