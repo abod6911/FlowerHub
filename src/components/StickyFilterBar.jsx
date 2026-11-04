@@ -48,8 +48,8 @@ function StickyFilterBar({
                 onClick={() => onSelectType && onSelectType(type.id)}
                 className={`flex-none px-3.5 py-1.5 rounded-full text-xs transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap ${
                   isSelected
-                    ? 'bg-[var(--accent-primary,#022C22)] text-white font-semibold shadow-xs ring-1 ring-emerald-900/30'
-                    : 'bg-stone-100/90 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium border border-stone-200/60 dark:border-stone-700 hover:bg-stone-200/70'
+                    ? 'bg-[var(--accent-primary,#022C22)] text-white font-bold shadow-xs ring-1 ring-emerald-900/30'
+                    : 'bg-white text-stone-900 font-bold border border-stone-200/90 hover:bg-stone-50 shadow-2xs'
                 }`}
               >
                 {isAr ? type.nameAr : type.nameEn}
@@ -69,8 +69,8 @@ function StickyFilterBar({
                 onClick={() => onSelectBudget && onSelectBudget(b.id)}
                 className={`flex-none text-xs px-3 py-1 rounded-full transition-all duration-200 cursor-pointer active:scale-95 whitespace-nowrap ${
                   isSelected
-                    ? 'bg-stone-900 text-white font-semibold shadow-xs'
-                    : 'bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-medium hover:bg-stone-50'
+                    ? 'bg-stone-900 text-white font-bold shadow-xs'
+                    : 'bg-white border border-stone-200/90 text-stone-900 font-bold hover:bg-stone-50 shadow-2xs'
                 }`}
               >
                 {b.label}

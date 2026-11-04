@@ -142,10 +142,14 @@ function OccasionStories({
 
           <span
             className={`text-xs whitespace-nowrap text-center transition-colors duration-200 ${
-              selectedCategory === 'all'
-                ? 'font-bold text-amber-700 dark:text-amber-400'
-                : 'font-medium text-stone-700 dark:text-stone-300'
+              selectedCategory === 'all' ? 'font-extrabold' : 'font-bold'
             }`}
+            style={{
+              color:
+                selectedCategory === 'all'
+                  ? 'var(--accent-gold, #B45309)'
+                  : 'var(--text-main, #1C1917)',
+            }}
           >
             {strings.allOccasions}
           </span>
@@ -216,10 +220,13 @@ function OccasionStories({
               {/* Story Title Label: text-xs whitespace-nowrap (No Ellipsis Clipping) */}
               <span
                 className={`text-xs whitespace-nowrap text-center transition-colors duration-200 ${
-                  isSelected
-                    ? 'font-bold text-amber-700 dark:text-amber-400'
-                    : 'font-medium text-stone-700 dark:text-stone-300'
+                  isSelected ? 'font-extrabold' : 'font-bold'
                 }`}
+                style={{
+                  color: isSelected
+                    ? 'var(--accent-gold, #B45309)'
+                    : 'var(--text-main, #1C1917)',
+                }}
               >
                 {isAr ? occ.nameAr : occ.nameEn}
               </span>

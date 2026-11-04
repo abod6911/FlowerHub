@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "./components/soap-bubble/soap-bubble.css";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-grayscale-1: #ffffff;
   --color-grayscale-2: #fcfcfc;
