@@ -184,7 +184,7 @@ export default function ProductConfiguratorDrawer({
 
       {/* 2. Slide-Up Drawer Sheet: Boutique Atelier Surface */}
       <div
-        className="relative z-10 w-full max-w-[500px] mx-auto rounded-t-[28px] max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t transition-colors duration-300"
+        className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-[28px] sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t transition-colors duration-300"
         style={{
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           color: 'var(--text-main, #1C1917)',
@@ -958,10 +958,10 @@ export default function ProductConfiguratorDrawer({
         </div>
 
         {/* ========================================================
-            Sticky Footer CTA Bar: WhatsApp & Cart
+            Sticky Footer CTA Bar: WhatsApp & Cart (Safe-Area Bottom)
            ======================================================== */}
         <div
-          className="p-3.5 sm:p-4 border-t shrink-0 flex items-center gap-2.5 transition-colors shadow-lg"
+          className="p-3.5 sm:p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t shrink-0 flex items-center gap-2.5 transition-colors shadow-lg"
           style={{
             backgroundColor: 'var(--surface-card, #FFFFFF)',
             borderTopColor: 'var(--border-subtle, #E7E5E4)',

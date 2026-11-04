@@ -21,7 +21,7 @@ export default function CustomOrderBanner({
         <div className="flex-1 min-w-0">
           <h3 className="text-sm sm:text-base font-bold tracking-tight leading-snug">
             <VariableFontHoverByRandomLetter
-              label={isAr ? 'طلب مخصص' : (strings.customBannerTitle || 'Custom Bespoke Order')}
+              label={isAr ? 'صمّم باقتك الخاصة بخطوة واحدة' : (strings.customBannerTitle || 'Custom Bespoke Order')}
               fromFontVariationSettings="'wght' 400"
               toFontVariationSettings="'wght' 800"
               staggerDuration={0.035}
@@ -38,7 +38,7 @@ export default function CustomOrderBanner({
           className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-stone-900 hover:bg-stone-100 font-bold text-xs transition-colors shadow-xs active:scale-95 group"
         >
           <VariableFontHoverByRandomLetter
-            label={isAr ? 'طلب مخصص' : (strings.customBannerCta || 'Customize')}
+            label={isAr ? 'صمّم الآن' : (strings.customBannerCta || 'Customize')}
             fromFontVariationSettings="'wght' 400"
             toFontVariationSettings="'wght' 850"
             staggerDuration={0.03}

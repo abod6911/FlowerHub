@@ -228,62 +228,62 @@ function ProductCard({
 
         <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
 
-        {/* 1. TOP-RIGHT CORNER (top-2.5 right-2.5): Reserved Exclusively for Status Badge */}
+        {/* 1. TOP-RIGHT CORNER: Status Badge with Mobile Safe Max-Width */}
         {badgeConfig && (
-          <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
+          <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 pointer-events-none max-w-[calc(100%-2.5rem)]">
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md shadow-md ${badgeConfig.className}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold backdrop-blur-md shadow-md truncate ${badgeConfig.className}`}
             >
               {badgeConfig.icon}
-              <span className="leading-none tracking-tight">{badgeConfig.text}</span>
+              <span className="leading-none tracking-tight truncate">{badgeConfig.text}</span>
             </span>
           </div>
         )}
 
-        {/* 2. TOP-LEFT CORNER (top-2.5 left-2.5): Reserved Exclusively for Heart Favorite Button */}
+        {/* 2. TOP-LEFT CORNER: Reserved Exclusively for Heart Favorite Button */}
         <button
           type="button"
           onClick={handleToggleFavorite}
           aria-label={isAr ? 'إضافة إلى المفضلة' : 'Add to favorites'}
-          className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full bg-white/85 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 transition-all duration-200 active:scale-90 ${
+          className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 transition-all duration-200 active:scale-90 shrink-0 ${
             heartPop ? 'scale-125' : 'scale-100'
           } ${isFavorite ? 'text-rose-600' : 'text-stone-500 hover:text-rose-600'}`}
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${
+            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-colors ${
               isFavorite ? 'fill-[#BE123C] text-[#BE123C]' : 'stroke-[2]'
             }`}
           />
         </button>
       </div>
 
-      {/* Card Content & Unified Footer */}
-      <div className="flex flex-col justify-between flex-1 p-3 gap-2">
+      {/* Card Content & Unified Responsive Footer */}
+      <div className="flex flex-col justify-between flex-1 p-2.5 sm:p-3.5 gap-2">
         {/* Title: Exactly 2 lines max with uniform height */}
         <h3
-          className="line-clamp-2 min-h-[2.75rem] text-sm font-bold leading-snug text-stone-900 transition-colors duration-200"
+          className="line-clamp-2 min-h-[2.4rem] sm:min-h-[2.75rem] text-xs sm:text-sm font-bold leading-snug text-stone-900 transition-colors duration-200"
           style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
         >
           {isAr ? product.titleAr : product.titleEn}
         </h3>
 
-        {/* Unified Bottom Bar: Prices on Right, + Add Button on Left */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-stone-100 gap-1.5">
+        {/* Unified Bottom Bar: Prices on Right, + Add Button on Left (Zero Wrap on Mobile) */}
+        <div className="flex items-center justify-between pt-1.5 sm:pt-2 mt-auto border-t border-stone-100 gap-1">
           {/* Right Side: Consistent Price Row */}
           <div className="flex flex-col items-start leading-none min-w-0">
             {product.originalPrice && (
-              <span className="text-[11px] text-stone-400 line-through mb-0.5">
+              <span className="text-[10px] sm:text-[11px] text-stone-400 line-through mb-0.5">
                 {isAr ? toArabicDigits(product.originalPrice) : product.originalPrice}
               </span>
             )}
-            <div className="flex items-baseline gap-1">
+            <div className="flex items-baseline gap-0.5 sm:gap-1">
               <span
-                className="text-base font-extrabold text-[var(--accent-primary,#123524)] tracking-tight"
+                className="text-sm sm:text-base font-extrabold text-[var(--accent-primary,#123524)] tracking-tight"
                 style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
               >
                 {isAr ? toArabicDigits(product.price) : product.price}
               </span>
-              <span className="text-[11px] font-semibold text-stone-500">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-stone-500">
                 {strings.sar}
               </span>
             </div>
@@ -293,7 +293,7 @@ function ProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`inline-flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-medium text-white transition-all duration-200 active:scale-95 shadow-xs cursor-pointer ${
+            className={`inline-flex items-center justify-center gap-0.5 sm:gap-1 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold text-white transition-all duration-200 active:scale-95 shadow-xs cursor-pointer shrink-0 ${
               isMorphed
                 ? 'bg-emerald-600 scale-102 ring-2 ring-emerald-300'
                 : 'bg-[var(--accent-primary,#123524)] hover:opacity-90'
@@ -302,15 +302,15 @@ function ProductCard({
           >
             {isMorphed ? (
               <>
-                <Check className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
-                <span className="whitespace-nowrap font-bold text-xs">
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3] animate-bounce" />
+                <span className="whitespace-nowrap font-bold text-[10px] sm:text-xs">
                   {isAr ? '✓ تمت الإضافة' : 'Added!'}
                 </span>
               </>
             ) : (
               <>
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span className="whitespace-nowrap font-medium text-xs">
+                <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
+                <span className="whitespace-nowrap font-semibold text-[11px] sm:text-xs">
                   {isAr ? '+ أضف' : '+ Add'}
                 </span>
               </>

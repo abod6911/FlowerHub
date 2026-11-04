@@ -167,10 +167,10 @@ function ShopHeader({
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
 
   return (
-    <header className="px-4 pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
+    <header className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
       {/* Luxury Boutique Floating Header Card Container */}
       <div
-        className="relative p-5 sm:p-6 shadow-[0_12px_36px_-6px_rgba(212,175,55,0.08),0_4px_18px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-4 transition-all duration-300 overflow-hidden rounded-[26px] border border-amber-200/80 dark:border-stone-800 bg-gradient-to-b from-[#FDFAF6] via-white to-[#FDF8F3] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 backdrop-blur-xl group"
+        className="relative p-4 sm:p-6 shadow-[0_12px_36px_-6px_rgba(212,175,55,0.08),0_4px_18px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-3 sm:gap-4 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-amber-200/80 dark:border-stone-800 bg-gradient-to-b from-[#FDFAF6] via-white to-[#FDF8F3] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 backdrop-blur-xl group"
       >
         {/* Poetic floating rose petals drifting gently across background layer */}
         <FloatingHeroPetals className="z-0 opacity-25" />

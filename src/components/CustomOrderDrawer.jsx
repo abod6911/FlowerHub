@@ -123,7 +123,7 @@ export default function CustomOrderDrawer({
 
       {/* 2. Slide-Up Drawer Sheet: Dynamic Reactive Surface */}
       <div
-        className="relative z-10 w-full max-w-[480px] mx-auto rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t transition-colors duration-300"
+        className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t transition-colors duration-300"
         style={{
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           color: 'var(--text-main, #1C1917)',
@@ -547,7 +547,7 @@ export default function CustomOrderDrawer({
 
         {/* Footer */}
         <div
-          className="p-4 border-t shrink-0 transition-colors"
+          className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t shrink-0 transition-colors"
           style={{
             backgroundColor: 'var(--surface-card, #FFFFFF)',
             borderTopColor: 'var(--border-subtle, #E7E5E4)',

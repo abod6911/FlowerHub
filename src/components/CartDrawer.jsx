@@ -141,7 +141,7 @@ export default function CartDrawer({
 
       {/* Solid Slide-Up Drawer Sheet */}
       <div
-        className="relative z-10 w-full max-w-[480px] mx-auto rounded-t-[2.5rem] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t"
+        className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-[2rem] sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t"
         style={{
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           borderColor: 'var(--border-subtle, rgba(0,0,0,0.1))',
@@ -428,7 +428,7 @@ export default function CartDrawer({
 
             {/* Checkout Action Footer */}
             {items.length > 0 && (
-              <div className="p-4 border-t border-stone-200 dark:border-stone-800 space-y-2 shrink-0 bg-stone-50 dark:bg-stone-950/80">
+              <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))] border-t border-stone-200 dark:border-stone-800 space-y-2 shrink-0 bg-stone-50 dark:bg-stone-950/80">
                 {/* Method 1: Apple Pay Button */}
                 {paymentMethod === 'apple_pay' && (
                   <button

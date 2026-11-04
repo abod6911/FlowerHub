@@ -62,7 +62,7 @@ export default function WhatsAppPreviewModal({
       <div className="fixed inset-0 bg-black/75 backdrop-blur-md" onClick={onClose} />
 
       {/* WhatsApp Window Card */}
-      <div className="relative z-10 w-full max-w-[480px] rounded-3xl overflow-hidden shadow-2xl flex flex-col bg-[#EFEAE2] dark:bg-[#0B141A] text-neutral-900 dark:text-neutral-100 max-h-[92vh] border border-neutral-700">
+      <div className="relative z-10 w-full max-w-full sm:max-w-md rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl flex flex-col bg-[#EFEAE2] dark:bg-[#0B141A] text-neutral-900 dark:text-neutral-100 max-h-[92vh] border border-neutral-700">
         {/* 1. Official WhatsApp Top Green Bar */}
         <div className="bg-[#075E54] dark:bg-[#1F2C34] text-white px-4 py-3 flex items-center justify-between shadow-md shrink-0">
           <div className="flex items-center gap-3">

@@ -9,6 +9,7 @@ import {
   Store,
   Sliders,
   TrendingUp,
+  X,
 } from 'lucide-react';
 import { THEMES, HERO_STYLES, SPECIALS_STYLES } from '../data/mockData';
 import { t } from '../utils/translations';
@@ -30,11 +31,35 @@ export default function ThemeSwitcherBar({
   onOpenBotanicalTypography,
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const strings = t[lang];
   const isAr = lang === 'ar';
 
+  const isStorefront = activeView === 'storefront';
+  const showMobileBar = !isStorefront || isMobileOpen;
+
   return (
-    <header className="sticky top-0 z-50 w-full transition-all duration-300">
+    <>
+      {/* Mobile Floating Controls Launcher Pill (Only on Storefront when bar is collapsed) */}
+      {isStorefront && !isMobileOpen && (
+        <div className="sm:hidden fixed bottom-5 start-4 z-40 animate-fade-in pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => setIsMobileOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-stone-900/90 text-amber-300 backdrop-blur-md text-[11px] font-bold shadow-xl border border-amber-400/40 active:scale-95 transition-all"
+          >
+            <Sliders className="w-3.5 h-3.5 text-amber-400" />
+            <span>{isAr ? 'لوحة التحكم' : 'Controls'}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Main Top Header Bar */}
+      <header
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+          showMobileBar ? 'block' : 'hidden sm:block'
+        }`}
+      >
       {/* Top Main Bar */}
       <div className="bg-neutral-900/95 backdrop-blur-md text-white border-b border-neutral-800 text-xs px-2.5 py-1.5 shadow-lg">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
@@ -195,6 +220,19 @@ export default function ThemeSwitcherBar({
               <Globe className="w-3 h-3" />
               <span>{lang === 'ar' ? 'English' : 'عربي'}</span>
             </button>
+
+            {/* Close Button on Mobile Storefront */}
+            {isStorefront && isMobileOpen && (
+              <button
+                type="button"
+                onClick={() => setIsMobileOpen(false)}
+                className="sm:hidden p-1.5 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white shrink-0 active:scale-90 transition-transform"
+                aria-label="Close controls"
+                title="إغلاق والعودة للمتجر"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
@@ -302,5 +340,6 @@ export default function ThemeSwitcherBar({
         )}
       </div>
     </header>
+    </>
   );
 }

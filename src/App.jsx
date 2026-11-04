@@ -371,7 +371,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   : 'Bespoke setups. Request a similar quote'}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {pastWorks.map((item) => (
                 <ProductCard
                   key={item.id}
@@ -385,7 +385,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4">
             {filteredProducts.map((product, idx) => (
               <ProductCard
                 key={product.id}
@@ -460,13 +460,13 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         </footer>
       </main>
 
-      {/* Floating Bottom Cart Bar when bag has items */}
+      {/* Floating Bottom Cart Bar when bag has items (Safe-Area Bottom) */}
       {bagItems.length > 0 && !isProductDrawerOpen && !isCartDrawerOpen && !isCustomDrawerOpen && (
-        <div className="fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 pointer-events-none animate-slide-up">
+        <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] inset-x-0 z-40 flex justify-center px-4 pointer-events-none animate-slide-up">
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="pointer-events-auto max-w-[420px] w-full py-3.5 px-5 rounded-full bg-[#022C22] text-white shadow-2xl flex items-center justify-between border border-white/20 active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
+            className="pointer-events-auto max-w-md sm:max-w-lg w-full py-3.5 px-5 rounded-full bg-[#022C22] text-white shadow-2xl flex items-center justify-between border border-white/20 active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -494,7 +494,9 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
   );
 
   return (
-    <div className="min-h-screen bg-stone-200 dark:bg-stone-950 flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white">
+    <div
+      className={`min-h-screen ${themeTokens.pageBg} flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white transition-colors duration-300 w-full overflow-x-hidden`}
+    >
       {/* 1. Multi-Tenant Theme, Hero, View & Motion Switcher Bar */}
       <ThemeSwitcherBar
         currentTheme={shopConfig.theme}
@@ -516,10 +518,10 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       />
 
       {/* 2. Main View Canvas */}
-      {/* VIEW A: Storefront (Mobile-First 480px) */}
+      {/* VIEW A: Storefront (Fully Responsive from Mobile to Desktop) */}
       {activeView === 'storefront' && (
         <div
-          className={`w-full max-w-[480px] ${themeTokens.pageBg} min-h-screen shadow-2xl flex flex-col relative transition-colors duration-300`}
+          className={`w-full max-w-xl md:max-w-3xl lg:max-w-5xl ${themeTokens.pageBg} min-h-screen flex flex-col relative transition-colors duration-300 mx-auto`}
         >
           {renderStorefrontContent()}
         </div>
