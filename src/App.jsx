@@ -23,12 +23,16 @@ const WhatsAppPreviewModal = React.lazy(() => import('./components/WhatsAppPrevi
 const FloristAdminPanel = React.lazy(() => import('./components/FloristAdminPanel'));
 const FloristOrderSlipModal = React.lazy(() => import('./components/FloristOrderSlipModal'));
 const FlowerStorefrontPage = React.lazy(() => import('./components/FlowerStorefrontPage'));
+const NoCodeLuxuryStudio = React.lazy(() => import('./components/NoCodeLuxuryStudio'));
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
 
 export default function App() {
   // Language & RTL State
   const [lang, setLang] = useState('ar');
   const isAr = lang === 'ar';
+
+  // Live Design Customizer Studio Modal State
+  const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
 
   // Multi-Tenant Shop Config & Theme State (Lifted Shared State)
   const [shopConfig, setShopConfig] = useState(INITIAL_SHOP_CONFIG);
@@ -548,6 +552,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               onAddFormat={handleAddFormat}
               occasions={occasions}
               onAddOccasion={handleAddOccasion}
+              onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
             />
           </div>
         </React.Suspense>
@@ -572,6 +577,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               onAddFormat={handleAddFormat}
               occasions={occasions}
               onAddOccasion={handleAddOccasion}
+              onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
               initialTab="sales"
             />
           </div>
@@ -609,6 +615,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onAddFormat={handleAddFormat}
                 occasions={occasions}
                 onAddOccasion={handleAddOccasion}
+                onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
               />
             </div>
 
@@ -725,6 +732,14 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           onClose={() => setIsOrderSlipModalOpen(false)}
           isModal={true}
           lang={lang}
+        />
+      </React.Suspense>
+
+      {/* Live No-Code Luxury Design Studio Drawer */}
+      <React.Suspense fallback={null}>
+        <NoCodeLuxuryStudio
+          isOpen={isDesignStudioOpen}
+          onClose={() => setIsDesignStudioOpen(false)}
         />
       </React.Suspense>
 

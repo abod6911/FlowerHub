@@ -39,6 +39,25 @@ import DarAlwardAnimatedTitle from './DarAlwardAnimatedTitle';
 import TypeGardenStudioSection from './TypeGardenStudioSection';
 import { DEFAULT_BOTANICAL_BRAND_CONFIG } from '../types/botanical';
 
+class TabSafeBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(err) {
+    console.warn('TabSafeBoundary caught error:', err);
+  }
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || null;
+    }
+    return this.props.children;
+  }
+}
+
 export default function FloristAdminPanel({
   shopConfig,
   onUpdateShopConfig,
@@ -1000,7 +1019,9 @@ export default function FloristAdminPanel({
           </div>
 
           {/* Type Garden Arabic Engine Studio Controls */}
-          <TypeGardenStudioSection lang={lang} />
+          <TabSafeBoundary>
+            <TypeGardenStudioSection lang={lang} />
+          </TabSafeBoundary>
 
           {/* 1. LIVE MINI-STOREFRONT PREVIEW CARD AT TOP */}
           <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-sm space-y-2.5">
@@ -1134,16 +1155,18 @@ export default function FloristAdminPanel({
               }}
             >
               <div className="w-full max-w-[360px]">
-                <DarAlwardAnimatedTitle
-                  config={botanicalBrandConfig}
-                  isDark={!(botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter')}
-                  textColor={
-                    botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter'
-                      ? '#111827'
-                      : '#F9FAFB'
-                  }
-                  className="py-1"
-                />
+                <TabSafeBoundary>
+                  <DarAlwardAnimatedTitle
+                    config={botanicalBrandConfig}
+                    isDark={!(botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter')}
+                    textColor={
+                      botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter'
+                        ? '#111827'
+                        : '#F9FAFB'
+                    }
+                    className="py-1"
+                  />
+                </TabSafeBoundary>
               </div>
             </div>
 

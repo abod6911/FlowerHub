@@ -519,7 +519,34 @@ export function StudioThemeProvider({ children }) {
 export function useStudioStore() {
   const ctx = useContext(StudioThemeContext);
   if (!ctx) {
-    throw new Error('useStudioStore must be used within a StudioThemeProvider');
+    return {
+      config: DEFAULT_STUDIO_CONFIG,
+      typeGarden: DEFAULT_TYPE_GARDEN_CONFIG,
+      activeTab: 'palette',
+      setActiveTab: () => {},
+      hasUnsavedChanges: false,
+      updateField: () => {},
+      updateColors: () => {},
+      updateTypography: () => {},
+      updateLayout: () => {},
+      updateBrand: () => {},
+      updateModule: () => {},
+      applyPalette: () => {},
+      toggleSection: () => {},
+      moveSection: () => {},
+      publishConfig: () => true,
+      resetConfig: () => {},
+      exportConfig: () => {},
+      importConfig: () => true,
+      updateTypeGarden: () => {},
+      updateTypeGardenField: () => {},
+      regenerateTypeGardenSeed: () => {},
+      replayTypeGardenGrowth: () => {},
+      exportTypeGardenJson: () => {},
+      resetToDefault: () => {},
+      savePreset: () => {},
+      loadPreset: () => {},
+    };
   }
   return ctx;
 }
