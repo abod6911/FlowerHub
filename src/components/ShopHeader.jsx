@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   MapPin,
   Phone,
@@ -12,6 +12,9 @@ import {
   Clock,
   X,
   Crown,
+  Camera,
+  Upload,
+  Trash2,
 } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
@@ -67,6 +70,7 @@ function ShopHeader({
   _heroStyle = 'qlub',
   lang = 'ar',
   shopConfig,
+  onUpdateShopConfig,
   _themeTokens = THEME_TOKENS.botanical,
   _botanicalBrandConfig,
   searchQuery = '',
@@ -76,6 +80,19 @@ function ShopHeader({
 }) {
   const strings = t[lang] || t.ar;
   const isAr = lang === 'ar';
+
+  const avatarFileInputRef = useRef(null);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [customUrlInput, setCustomUrlInput] = useState('');
+  const [avatarToast, setAvatarToast] = useState('');
+
+  const [customAvatar, setCustomAvatar] = useState(() => {
+    try {
+      return localStorage.getItem('flowerhub_store_avatar') || shopConfig?.avatarUrl || null;
+    } catch {
+      return shopConfig?.avatarUrl || null;
+    }
+  });
 
   const [favCount, setFavCount] = useState(0);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
@@ -100,6 +117,63 @@ function ShopHeader({
   const currentPlaceholder = isAr
     ? SEARCH_PLACEHOLDERS_AR[placeholderIdx]
     : SEARCH_PLACEHOLDERS_EN[placeholderIdx];
+
+  const handleAvatarFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert(isAr ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image size must be under 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      setCustomAvatar(dataUrl);
+      try {
+        localStorage.setItem('flowerhub_store_avatar', dataUrl);
+      } catch {
+        // storage quota fallback
+      }
+      if (onUpdateShopConfig) {
+        onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: dataUrl }));
+      }
+      setIsAvatarModalOpen(false);
+      setAvatarToast(isAr ? '✨ تم تحديث صورة الشعار بنجاح!' : 'Logo photo updated successfully!');
+      setTimeout(() => setAvatarToast(''), 3000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveUrlAvatar = () => {
+    if (!customUrlInput.trim()) return;
+    const url = customUrlInput.trim();
+    setCustomAvatar(url);
+    try {
+      localStorage.setItem('flowerhub_store_avatar', url);
+    } catch {}
+    if (onUpdateShopConfig) {
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url }));
+    }
+    setCustomUrlInput('');
+    setIsAvatarModalOpen(false);
+    setAvatarToast(isAr ? '✨ تم حفظ رابط الشعار بنجاح!' : 'Logo URL saved!');
+    setTimeout(() => setAvatarToast(''), 3000);
+  };
+
+  const handleResetAvatar = () => {
+    setCustomAvatar(null);
+    try {
+      localStorage.removeItem('flowerhub_store_avatar');
+    } catch {}
+    if (onUpdateShopConfig) {
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: null }));
+    }
+    setIsAvatarModalOpen(false);
+    setAvatarToast(isAr ? 'تمت استعادة الشعار الملكي الافتراضي (د.و)' : 'Reset to default seal');
+    setTimeout(() => setAvatarToast(''), 3000);
+  };
 
   let storeThemeCtx = null;
   try {
@@ -129,7 +203,7 @@ function ShopHeader({
 
   const statusText = rawStudio?.statusText || brand?.statusText || (isAr ? 'مفتوح الآن • تجهيز فوري' : 'Open Now');
   const avatarText = rawStudio?.avatarText || brand?.avatarText || 'د.و';
-  const avatarUrl = brand?.avatarUrl;
+  const avatarUrl = customAvatar || shopConfig?.avatarUrl || brand?.avatarUrl;
   const locationLabel = rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
   const instagramUrl = brand?.instagramUrl || 'https://instagram.com';
@@ -158,17 +232,30 @@ function ShopHeader({
 
         {/* 1. TOP ROW: Monogram Royal Seal | Live Status Capsule | Rating Jewel */}
         <div className="flex items-center justify-between w-full relative z-10">
-          {/* Right: Store Monogram Royal Seal */}
+          {/* Right: Store Monogram Royal Seal / Custom Photo */}
           <div className="flex items-center">
-            <div
-              className="relative w-11 h-11 rounded-2xl flex items-center justify-center font-serif text-base font-bold text-amber-100 shadow-md ring-2 ring-amber-400/50 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 cursor-pointer select-none group/avatar hover:scale-105 hover:rotate-3 transition-all duration-300"
-              title={shopName}
+            {/* Hidden file input for photo upload */}
+            <input
+              type="file"
+              ref={avatarFileInputRef}
+              accept="image/*"
+              onChange={handleAvatarFileSelect}
+              className="hidden"
+              aria-label="Upload store logo"
+            />
+
+            <button
+              type="button"
+              onClick={() => setIsAvatarModalOpen(true)}
+              className="relative w-11 h-11 rounded-2xl flex items-center justify-center font-serif text-base font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 cursor-pointer select-none group/avatar hover:scale-105 hover:rotate-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-visible"
+              title={isAr ? 'انقر لتغيير أو رفع شعار المتجر' : 'Click to change store logo'}
             >
               {/* Crown Spark Accent */}
-              <div className="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white">
+              <div className="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white z-20">
                 <Crown className="w-2.5 h-2.5 stroke-[2.5]" />
               </div>
 
+              {/* Avatar Image or Monogram */}
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
@@ -180,7 +267,12 @@ function ShopHeader({
               ) : (
                 <span className="tracking-wider drop-shadow-xs">{avatarText}</span>
               )}
-            </div>
+
+              {/* Camera Icon Overlay on Hover */}
+              <div className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white z-10">
+                <Camera className="w-4 h-4 text-amber-300" />
+              </div>
+            </button>
           </div>
 
           {/* Center: Live Status Badge Capsule with Dual-Pulse Radar */}
@@ -417,6 +509,132 @@ function ShopHeader({
           </div>
         </div>
       </div>
+
+      {/* Store Logo / Avatar Customizer Modal for Store Owner */}
+      {isAvatarModalOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setIsAvatarModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-2xl border border-amber-300/40 relative z-10 flex flex-col gap-4 text-stone-900 dark:text-stone-100"
+            onClick={(e) => e.stopPropagation()}
+            dir={isAr ? 'rtl' : 'ltr'}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-stone-200/80 dark:border-stone-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-400 flex items-center justify-center">
+                  <Camera className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm sm:text-base text-stone-900 dark:text-white">
+                    {isAr ? 'تخصيص شعار وصورة المتجر' : 'Store Logo & Avatar'}
+                  </h3>
+                  <p className="text-[11px] text-stone-500">
+                    {isAr ? 'اختر صورة من جهازك أو ضع رابط صورة مباشر' : 'Upload photo or enter image URL'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAvatarModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 flex items-center justify-center text-stone-600 dark:text-stone-300 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Current Avatar Preview */}
+            <div className="flex flex-col items-center justify-center py-3 bg-stone-50 dark:bg-stone-950/60 rounded-2xl border border-stone-200/60 dark:border-stone-800">
+              <div className="relative w-20 h-20 rounded-2xl shadow-lg ring-3 ring-amber-400/70 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 flex items-center justify-center overflow-hidden">
+                <div className="absolute -top-1.5 -right-1 w-5 h-5 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-2 ring-white z-20">
+                  <Crown className="w-3 h-3 stroke-[2.5]" />
+                </div>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={shopName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-serif text-2xl font-bold text-amber-100">{avatarText}</span>
+                )}
+              </div>
+              <span className="text-xs font-semibold text-stone-600 dark:text-stone-400 mt-2">
+                {avatarUrl ? (isAr ? 'شعارك المخصص حالياً' : 'Current Custom Logo') : (isAr ? 'الختم الملكي الافتراضي (د.و)' : 'Default Royal Seal')}
+              </span>
+            </div>
+
+            {/* Option 1: Upload from device */}
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => avatarFileInputRef.current?.click()}
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-900 to-stone-900 hover:from-emerald-800 hover:to-stone-800 text-amber-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Upload className="w-4 h-4 text-amber-400" />
+                <span>{isAr ? 'رفع صورة أو شعار من الجهاز' : 'Upload Image from Device'}</span>
+              </button>
+              <p className="text-[10px] text-stone-400 text-center">
+                {isAr ? 'يدعم كاميرا الجوال، ألبوم الصور، وجميع أنواع الصور حتى 5 ميجابايت' : 'Supports mobile camera, photos, PNG, JPG up to 5MB'}
+              </p>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-2 my-1 text-stone-400 text-xs">
+              <div className="h-px bg-stone-200 dark:bg-stone-800 flex-1" />
+              <span>{isAr ? 'أو' : 'OR'}</span>
+              <div className="h-px bg-stone-200 dark:bg-stone-800 flex-1" />
+            </div>
+
+            {/* Option 2: Image URL input */}
+            <form onSubmit={handleSaveUrlAvatar} className="space-y-2">
+              <label className="text-xs font-semibold text-stone-700 dark:text-stone-300 block">
+                {isAr ? 'أو ضع رابط صورة مباشر (URL):' : 'Or direct image URL:'}
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={customUrlInput}
+                  onChange={(e) => setCustomUrlInput(e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                  className="flex-1 py-2 px-3 text-xs rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+                <button
+                  type="submit"
+                  disabled={!customUrlInput.trim()}
+                  className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold text-xs transition-all active:scale-95 shrink-0"
+                >
+                  {isAr ? 'حفظ' : 'Save'}
+                </button>
+              </div>
+            </form>
+
+            {/* Option 3: Reset to Default */}
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={handleResetAvatar}
+                className="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isAr ? 'حذف الصورة المخصصة والعودة للختم الملكي الافتراضي' : 'Reset to Default Seal'}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Floating Save Toast */}
+      {avatarToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-stone-950 text-amber-200 text-xs font-bold shadow-xl border border-amber-400/40">
+          {avatarToast}
+        </div>
+      )}
     </header>
   );
 }

@@ -114,6 +114,59 @@ export default function FloristAdminPanel({
   const [storyFormUploadedImage, setStoryFormUploadedImage] = useState(null);
   const storyFileInputRef = useRef(null);
 
+  // Store Logo / Avatar Uploader State & Handlers
+  const logoFileInputRef = useRef(null);
+  const [logoUrlInput, setLogoUrlInput] = useState('');
+  const [logoToast, setLogoToast] = useState('');
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert(isAr ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image size must be under 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+      try {
+        localStorage.setItem('flowerhub_store_avatar', dataUrl);
+      } catch {}
+      if (onUpdateShopConfig) {
+        onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: dataUrl }));
+      }
+      setLogoToast(isAr ? 'تم تحديث وحفظ شعار المتجر بنجاح!' : 'Store logo updated successfully!');
+      setTimeout(() => setLogoToast(''), 3000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveLogoUrl = (e) => {
+    e.preventDefault();
+    if (!logoUrlInput.trim()) return;
+    const url = logoUrlInput.trim();
+    try {
+      localStorage.setItem('flowerhub_store_avatar', url);
+    } catch {}
+    if (onUpdateShopConfig) {
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url }));
+    }
+    setLogoUrlInput('');
+    setLogoToast(isAr ? 'تم حفظ رابط شعار المتجر بنجاح!' : 'Store logo URL saved successfully!');
+    setTimeout(() => setLogoToast(''), 3000);
+  };
+
+  const handleResetLogo = () => {
+    try {
+      localStorage.removeItem('flowerhub_store_avatar');
+    } catch {}
+    if (onUpdateShopConfig) {
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: null }));
+    }
+    setLogoToast(isAr ? 'تمت استعادة الشعار الملكي الافتراضي (د.و)' : 'Reset to default royal seal');
+    setTimeout(() => setLogoToast(''), 3000);
+  };
+
   const handleStoryPhotoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -1014,6 +1067,105 @@ export default function FloristAdminPanel({
                 {isAr ? 'فتح الاستوديو الكامل' : 'Open Studio'}
               </button>
             )}
+          </div>
+
+          {/* 0.5. Store Logo & Identity Customizer (Dedicated Card for Store Owner) */}
+          <div className="rounded-2xl border border-amber-300/60 bg-gradient-to-br from-amber-50/40 via-white to-amber-50/20 p-4 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
+                  <Camera className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm text-stone-900 flex items-center gap-1.5">
+                    <span>{isAr ? 'شعار وهوية المتجر (صورة الختم والأفاتار)' : 'Store Logo & Avatar Badge'}</span>
+                    <span className="text-[9px] uppercase px-1.5 py-0.2 rounded font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300/40">
+                      {isAr ? 'مخصص للمالك' : 'Owner Custom'}
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    {isAr ? 'الصورة التي تظهر في زاوية المتجر العلوية بجوار التقييم والحالة' : 'Displayed in the top storefront header next to rating'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Toast message if active */}
+              {logoToast && (
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full animate-fade-in">
+                  {logoToast}
+                </span>
+              )}
+            </div>
+
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={logoFileInputRef}
+              accept="image/*"
+              onChange={handleLogoUpload}
+              className="hidden"
+            />
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-stone-200/80">
+              {/* Avatar Preview */}
+              <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center font-serif text-lg font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 shrink-0 overflow-hidden">
+                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white z-20">
+                  <Sparkles className="w-2.5 h-2.5" />
+                </div>
+                {shopConfig.avatarUrl ? (
+                  <img
+                    src={shopConfig.avatarUrl}
+                    alt="Store Logo"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span>د.و</span>
+                )}
+              </div>
+
+              {/* Controls */}
+              <div className="flex-1 w-full space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => logoFileInputRef.current?.click()}
+                    className="py-2 px-3.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'رفع صورة من الجهاز' : 'Upload From Device'}</span>
+                  </button>
+
+                  {shopConfig.avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleResetLogo}
+                      className="py-2 px-3 rounded-xl bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'استعادة الافتراضي' : 'Reset'}</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Direct URL Form */}
+                <form onSubmit={handleSaveLogoUrl} className="flex gap-1.5 items-center">
+                  <input
+                    type="url"
+                    value={logoUrlInput}
+                    onChange={(e) => setLogoUrlInput(e.target.value)}
+                    placeholder={isAr ? 'أو ضع رابط صورة مباشر (URL)...' : 'Or paste direct image URL...'}
+                    className="flex-1 py-1.5 px-3 text-xs rounded-xl bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!logoUrlInput.trim()}
+                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold text-xs transition-all active:scale-95 shrink-0"
+                  >
+                    {isAr ? 'حفظ' : 'Save'}
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
 
           {/* 1. LIVE MINI-STOREFRONT PREVIEW CARD AT TOP */}

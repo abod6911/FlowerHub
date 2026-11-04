@@ -304,6 +304,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         heroStyle={shopConfig.heroStyle}
         lang={lang}
         shopConfig={shopConfig}
+        onUpdateShopConfig={setShopConfig}
         themeTokens={themeTokens}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
