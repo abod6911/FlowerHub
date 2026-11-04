@@ -50,15 +50,15 @@ function CoolerSpecialsCarousel({
     if (product.isOneTimeSpecial) {
       return {
         text: strings.oneTimeBadge || 'قطعة واحدة فقط',
-        icon: <Sparkles className="w-2.5 h-2.5 text-rose-700 shrink-0" />,
-        className: 'bg-rose-500/15 backdrop-blur-md text-rose-950 border border-rose-300/40 shadow-xs',
+        icon: <Sparkles className="w-2.5 h-2.5 text-rose-600 dark:text-rose-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-md font-bold',
       };
     }
     if (product.isReadyNow) {
       return {
         text: strings.readyNowBadge || 'جاهز الآن',
-        icon: <Clock className="w-2.5 h-2.5 text-amber-700 shrink-0" />,
-        className: 'bg-amber-500/15 backdrop-blur-md text-amber-950 border border-amber-300/40 shadow-xs',
+        icon: <Clock className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-md font-bold',
       };
     }
     return null;
@@ -150,10 +150,10 @@ function CoolerSpecialsCarousel({
                     {badgeCfg && (
                       <div className="absolute top-2.5 right-2.5 z-10">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold backdrop-blur-md shadow-xs ${badgeCfg.className}`}
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md shadow-md ${badgeCfg.className}`}
                         >
                           {badgeCfg.icon}
-                          <span>{badgeCfg.text}</span>
+                          <span className="leading-none">{badgeCfg.text}</span>
                         </span>
                       </div>
                     )}

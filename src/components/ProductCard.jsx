@@ -84,29 +84,29 @@ function ProductCard({
     if (product.badge && typeof product.badge === 'string' && product.badge.trim() !== '') {
       return {
         text: product.badge.trim(),
-        icon: <Sparkles className="w-2.5 h-2.5 text-amber-400 shrink-0" />,
-        className: 'bg-stone-900/85 backdrop-blur-md text-white border border-white/20 shadow-xs',
+        icon: <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-md font-bold',
       };
     }
     if (product.isOneTimeSpecial) {
       return {
         text: strings.oneTimeBadge || 'قطعة واحدة فقط',
-        icon: <Sparkles className="w-2.5 h-2.5 text-rose-700 shrink-0" />,
-        className: 'bg-rose-500/15 backdrop-blur-md text-rose-950 border border-rose-300/40 shadow-xs',
+        icon: <Sparkles className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-md font-bold',
       };
     }
     if (product.isReadyNow) {
       return {
         text: strings.readyNowBadge || 'جاهز الآن',
-        icon: <Clock className="w-2.5 h-2.5 text-amber-700 shrink-0" />,
-        className: 'bg-amber-500/15 backdrop-blur-md text-amber-950 border border-amber-300/40 shadow-xs',
+        icon: <Clock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-md font-bold',
       };
     }
     if (product.type === 'editable' || product.allowCustomColors || product.allowCustomText) {
       return {
         text: strings.customizableBadge || 'قابل للتخصيص',
-        icon: <SlidersHorizontal className="w-2.5 h-2.5 text-emerald-800 shrink-0" />,
-        className: 'bg-emerald-600/15 backdrop-blur-md text-emerald-950 border border-emerald-400/40 shadow-xs',
+        icon: <SlidersHorizontal className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-md font-bold',
       };
     }
     return null;
@@ -145,7 +145,7 @@ function ProductCard({
 
           {/* Top-Right: Category Tag */}
           <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-neutral-900/80 backdrop-blur-md text-white border border-white/20 shadow-xs">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-md">
               {isAr ? product.tagAr : product.tagEn}
             </span>
           </div>
@@ -232,10 +232,10 @@ function ProductCard({
         {badgeConfig && (
           <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
             <span
-              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs ${badgeConfig.className}`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md shadow-md ${badgeConfig.className}`}
             >
               {badgeConfig.icon}
-              <span className="leading-none">{badgeConfig.text}</span>
+              <span className="leading-none tracking-tight">{badgeConfig.text}</span>
             </span>
           </div>
         )}
