@@ -46,6 +46,23 @@ const QUICK_TAGS = [
   { id: 'ready', labelAr: '⚡ جاهز اليوم', labelEn: '⚡ Ready Today', query: 'جاهز' },
 ];
 
+// Dynamic Rotating Search Placeholders
+const SEARCH_PLACEHOLDERS_AR = [
+  'ابحث عن باقة، فازة، أو مناسبة...',
+  'ابحث عن: باقات الورد الجوري الملكي...',
+  'ابحث عن: فازات السيراميك الفاخرة...',
+  'ابحث عن: هدايا التخرج والمواليد...',
+  'ابحث عن: زهور عباد الشمس المبهجة...',
+];
+
+const SEARCH_PLACEHOLDERS_EN = [
+  'Search bouquets, vases, occasions...',
+  'Search: Royal Velvet Rose Bouquets...',
+  'Search: Luxury Ceramic & Glass Vases...',
+  'Search: Graduation & Baby Hampers...',
+  'Search: Radiant Golden Sunflowers...',
+];
+
 function ShopHeader({
   _heroStyle = 'qlub',
   lang = 'ar',
@@ -61,6 +78,7 @@ function ShopHeader({
   const isAr = lang === 'ar';
 
   const [favCount, setFavCount] = useState(0);
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
 
   useEffect(() => {
     try {
@@ -70,6 +88,18 @@ function ShopHeader({
       setFavCount(0);
     }
   }, []);
+
+  useEffect(() => {
+    const list = isAr ? SEARCH_PLACEHOLDERS_AR : SEARCH_PLACEHOLDERS_EN;
+    const timer = setInterval(() => {
+      setPlaceholderIdx((prev) => (prev + 1) % list.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, [isAr]);
+
+  const currentPlaceholder = isAr
+    ? SEARCH_PLACEHOLDERS_AR[placeholderIdx]
+    : SEARCH_PLACEHOLDERS_EN[placeholderIdx];
 
   let storeThemeCtx = null;
   try {
@@ -315,39 +345,57 @@ function ShopHeader({
           </div>
         </div>
 
-        {/* 5. SEARCH BAR & QUICK FILTERS (Sleek, glowing focus, instant chips) */}
+        {/* 5. LUXURY ARCHITECTURAL SEARCH CAPSULE & QUICK FILTERS */}
         <div className="w-full pt-1 relative z-10 space-y-2.5">
           <div className="relative w-full group">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-              placeholder={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-              aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-              className="w-full py-2.5 pr-10 pl-9 rounded-2xl bg-white dark:bg-stone-800/90 border border-stone-200 dark:border-stone-700 text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all duration-200 shadow-xs"
-            />
-            {/* Search Icon */}
-            <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-stone-400 group-focus-within:text-amber-600 transition-colors">
-              <Search className="w-4 h-4" />
-            </div>
+            {/* Outer Ambient Glow on Hover/Focus */}
+            <div className="absolute -inset-0.5 rounded-[22px] bg-gradient-to-r from-amber-400/25 via-emerald-400/15 to-amber-400/25 opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
 
-            {/* Clear Button (when text exists) */}
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => onSearchChange && onSearchChange('')}
-                className="absolute inset-y-0 left-3 flex items-center text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 cursor-pointer"
-                aria-label="Clear search"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+            {/* Main Search Pill Shell */}
+            <div className="relative w-full flex items-center bg-white dark:bg-stone-800/95 rounded-[20px] border border-stone-200/90 dark:border-stone-700/80 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.04)] group-hover:border-amber-300 dark:group-hover:border-stone-600 group-focus-within:border-amber-500 dark:group-focus-within:border-amber-400 group-focus-within:ring-2 group-focus-within:ring-amber-500/20 group-focus-within:shadow-[0_4px_20px_-2px_rgba(212,175,55,0.18)] transition-all duration-300 p-1">
+              
+              {/* Right Jewel Search Button / Icon */}
+              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-stone-950 flex items-center justify-center shrink-0 shadow-xs group-focus-within:scale-105 group-focus-within:rotate-3 transition-transform duration-300 select-none">
+                <Search className="w-4 h-4 stroke-[2.5]" />
+              </div>
+
+              {/* Input Element */}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+                placeholder={currentPlaceholder}
+                aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
+                className="w-full py-2 px-3 bg-transparent text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm font-medium focus:outline-none transition-colors"
+              />
+
+              {/* Left Actions Area */}
+              <div className="flex items-center gap-1.5 shrink-0 pl-2 pr-1">
+                {/* Clear Button (when text exists) */}
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => onSearchChange && onSearchChange('')}
+                    className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-700 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-600 text-stone-500 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-90"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </button>
+                ) : (
+                  <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-stone-700/80 text-[10px] font-bold text-amber-800 dark:text-amber-200 select-none border border-amber-200/60 dark:border-stone-600">
+                    <Sparkles className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                    <span>{isAr ? 'بحث ذكي' : 'Smart Search'}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Quick Category Chips for Immediate Discovery */}
           <div className="flex items-center justify-center gap-1.5 flex-wrap pt-0.5">
-            <span className="text-[10px] text-stone-400 font-medium ml-1">
-              {isAr ? 'اقتراحات سريعة:' : 'Quick:'}
+            <span className="text-[10px] text-stone-400 font-medium ml-1 flex items-center gap-1">
+              <Sparkles className="w-2.5 h-2.5 text-amber-500 animate-pulse" />
+              <span>{isAr ? 'الأكثر طلباً:' : 'Trending:'}</span>
             </span>
             {QUICK_TAGS.map((tag) => {
               const isActive = searchQuery === tag.query;
@@ -356,10 +404,10 @@ function ShopHeader({
                   key={tag.id}
                   type="button"
                   onClick={() => handleTagClick(tag.query)}
-                  className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-all duration-200 cursor-pointer active:scale-95 ${
+                  className={`text-[11px] px-3 py-1 rounded-full border transition-all duration-200 cursor-pointer active:scale-95 shadow-2xs ${
                     isActive
-                      ? 'bg-amber-500 text-stone-950 font-bold border-amber-500 shadow-xs'
-                      : 'bg-white/80 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200/80 dark:border-stone-700 hover:border-amber-300 hover:bg-amber-50/50'
+                      ? 'bg-amber-500 text-stone-950 font-bold border-amber-500 shadow-xs scale-105 ring-2 ring-amber-300/40'
+                      : 'bg-white/95 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-amber-200/60 dark:border-stone-700 hover:border-amber-400 hover:bg-amber-50/70 hover:-translate-y-0.5'
                   }`}
                 >
                   {isAr ? tag.labelAr : tag.labelEn}
