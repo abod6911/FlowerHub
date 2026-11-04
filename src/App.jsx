@@ -23,7 +23,7 @@ const WhatsAppPreviewModal = React.lazy(() => import('./components/WhatsAppPrevi
 const FloristAdminPanel = React.lazy(() => import('./components/FloristAdminPanel'));
 const FloristOrderSlipModal = React.lazy(() => import('./components/FloristOrderSlipModal'));
 const FlowerStorefrontPage = React.lazy(() => import('./components/FlowerStorefrontPage'));
-import { Sliders, Store, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
 
 export default function App() {
   // Language & RTL State
@@ -303,6 +303,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         themeTokens={themeTokens}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        bagCount={bagItems.reduce((s, it) => s + (it.quantity || 1), 0)}
+        onOpenBag={() => setIsCartDrawerOpen(true)}
       />
 
       {/* Floward-Style Circular Occasion Stories */}
@@ -452,6 +454,37 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           </div>
         </footer>
       </main>
+
+      {/* Floating Bottom Cart Bar when bag has items */}
+      {bagItems.length > 0 && !isProductDrawerOpen && !isCartDrawerOpen && !isCustomDrawerOpen && (
+        <div className="fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 pointer-events-none animate-slide-up">
+          <button
+            type="button"
+            onClick={() => setIsCartDrawerOpen(true)}
+            className="pointer-events-auto max-w-[420px] w-full py-3.5 px-5 rounded-full bg-[#022C22] text-white shadow-2xl flex items-center justify-between border border-white/20 active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <ShoppingBag className="w-5 h-5 text-amber-300" />
+                <span className="absolute -top-1.5 -right-2 bg-amber-500 text-stone-950 text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-xs ring-2 ring-[#022C22]">
+                  {bagItems.reduce((s, it) => s + (it.quantity || 1), 0)}
+                </span>
+              </div>
+              <span className="text-xs sm:text-sm font-bold">
+                {isAr ? 'عرض سلة الطلبات' : 'View Shopping Cart'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-bold font-mono text-amber-200">
+                {bagItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)} {isAr ? 'ر.س' : 'SAR'}
+              </span>
+              <span className="text-[11px] bg-white/20 px-2.5 py-1 rounded-full font-bold">
+                {isAr ? 'إتمام الطلب ←' : 'Checkout →'}
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
     </div>
   );
 

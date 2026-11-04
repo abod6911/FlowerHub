@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Star, MessageCircle, Heart, Search } from 'lucide-react';
+import { MapPin, Phone, Star, MessageCircle, Heart, Search, ShoppingBag } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
 import { useStoreTheme } from '../context/StoreThemeContext';
@@ -33,6 +33,8 @@ function ShopHeader({
   _botanicalBrandConfig,
   searchQuery = '',
   onSearchChange,
+  bagCount = 0,
+  onOpenBag,
 }) {
   const strings = t[lang] || t.ar;
   const isAr = lang === 'ar';
@@ -217,6 +219,22 @@ function ShopHeader({
             title={isAr ? 'المفضلة' : 'Wishlist'}
           >
             <Heart className="w-4 h-4 stroke-[2.2]" />
+          </button>
+
+          {/* Shopping Bag / Cart */}
+          <button
+            type="button"
+            onClick={onOpenBag}
+            aria-label={isAr ? 'سلة الطلبات' : 'Cart'}
+            className="relative w-10 h-10 rounded-full bg-stone-50 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 shadow-xs flex items-center justify-center text-stone-800 dark:text-stone-200 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+            title={isAr ? 'سلة الطلبات' : 'Cart'}
+          >
+            <ShoppingBag className="w-4 h-4 text-emerald-800 dark:text-emerald-400 stroke-[2.2]" />
+            {bagCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-amber-500 text-stone-950 text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900 animate-pulse">
+                {bagCount}
+              </span>
+            )}
           </button>
         </div>
 
