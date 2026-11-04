@@ -35,7 +35,7 @@ const SEARCH_PLACEHOLDERS_EN = [
 ];
 
 function ShopHeader({
-  _heroStyle = 'qlub',
+  heroStyle = 'qlub',
   lang = 'ar',
   shopConfig,
   onUpdateShopConfig,
@@ -56,11 +56,23 @@ function ShopHeader({
 
   const [customAvatar, setCustomAvatar] = useState(() => {
     try {
-      return localStorage.getItem('flowerhub_store_avatar') || shopConfig?.avatarUrl || null;
+      return (
+        localStorage.getItem('flowerhub_store_avatar') ||
+        shopConfig?.avatarUrl ||
+        shopConfig?.logoUrl ||
+        null
+      );
     } catch {
-      return shopConfig?.avatarUrl || null;
+      return shopConfig?.avatarUrl || shopConfig?.logoUrl || null;
     }
   });
+
+  // Re-sync avatar whenever shopConfig avatarUrl or logoUrl changes
+  useEffect(() => {
+    if (shopConfig?.avatarUrl !== undefined || shopConfig?.logoUrl !== undefined) {
+      setCustomAvatar(shopConfig?.avatarUrl || shopConfig?.logoUrl || null);
+    }
+  }, [shopConfig?.avatarUrl, shopConfig?.logoUrl]);
 
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
 
@@ -95,7 +107,7 @@ function ShopHeader({
         // storage quota fallback
       }
       if (onUpdateShopConfig) {
-        onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: dataUrl }));
+        onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: dataUrl, logoUrl: dataUrl }));
       }
       setIsAvatarModalOpen(false);
       setAvatarToast(isAr ? '✨ تم تحديث صورة الشعار بنجاح!' : 'Logo photo updated successfully!');
@@ -112,7 +124,7 @@ function ShopHeader({
       localStorage.setItem('flowerhub_store_avatar', url);
     } catch {}
     if (onUpdateShopConfig) {
-      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url }));
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url, logoUrl: url }));
     }
     setCustomUrlInput('');
     setIsAvatarModalOpen(false);
@@ -126,7 +138,7 @@ function ShopHeader({
       localStorage.removeItem('flowerhub_store_avatar');
     } catch {}
     if (onUpdateShopConfig) {
-      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: null }));
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: null, logoUrl: null }));
     }
     setIsAvatarModalOpen(false);
     setAvatarToast(isAr ? 'تمت استعادة الشعار الملكي الافتراضي (د.و)' : 'Reset to default seal');
@@ -144,187 +156,346 @@ function ShopHeader({
   const rawStudio = storeThemeCtx?.rawConfig || storeThemeCtx?.config;
   const brand = storeThemeCtx?.config?.brand;
 
-  const shopName =
-    rawStudio?.storeName ||
-    brand?.storeName ||
-    brand?.name ||
-    (isAr
-      ? shopConfig?.shopNameAr || 'دار الورد للمناسبات'
-      : shopConfig?.shopNameEn || 'Dar Alward Florist');
+  // Real-time prioritization of shopConfig values set by Florist in admin
+  const shopName = isAr
+    ? (shopConfig?.shopNameAr || rawStudio?.storeName || brand?.storeName || 'دار الورد للمناسبات')
+    : (shopConfig?.shopNameEn || rawStudio?.storeName || brand?.storeName || 'Dar Alward Florist');
 
-  const shopTagline =
-    rawStudio?.storeSubtitle ||
-    brand?.subtitle ||
-    (isAr
-      ? shopConfig?.taglineAr || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب'
-      : shopConfig?.taglineEn || strings.shopTagline);
+  const shopTagline = isAr
+    ? (shopConfig?.taglineAr || rawStudio?.storeSubtitle || brand?.subtitle || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب')
+    : (shopConfig?.taglineEn || rawStudio?.storeSubtitle || brand?.subtitle || strings.shopTagline);
 
-  const statusText = rawStudio?.statusText || brand?.statusText || (isAr ? 'مفتوح الآن • تجهيز فوري' : 'Open Now');
+  const isBusy = shopConfig?.status === 'busy_60m';
+  const isClosed = shopConfig?.status === 'closed';
+
+  const statusText = isClosed
+    ? (isAr ? 'مغلق مؤقتاً' : 'Temporarily Closed')
+    : isBusy
+    ? (isAr ? 'مشغول • تجهيز خلال ٦٠ د' : 'Busy • 60m prep')
+    : (rawStudio?.statusText || brand?.statusText || (isAr ? 'مفتوح الآن • تجهيز فوري' : 'Open Now • Instant Prep'));
+
+  const statusColorClasses = isClosed
+    ? 'bg-stone-500/10 dark:bg-stone-900/60 text-stone-700 dark:text-stone-300 border-stone-500/25 dark:border-stone-700'
+    : isBusy
+    ? 'bg-amber-500/10 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border-amber-500/25 dark:border-amber-700/60'
+    : 'bg-emerald-500/10 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border-emerald-500/25 dark:border-emerald-700/60';
+
+  const radarDotClasses = isClosed ? 'bg-stone-500' : isBusy ? 'bg-amber-500' : 'bg-emerald-500';
+  const radarPingClasses = isClosed ? 'bg-stone-400' : isBusy ? 'bg-amber-400' : 'bg-emerald-400';
+  const radarRingClasses = isClosed ? 'ring-stone-300' : isBusy ? 'ring-amber-200/80' : 'ring-emerald-200/80';
+
   const avatarText = rawStudio?.avatarText || brand?.avatarText || 'د.و';
-  const avatarUrl = customAvatar || shopConfig?.avatarUrl || brand?.avatarUrl;
+  const avatarUrl = shopConfig?.avatarUrl || shopConfig?.logoUrl || customAvatar || brand?.avatarUrl;
   const locationLabel = rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
 
-  return (
-    <header className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
-      {/* Luxury Boutique Floating Header Card Container */}
-      <div
-        className="relative p-4 sm:p-6 shadow-[0_12px_36px_-6px_rgba(212,175,55,0.08),0_4px_18px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-3 sm:gap-4 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-amber-200/80 dark:border-stone-800 bg-gradient-to-b from-[#FDFAF6] via-white to-[#FDF8F3] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 backdrop-blur-xl group"
-      >
-        {/* Poetic floating rose petals drifting gently across background layer */}
-        <FloatingHeroPetals className="z-0 opacity-25" />
+  // Render Royal Avatar Button
+  const renderAvatarButton = (sizeClass = 'w-11 h-11') => (
+    <button
+      type="button"
+      onClick={() => setIsAvatarModalOpen(true)}
+      className={`relative ${sizeClass} rounded-2xl flex items-center justify-center font-serif text-base font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 cursor-pointer select-none group/avatar hover:scale-105 hover:rotate-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-visible shrink-0`}
+      title={isAr ? 'انقر لتغيير أو رفع شعار المتجر' : 'Click to change store logo'}
+    >
+      {/* Crown Spark Accent */}
+      <div className="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white z-20">
+        <Crown className="w-2.5 h-2.5 stroke-[2.5]" />
+      </div>
 
-        {/* Ambient Warm Golden Aura in Background */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-44 bg-gradient-to-b from-amber-200/20 via-rose-100/10 to-transparent rounded-full blur-2xl pointer-events-none z-0" />
+      {/* Avatar Image or Monogram */}
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt={shopName}
+          className="w-full h-full object-cover rounded-2xl"
+          loading="eager"
+          decoding="async"
+        />
+      ) : (
+        <span className="tracking-wider drop-shadow-xs">{avatarText}</span>
+      )}
 
-        {/* 1. TOP ROW: Monogram Royal Seal | Live Status Capsule | Rating Jewel */}
-        <div className="flex items-center justify-between w-full relative z-10">
-          {/* Right: Store Monogram Royal Seal / Custom Photo */}
-          <div className="flex items-center">
-            {/* Hidden file input for photo upload */}
-            <input
-              type="file"
-              ref={avatarFileInputRef}
-              accept="image/*"
-              onChange={handleAvatarFileSelect}
-              className="hidden"
-              aria-label="Upload store logo"
-            />
+      {/* Camera Icon Overlay on Hover */}
+      <div className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white z-10">
+        <Camera className="w-4 h-4 text-amber-300" />
+      </div>
+    </button>
+  );
 
+  // Render Dynamic Search Capsule
+  const renderSearchCapsule = () => (
+    <div className="relative w-full group">
+      {/* Outer Ambient Glow on Hover/Focus */}
+      <div className="absolute -inset-0.5 rounded-[22px] bg-gradient-to-r from-amber-400/25 via-emerald-400/15 to-amber-400/25 opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
+
+      {/* Main Search Pill Shell */}
+      <div className="relative w-full flex items-center bg-white dark:bg-stone-800/95 rounded-[20px] border border-stone-200/90 dark:border-stone-700/80 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.04)] group-hover:border-amber-300 dark:group-hover:border-stone-600 group-focus-within:border-amber-500 dark:group-focus-within:border-amber-400 group-focus-within:ring-2 group-focus-within:ring-amber-500/20 group-focus-within:shadow-[0_4px_20px_-2px_rgba(212,175,55,0.18)] transition-all duration-300 p-1">
+        {/* Jewel Search Icon */}
+        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-stone-950 flex items-center justify-center shrink-0 shadow-xs select-none">
+          <Search className="w-4 h-4 stroke-[2.5]" />
+        </div>
+
+        {/* Input Element */}
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
+          placeholder={currentPlaceholder}
+          aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
+          className="w-full py-2 px-3 bg-transparent text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm font-medium focus:outline-none transition-colors"
+        />
+
+        {/* Clear Button (when text exists) */}
+        {searchQuery && (
+          <div className="flex items-center shrink-0 pl-2 pr-1">
             <button
               type="button"
-              onClick={() => setIsAvatarModalOpen(true)}
-              className="relative w-11 h-11 rounded-2xl flex items-center justify-center font-serif text-base font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 cursor-pointer select-none group/avatar hover:scale-105 hover:rotate-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-visible"
-              title={isAr ? 'انقر لتغيير أو رفع شعار المتجر' : 'Click to change store logo'}
+              onClick={() => onSearchChange && onSearchChange('')}
+              className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-700 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-600 text-stone-500 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-90"
+              aria-label="Clear search"
             >
-              {/* Crown Spark Accent */}
-              <div className="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white z-20">
-                <Crown className="w-2.5 h-2.5 stroke-[2.5]" />
-              </div>
-
-              {/* Avatar Image or Monogram */}
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={shopName}
-                  className="w-full h-full object-cover rounded-2xl"
-                  loading="eager"
-                  decoding="async"
-                />
-              ) : (
-                <span className="tracking-wider drop-shadow-xs">{avatarText}</span>
-              )}
-
-              {/* Camera Icon Overlay on Hover */}
-              <div className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white z-10">
-                <Camera className="w-4 h-4 text-amber-300" />
-              </div>
+              <X className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           </div>
+        )}
+      </div>
+    </div>
+  );
 
-          {/* Center: Live Status Badge Capsule with Dual-Pulse Radar */}
-          <div className="flex items-center justify-center px-1">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border border-emerald-500/25 dark:border-emerald-700/60 shadow-xs backdrop-blur-md transition-all hover:bg-emerald-500/15">
-              <span className="relative flex h-2.5 w-2.5 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 ring-2 ring-emerald-200/80" />
+  return (
+    <header className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
+      {/* Hidden file input for photo upload */}
+      <input
+        type="file"
+        ref={avatarFileInputRef}
+        accept="image/*"
+        onChange={handleAvatarFileSelect}
+        className="hidden"
+        aria-label="Upload store logo"
+      />
+
+      {/* STYLE 1: EDITORIAL ATELIER COVER HERO */}
+      {heroStyle === 'editorial' ? (
+        <div className="relative p-5 sm:p-7 shadow-[0_16px_40px_-6px_rgba(0,0,0,0.35)] flex flex-col justify-between min-h-[270px] sm:min-h-[300px] transition-all duration-300 overflow-hidden rounded-[26px] border border-amber-500/40 bg-stone-950 text-white backdrop-blur-xl group">
+          {/* Cover background image with fallback */}
+          <img
+            src="./images/hero/hero-atelier-banner.jpg"
+            onError={(e) => {
+              e.currentTarget.src =
+                'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80';
+            }}
+            alt="Store Cover"
+            className="absolute inset-0 w-full h-full object-cover filter brightness-[0.40] transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-stone-950/60 to-black/45 pointer-events-none" />
+          <FloatingHeroPetals className="z-10 opacity-35" />
+
+          {/* Top Row */}
+          <div className="flex items-center justify-between w-full relative z-10">
+            <div className="flex items-center">
+              {renderAvatarButton('w-12 h-12')}
+            </div>
+
+            {/* Status Capsule */}
+            <div className="flex items-center justify-center px-1">
+              <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs transition-all border ${statusColorClasses}`}>
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
+                  <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${radarDotClasses} ring-2 ${radarRingClasses}`} />
+                </span>
+                <span className="text-[11px] sm:text-xs font-bold text-white tracking-normal whitespace-nowrap">
+                  {statusText}
+                </span>
               </span>
-              <BreathingText
-                fromFontVariationSettings="'wght' 500"
-                toFontVariationSettings="'wght' 800"
-                staggerFrom="center"
-                duration={2.2}
-                className="tracking-normal whitespace-nowrap text-[11px] sm:text-xs font-bold text-emerald-950 dark:text-emerald-200"
+            </div>
+
+            {/* WhatsApp & Rating */}
+            <div className="flex items-center justify-end gap-2">
+              <a
+                href={`https://wa.me/${phone}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white border border-emerald-400/40 transition-all duration-200 active:scale-95 shadow-xs"
               >
-                {isAr ? 'مفتوح الآن • تجهيز فوري' : statusText}
-              </BreathingText>
-            </span>
-          </div>
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
+              </a>
 
-          {/* Left: Quick WhatsApp Contact & Rating Badge */}
-          <div className="flex items-center justify-end gap-2">
-            <a
-              href={`https://wa.me/${phone}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={isAr ? 'واتساب' : 'WhatsApp'}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/25 transition-all duration-200 active:scale-95 shadow-2xs"
-              title={isAr ? 'واتساب مباشر' : 'Direct WhatsApp'}
-            >
-              <MessageCircle className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
-            </a>
-
-            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-50 to-amber-100/60 dark:bg-stone-800 text-amber-950 dark:text-amber-100 border border-amber-300/80 dark:border-stone-700 shadow-2xs whitespace-nowrap">
-              <Star className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)] shrink-0" />
-              <span className="font-extrabold text-xs tracking-tight">4.9 ★</span>
-            </span>
-          </div>
-        </div>
-
-        {/* 2. MAISON BRAND IDENTITY (Clean, minimal, regal) */}
-        <div className="w-full pt-1 pb-1 px-2 relative z-10 flex flex-col items-center justify-center text-center">
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight select-text text-stone-900 dark:text-stone-50 font-serif leading-tight">
-            {shopName}
-          </h1>
-
-          {/* Single Clean Tagline & Location Line */}
-          <div className="flex items-center justify-center gap-2 text-xs text-stone-500 dark:text-stone-400 mt-1 flex-wrap font-medium">
-            <span>{shopTagline}</span>
-            <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0" />
-            <a
-              href={locationUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 hover:underline font-semibold"
-            >
-              <MapPin className="w-3 h-3 shrink-0" />
-              <span>{locationLabel}</span>
-            </a>
-          </div>
-        </div>
-
-        {/* 3. SEARCH CAPSULE (Clean, intuitive, zero duplicate tags) */}
-        <div className="w-full pt-1 relative z-10">
-          <div className="relative w-full group">
-            {/* Outer Ambient Glow on Hover/Focus */}
-            <div className="absolute -inset-0.5 rounded-[22px] bg-gradient-to-r from-amber-400/25 via-emerald-400/15 to-amber-400/25 opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
-
-            {/* Main Search Pill Shell */}
-            <div className="relative w-full flex items-center bg-white dark:bg-stone-800/95 rounded-[20px] border border-stone-200/90 dark:border-stone-700/80 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.04)] group-hover:border-amber-300 dark:group-hover:border-stone-600 group-focus-within:border-amber-500 dark:group-focus-within:border-amber-400 group-focus-within:ring-2 group-focus-within:ring-amber-500/20 group-focus-within:shadow-[0_4px_20px_-2px_rgba(212,175,55,0.18)] transition-all duration-300 p-1">
-              {/* Jewel Search Icon */}
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-stone-950 flex items-center justify-center shrink-0 shadow-xs select-none">
-                <Search className="w-4 h-4 stroke-[2.5]" />
-              </div>
-
-              {/* Input Element */}
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-                placeholder={currentPlaceholder}
-                aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-                className="w-full py-2 px-3 bg-transparent text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm font-medium focus:outline-none transition-colors"
-              />
-
-              {/* Clear Button (when text exists) */}
-              {searchQuery && (
-                <div className="flex items-center shrink-0 pl-2 pr-1">
-                  <button
-                    type="button"
-                    onClick={() => onSearchChange && onSearchChange('')}
-                    className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-700 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-600 text-stone-500 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-90"
-                    aria-label="Clear search"
-                  >
-                    <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </button>
-                </div>
-              )}
+              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-amber-400/20 text-amber-200 border border-amber-400/40 shadow-xs">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
+                <span className="font-extrabold text-xs">4.9 ★</span>
+              </span>
             </div>
           </div>
+
+          {/* Center Brand Identity */}
+          <div className="w-full py-4 relative z-10 flex flex-col items-center justify-center text-center">
+            <span className="text-[10px] tracking-widest uppercase font-serif text-amber-300 font-bold px-2.5 py-0.5 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-400/40 mb-1.5">
+              ⚜ MAISON DES FLEURS • دار الورد ⚜
+            </span>
+            <h1 className="text-2xl sm:text-4xl font-serif font-black text-amber-50 drop-shadow-md leading-tight">
+              {shopName}
+            </h1>
+            <div className="flex items-center justify-center gap-2 text-xs text-stone-200 mt-1 flex-wrap font-medium">
+              <span>{shopTagline}</span>
+              <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+              <a
+                href={locationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-emerald-300 hover:underline font-semibold"
+              >
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span>{locationLabel}</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Search Capsule */}
+          <div className="w-full pt-1 relative z-10">
+            {renderSearchCapsule()}
+          </div>
         </div>
-      </div>
+      ) : heroStyle === 'minimal' ? (
+        /* STYLE 2: MINIMAL SCANDINAVIAN CLEAN HERO */
+        <div className="relative p-5 sm:p-6 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.06)] flex flex-col gap-3.5 transition-all duration-300 overflow-hidden rounded-[24px] border border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-lg">
+          <div className="flex flex-col items-center justify-center text-center pt-1 relative z-10">
+            {renderAvatarButton('w-14 h-14')}
+
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-stone-50 font-serif leading-tight mt-2.5">
+              {shopName}
+            </h1>
+
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium max-w-sm">
+              {shopTagline}
+            </p>
+
+            <div className="flex items-center justify-center gap-2 mt-2.5 flex-wrap text-xs">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-[11px] border backdrop-blur-md ${statusColorClasses}`}>
+                <span className="relative flex h-2 w-2">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${radarDotClasses}`} />
+                </span>
+                <span>{statusText}</span>
+              </span>
+
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-stone-800 text-amber-900 dark:text-amber-200 border border-amber-300/60 dark:border-stone-700">
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
+                <span>4.9 ★</span>
+              </span>
+
+              <a
+                href={`https://wa.me/${phone}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300/60 hover:bg-emerald-100"
+              >
+                <MessageCircle className="w-3 h-3" />
+                <span>{isAr ? 'واتساب' : 'WhatsApp'}</span>
+              </a>
+
+              <a
+                href={locationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] text-stone-500 dark:text-stone-400 hover:text-emerald-600 font-medium"
+              >
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span>{locationLabel}</span>
+              </a>
+            </div>
+          </div>
+
+          <div className="w-full pt-1 relative z-10">
+            {renderSearchCapsule()}
+          </div>
+        </div>
+      ) : (
+        /* STYLE 3: SIGNATURE QLUB COMPACT BOUTIQUE CARD (DEFAULT) */
+        <div
+          className="relative p-4 sm:p-6 shadow-[0_12px_36px_-6px_rgba(212,175,55,0.08),0_4px_18px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-3 sm:gap-4 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-amber-200/80 dark:border-stone-800 bg-gradient-to-b from-[#FDFAF6] via-white to-[#FDF8F3] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 backdrop-blur-xl group"
+        >
+          {/* Poetic floating rose petals drifting gently across background layer */}
+          <FloatingHeroPetals className="z-0 opacity-25" />
+
+          {/* Ambient Warm Golden Aura in Background */}
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-44 bg-gradient-to-b from-amber-200/20 via-rose-100/10 to-transparent rounded-full blur-2xl pointer-events-none z-0" />
+
+          {/* 1. TOP ROW: Monogram Royal Seal | Live Status Capsule | Rating Jewel */}
+          <div className="flex items-center justify-between w-full relative z-10">
+            <div className="flex items-center">
+              {renderAvatarButton('w-11 h-11')}
+            </div>
+
+            {/* Center: Live Status Badge Capsule with Dual-Pulse Radar */}
+            <div className="flex items-center justify-center px-1">
+              <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs transition-all border ${statusColorClasses}`}>
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
+                  <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${radarDotClasses} ring-2 ${radarRingClasses}`} />
+                </span>
+                <BreathingText
+                  fromFontVariationSettings="'wght' 500"
+                  toFontVariationSettings="'wght' 800"
+                  staggerFrom="center"
+                  duration={2.2}
+                  className="tracking-normal whitespace-nowrap text-[11px] sm:text-xs font-bold text-inherit"
+                >
+                  {statusText}
+                </BreathingText>
+              </span>
+            </div>
+
+            {/* Left: Quick WhatsApp Contact & Rating Badge */}
+            <div className="flex items-center justify-end gap-2">
+              <a
+                href={`https://wa.me/${phone}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={isAr ? 'واتساب' : 'WhatsApp'}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/25 transition-all duration-200 active:scale-95 shadow-2xs"
+                title={isAr ? 'واتساب مباشر' : 'Direct WhatsApp'}
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
+              </a>
+
+              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-50 to-amber-100/60 dark:bg-stone-800 text-amber-950 dark:text-amber-100 border border-amber-300/80 dark:border-stone-700 shadow-2xs whitespace-nowrap">
+                <Star className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)] shrink-0" />
+                <span className="font-extrabold text-xs tracking-tight">4.9 ★</span>
+              </span>
+            </div>
+          </div>
+
+          {/* 2. MAISON BRAND IDENTITY */}
+          <div className="w-full pt-1 pb-1 px-2 relative z-10 flex flex-col items-center justify-center text-center">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight select-text text-stone-900 dark:text-stone-50 font-serif leading-tight">
+              {shopName}
+            </h1>
+
+            {/* Single Clean Tagline & Location Line */}
+            <div className="flex items-center justify-center gap-2 text-xs text-stone-500 dark:text-stone-400 mt-1 flex-wrap font-medium">
+              <span>{shopTagline}</span>
+              <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+              <a
+                href={locationUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 hover:underline font-semibold"
+              >
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span>{locationLabel}</span>
+              </a>
+            </div>
+          </div>
+
+          {/* 3. SEARCH CAPSULE */}
+          <div className="w-full pt-1 relative z-10">
+            {renderSearchCapsule()}
+          </div>
+        </div>
+      )}
 
       {/* Store Logo / Avatar Customizer Modal for Store Owner */}
       {isAvatarModalOpen && (

@@ -9,6 +9,7 @@ import {
   INITIAL_OCCASIONS,
 } from './data/mockData';
 import { generateWhatsAppMessage } from './utils/translations';
+import { applyThemeToRoot } from './utils/themeEngine';
 import ThemeSwitcherBar from './components/ThemeSwitcherBar';
 import ShopHeader from './components/ShopHeader';
 import OccasionStories from './components/OccasionStories';
@@ -34,9 +35,37 @@ export default function App() {
   // Live Design Customizer Studio Modal State
   const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
 
-  // Multi-Tenant Shop Config & Theme State (Lifted Shared State)
-  const [shopConfig, setShopConfig] = useState(INITIAL_SHOP_CONFIG);
+  // Multi-Tenant Shop Config & Theme State (Hydrated from localStorage)
+  const [shopConfig, setShopConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flowerhub_shop_config');
+      return saved ? { ...INITIAL_SHOP_CONFIG, ...JSON.parse(saved) } : INITIAL_SHOP_CONFIG;
+    } catch {
+      return INITIAL_SHOP_CONFIG;
+    }
+  });
   const themeTokens = THEME_TOKENS[shopConfig.theme] || THEME_TOKENS.botanical;
+
+  // Persist shopConfig to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('flowerhub_shop_config', JSON.stringify(shopConfig));
+    } catch (e) {
+      console.error('Failed to save shop config to localStorage', e);
+    }
+  }, [shopConfig]);
+
+  // Apply theme tokens (CSS variables) and dark mode class to root document & body
+  useEffect(() => {
+    if (themeTokens?.variables) {
+      applyThemeToRoot(themeTokens.variables);
+    }
+    const isDark = Boolean(themeTokens?.isDark);
+    document.documentElement.classList.toggle('dark', isDark);
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.style.backgroundColor = themeTokens.variables?.['--bg-canvas'] || (isDark ? '#0B0B0C' : '#FAF8F5');
+    }
+  }, [themeTokens]);
 
   // Products and Past Work Lifted State
   const [products, setProducts] = useState(PRODUCTS);
@@ -44,7 +73,23 @@ export default function App() {
 
   // Dynamic Formats & Occasions Lifted State
   const [formats, setFormats] = useState(INITIAL_FORMATS);
-  const [occasions, setOccasions] = useState(INITIAL_OCCASIONS);
+  const [occasions, setOccasions] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flowerhub_occasions');
+      return saved ? JSON.parse(saved) : INITIAL_OCCASIONS;
+    } catch {
+      return INITIAL_OCCASIONS;
+    }
+  });
+
+  // Persist occasions to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('flowerhub_occasions', JSON.stringify(occasions));
+    } catch (e) {
+      console.error('Failed to save occasions to localStorage', e);
+    }
+  }, [occasions]);
 
   // View Mode: 'storefront' | 'admin' | 'split' | 'orderslip'
   const [activeView, setActiveView] = useState('storefront');
@@ -117,10 +162,38 @@ export default function App() {
       nameEn: nameEn?.trim() || nameAr.trim(),
       image: 'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=400&q=80',
       isStory: true,
+      isVisible: true,
     };
     setOccasions((prev) => [...prev, newOcc]);
     showToast(isAr ? 'تمت إضافة المناسبة الجديدة للمتجر' : 'New occasion added to store');
     return newOcc.id;
+  };
+
+  // Toggle Occasion Visibility handler
+  const handleToggleOccasionVisibility = (occId) => {
+    setOccasions((prev) =>
+      prev.map((occ) => (occ.id === occId ? { ...occ, isVisible: occ.isVisible === false ? true : false } : occ))
+    );
+  };
+
+  // Delete Occasion Story handler
+  const handleDeleteOccasion = (occId) => {
+    setOccasions((prev) => prev.filter((occ) => occ.id !== occId));
+    showToast(isAr ? 'تم حذف القصة بنجاح' : 'Story deleted');
+  };
+
+  // Apply Curated Luxury Design Preset Template
+  const handleApplyCuratedTemplate = (tmplConfig) => {
+    setShopConfig((prev) => ({
+      ...prev,
+      theme: tmplConfig.presetId,
+      heroStyle: tmplConfig.layout?.heroStyle || prev.heroStyle,
+      specialsStyle: tmplConfig.layout?.specialsStyle || prev.specialsStyle,
+    }));
+    if (tmplConfig.overrides) {
+      applyThemeToRoot(tmplConfig.overrides);
+    }
+    showToast(isAr ? '✨ تم تطبيق وحفظ القالب الفاخر فورياً على المتجر!' : 'Luxury template applied and saved!');
   };
 
   // Filter products based on Occasion, Product Type & Budget
@@ -555,6 +628,9 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               onAddFormat={handleAddFormat}
               occasions={occasions}
               onAddOccasion={handleAddOccasion}
+              onToggleOccasionVisibility={handleToggleOccasionVisibility}
+              onDeleteOccasion={handleDeleteOccasion}
+              onApplyCuratedTemplate={handleApplyCuratedTemplate}
               onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
             />
           </div>
@@ -580,6 +656,9 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               onAddFormat={handleAddFormat}
               occasions={occasions}
               onAddOccasion={handleAddOccasion}
+              onToggleOccasionVisibility={handleToggleOccasionVisibility}
+              onDeleteOccasion={handleDeleteOccasion}
+              onApplyCuratedTemplate={handleApplyCuratedTemplate}
               onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
               initialTab="sales"
             />
@@ -618,6 +697,9 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onAddFormat={handleAddFormat}
                 occasions={occasions}
                 onAddOccasion={handleAddOccasion}
+                onToggleOccasionVisibility={handleToggleOccasionVisibility}
+                onDeleteOccasion={handleDeleteOccasion}
+                onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
               />
             </div>

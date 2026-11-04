@@ -118,6 +118,12 @@ export default function FloristAdminPanel({
   const logoFileInputRef = useRef(null);
   const [logoUrlInput, setLogoUrlInput] = useState('');
   const [logoToast, setLogoToast] = useState('');
+  const [designToast, setDesignToast] = useState('');
+
+  const triggerDesignFeedback = (msg) => {
+    setDesignToast(msg);
+    setTimeout(() => setDesignToast(''), 3500);
+  };
 
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
@@ -133,9 +139,10 @@ export default function FloristAdminPanel({
         localStorage.setItem('flowerhub_store_avatar', dataUrl);
       } catch {}
       if (onUpdateShopConfig) {
-        onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: dataUrl }));
+        onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: dataUrl, logoUrl: dataUrl }));
       }
       setLogoToast(isAr ? 'تم تحديث وحفظ شعار المتجر بنجاح!' : 'Store logo updated successfully!');
+      triggerDesignFeedback(isAr ? '✨ تم تحديث وحفظ شعار المتجر فورياً على الموقع!' : 'Store logo updated live!');
       setTimeout(() => setLogoToast(''), 3000);
     };
     reader.readAsDataURL(file);
@@ -149,10 +156,11 @@ export default function FloristAdminPanel({
       localStorage.setItem('flowerhub_store_avatar', url);
     } catch {}
     if (onUpdateShopConfig) {
-      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url }));
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url, logoUrl: url }));
     }
     setLogoUrlInput('');
     setLogoToast(isAr ? 'تم حفظ رابط شعار المتجر بنجاح!' : 'Store logo URL saved successfully!');
+    triggerDesignFeedback(isAr ? '✨ تم حفظ وتطبيق رابط الشعار فورياً على الموقع!' : 'Store logo URL applied live!');
     setTimeout(() => setLogoToast(''), 3000);
   };
 
@@ -161,9 +169,10 @@ export default function FloristAdminPanel({
       localStorage.removeItem('flowerhub_store_avatar');
     } catch {}
     if (onUpdateShopConfig) {
-      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: null }));
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: null, logoUrl: null }));
     }
     setLogoToast(isAr ? 'تمت استعادة الشعار الملكي الافتراضي (د.و)' : 'Reset to default royal seal');
+    triggerDesignFeedback(isAr ? '✨ تمت استعادة الشعار الملكي الافتراضي فورياً!' : 'Default seal restored live!');
     setTimeout(() => setLogoToast(''), 3000);
   };
 
@@ -1040,6 +1049,19 @@ export default function FloristAdminPanel({
       {/* ========================================================= */}
       {activeTab === 'design' && (
         <div className="p-4 space-y-5">
+          {/* Live sync notification toast for Florist */}
+          {designToast && (
+            <div className="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold text-xs flex items-center justify-between shadow-lg ring-2 ring-emerald-400/50 animate-fade-in sticky top-2 z-30">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-300 animate-spin" style={{ animationDuration: '3s' }} />
+                <span>{designToast}</span>
+              </div>
+              <span className="text-[10px] bg-black/25 px-2.5 py-0.5 rounded-full font-mono text-emerald-200">
+                LIVE SYNCED
+              </span>
+            </div>
+          )}
+
           {/* 0. Live Customizer Studio Quick Launch Banner */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950 border border-amber-500/30 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
             <div className="flex items-center gap-3">
@@ -1310,6 +1332,11 @@ export default function FloristAdminPanel({
                           specialsStyle: tmpl.config.layout.specialsStyle,
                         });
                       }
+                      triggerDesignFeedback(
+                        isAr
+                          ? `✨ تم تفعيل وتثبيت قالب "${tmpl.nameAr}" فورياً على المتجر!`
+                          : `✨ Template "${tmpl.nameEn}" applied and saved live!`
+                      );
                     }}
                     className={`min-w-[190px] max-w-[210px] p-3 rounded-2xl border text-start flex flex-col justify-between transition-all shrink-0 ${
                       isActive
@@ -1366,12 +1393,17 @@ export default function FloristAdminPanel({
                     <button
                       key={th.id}
                       type="button"
-                      onClick={() =>
+                      onClick={() => {
                         onUpdateShopConfig({
                           ...shopConfig,
                           theme: th.id,
-                        })
-                      }
+                        });
+                        triggerDesignFeedback(
+                          isAr
+                            ? `🎨 تم تفعيل هوية ألوان "${th.nameAr}" فورياً على المتجر!`
+                            : `🎨 Theme "${th.name}" colors applied live!`
+                        );
+                      }}
                       className={`flex items-center gap-2.5 p-3 rounded-2xl border text-start transition-all ${
                         isActive
                           ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
@@ -1414,12 +1446,17 @@ export default function FloristAdminPanel({
                   <button
                     key={hero.id}
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
                       onUpdateShopConfig({
                         ...shopConfig,
                         heroStyle: hero.id,
-                      })
-                    }
+                      });
+                      triggerDesignFeedback(
+                        isAr
+                          ? `📐 تم تطبيق تنسيق الترويسة "${hero.nameAr}" فورياً!`
+                          : `📐 Header layout "${hero.name}" applied live!`
+                      );
+                    }}
                     className={`p-2.5 rounded-xl border text-center transition-all ${
                       isActive
                         ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
@@ -1451,12 +1488,17 @@ export default function FloristAdminPanel({
                   <button
                     key={style.id}
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
                       onUpdateShopConfig({
                         ...shopConfig,
                         specialsStyle: style.id,
-                      })
-                    }
+                      });
+                      triggerDesignFeedback(
+                        isAr
+                          ? `⚡ تم تطبيق نمط حركة الباقات "${style.nameAr}" فورياً!`
+                          : `⚡ Specials motion "${style.name}" applied live!`
+                      );
+                    }}
                     className={`p-3 rounded-xl border text-start transition-all ${
                       isActive
                         ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
@@ -1758,7 +1800,10 @@ export default function FloristAdminPanel({
               <div className="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs font-semibold">
                 <button
                   type="button"
-                  onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'open_20m' })}
+                  onClick={() => {
+                    onUpdateShopConfig({ ...shopConfig, status: 'open_20m' });
+                    triggerDesignFeedback(isAr ? '✨ تم تحديث حالة المحل إلى (مفتوح • ٢٠ د) فورياً!' : 'Status set to Open');
+                  }}
                   className={`py-1.5 px-2 rounded-lg transition-all ${
                     shopConfig.status === 'open_20m'
                       ? 'bg-emerald-600 text-white shadow-xs'
@@ -1769,7 +1814,10 @@ export default function FloristAdminPanel({
                 </button>
                 <button
                   type="button"
-                  onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' })}
+                  onClick={() => {
+                    onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' });
+                    triggerDesignFeedback(isAr ? '✨ تم تحديث حالة المحل إلى (مشغول • ٦٠ د) فورياً!' : 'Status set to Busy');
+                  }}
                   className={`py-1.5 px-2 rounded-lg transition-all ${
                     shopConfig.status === 'busy_60m'
                       ? 'bg-amber-600 text-white shadow-xs'
@@ -1780,7 +1828,10 @@ export default function FloristAdminPanel({
                 </button>
                 <button
                   type="button"
-                  onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'closed' })}
+                  onClick={() => {
+                    onUpdateShopConfig({ ...shopConfig, status: 'closed' });
+                    triggerDesignFeedback(isAr ? '✨ تم تحديث حالة المحل إلى (مغلق مؤقتاً) فورياً!' : 'Status set to Closed');
+                  }}
                   className={`py-1.5 px-2 rounded-lg transition-all ${
                     shopConfig.status === 'closed'
                       ? 'bg-stone-800 text-white shadow-xs'
@@ -1795,10 +1846,14 @@ export default function FloristAdminPanel({
             {/* Live Logo URL & Avatar */}
             <div className="flex items-center gap-3 p-2.5 rounded-xl border border-stone-200 bg-stone-50">
               <div className="w-12 h-12 rounded-xl bg-stone-900 text-white flex items-center justify-center overflow-hidden shrink-0 font-serif font-bold text-lg shadow-xs">
-                {shopConfig.logoUrl ? (
-                  <img src={shopConfig.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                {shopConfig.logoUrl || shopConfig.avatarUrl ? (
+                  <img
+                    src={shopConfig.logoUrl || shopConfig.avatarUrl}
+                    alt="Logo"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <span>M</span>
+                  <span>د.و</span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -1808,10 +1863,15 @@ export default function FloristAdminPanel({
                 <input
                   type="url"
                   placeholder="https://.../logo.png"
-                  value={shopConfig.logoUrl || ''}
-                  onChange={(e) =>
-                    onUpdateShopConfig({ ...shopConfig, logoUrl: e.target.value })
-                  }
+                  value={shopConfig.logoUrl || shopConfig.avatarUrl || ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    onUpdateShopConfig({ ...shopConfig, logoUrl: val, avatarUrl: val });
+                    try {
+                      if (val) localStorage.setItem('flowerhub_store_avatar', val);
+                      else localStorage.removeItem('flowerhub_store_avatar');
+                    } catch {}
+                  }}
                   className="w-full text-xs p-1.5 rounded-lg border border-stone-200 bg-white font-mono"
                 />
               </div>
