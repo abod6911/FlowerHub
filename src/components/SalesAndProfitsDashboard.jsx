@@ -35,7 +35,7 @@ import {
 /**
  * Smooth 60fps Exponential Ease-Out Animated Counter Component
  */
-function AnimatedNumber({ value, duration = 900, formatter }) {
+function AnimatedNumber({ value, duration = 950, formatter }) {
   const [displayVal, setDisplayVal] = useState(0);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function AnimatedNumber({ value, duration = 900, formatter }) {
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // easeOutCubic curve
+      // Fluid easeOutCubic curve
       const ease = 1 - Math.pow(1 - progress, 3);
       const current = startVal + (endVal - startVal) * ease;
       setDisplayVal(current);
@@ -62,13 +62,15 @@ function AnimatedNumber({ value, duration = 900, formatter }) {
   }, [value, duration]);
 
   if (formatter) {
-    return <>{formatter(displayVal)}</>;
+    const isInt = (Number(value) || 0) % 1 === 0;
+    const cleanNum = isInt ? Math.round(displayVal) : Number(displayVal.toFixed(2));
+    return <>{formatter(cleanNum)}</>;
   }
   return <>{Math.round(displayVal)}</>;
 }
 
 /**
- * Ultra-Lightweight Interactive SVG Sparkline with Dynamic Self-Drawing Motion
+ * Ultra-Lightweight Interactive SVG Sparkline with Dynamic Self-Drawing Motion & Glowing End Dot
  */
 function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad', height = 36 }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
@@ -112,6 +114,7 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
   }
 
   const areaD = `${pathD} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`;
+  const lastPoint = points[points.length - 1];
 
   return (
     <div
@@ -124,9 +127,12 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.45" />
             <stop offset="100%" stopColor={color} stopOpacity="0.0" />
           </linearGradient>
+          <filter id={`glow-${gradientId}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor={color} floodOpacity="0.4" />
+          </filter>
         </defs>
 
         {/* Gradient fill underneath curve */}
@@ -145,6 +151,7 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
+          filter={`url(#glow-${gradientId})`}
           style={{
             strokeDasharray: 300,
             strokeDashoffset: isDrawn ? 0 : 300,
@@ -152,17 +159,39 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
           }}
         />
 
+        {/* Live Pulse Dot at the last coordinate point */}
+        {isDrawn && lastPoint && (
+          <g>
+            <circle
+              cx={lastPoint.x}
+              cy={lastPoint.y}
+              r="4.5"
+              fill={color}
+              opacity="0.4"
+              className="animate-ping origin-center"
+            />
+            <circle
+              cx={lastPoint.x}
+              cy={lastPoint.y}
+              r="2.5"
+              fill="#FFFFFF"
+              stroke={color}
+              strokeWidth="2"
+            />
+          </g>
+        )}
+
         {/* Interactive hover points */}
         {points.map((pt, idx) => (
           <circle
             key={idx}
             cx={pt.x}
             cy={pt.y}
-            r={hoveredIdx === idx ? 4 : 2}
+            r={hoveredIdx === idx ? 4.5 : 2}
             className="transition-all cursor-pointer"
             fill={hoveredIdx === idx ? '#fff' : color}
             stroke={color}
-            strokeWidth={hoveredIdx === idx ? 2 : 1}
+            strokeWidth={hoveredIdx === idx ? 2.5 : 1}
             onMouseEnter={() => setHoveredIdx(idx)}
             onTouchStart={() => setHoveredIdx(idx)}
           />
@@ -170,7 +199,7 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
       </svg>
 
       {hoveredIdx !== null && (
-        <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded bg-stone-900 text-white text-[9px] font-mono shadow-md whitespace-nowrap z-20 pointer-events-none animate-fade-in">
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-stone-950 text-white text-[10px] font-mono font-bold shadow-xl border border-white/20 whitespace-nowrap z-20 pointer-events-none animate-fade-in">
           {data[hoveredIdx]}
         </div>
       )}
@@ -191,32 +220,43 @@ function CustomChartTooltip({ active, payload, label }) {
   const orders = data.orders || 0;
 
   return (
-    <div className="bg-stone-950/95 text-white backdrop-blur-md px-3.5 py-2.5 rounded-2xl shadow-2xl border border-stone-800 text-xs space-y-1.5 min-w-[170px] animate-fade-in font-sans">
-      <div className="flex items-center justify-between border-b border-stone-800 pb-1.5">
-        <span className="font-bold text-stone-300">{label}</span>
-        <span className="text-[10px] text-stone-400 font-mono">{orders} طلبات</span>
+    <div className="bg-stone-950/95 text-white backdrop-blur-xl px-4 py-3 rounded-2xl shadow-2xl border border-stone-800 text-xs space-y-2 min-w-[190px] animate-fade-in font-sans">
+      <div className="flex items-center justify-between border-b border-stone-800/80 pb-1.5">
+        <span className="font-bold text-stone-200">{label}</span>
+        <span className="text-[10px] text-amber-300 font-mono font-bold px-1.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+          {orders} طلبات
+        </span>
       </div>
 
-      <div className="space-y-1">
-        <div className="flex items-center justify-between gap-3 text-stone-200">
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between gap-3 text-stone-300">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-stone-400" />
-            <span className="text-[11px]">المبيعات:</span>
+            <span className="text-[11px] font-medium">المبيعات:</span>
           </span>
           <span className="font-mono font-bold text-white">{revenue.toLocaleString('ar-SA')} ر.س</span>
         </div>
 
-        <div className="flex items-center justify-between gap-3 text-emerald-300">
+        <div className="flex items-center justify-between gap-3 text-emerald-400">
           <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="text-[11px]">صافي الربح:</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
+            <span className="text-[11px] font-bold">صافي الربح:</span>
           </span>
-          <span className="font-mono font-bold text-emerald-400">{profit.toLocaleString('ar-SA')} ر.س</span>
+          <span className="font-mono font-extrabold text-emerald-300">{profit.toLocaleString('ar-SA')} ر.س</span>
         </div>
 
-        <div className="flex items-center justify-between gap-3 text-[10px] pt-1 border-t border-stone-800 text-stone-400 font-mono">
-          <span>هامش الربح المحقق:</span>
-          <span className="font-bold text-emerald-400">{margin}%</span>
+        {/* Real-time Profit Margin Bar */}
+        <div className="pt-1.5 border-t border-stone-800/80 space-y-1">
+          <div className="flex items-center justify-between text-[10px] text-stone-400 font-mono">
+            <span>هامش الربح المحقق:</span>
+            <span className="font-extrabold text-emerald-400">{margin}%</span>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-stone-800 overflow-hidden">
+            <div
+              style={{ width: `${Math.min(margin, 100)}%` }}
+              className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-300 rounded-full"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -590,14 +630,17 @@ export default function SalesAndProfitsDashboard({
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* KPI 1: Total Revenue */}
           <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
+            className="bg-gradient-to-br from-white via-stone-50/40 to-emerald-50/15 rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.05s' }}
           >
+            {/* Top Micro Accent Line */}
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-stone-800 via-emerald-800 to-stone-900 opacity-60 group-hover:opacity-100 transition-opacity" />
+
             <div>
-              <div className="flex items-center justify-between text-stone-500 mb-1">
-                <span className="text-xs font-semibold">{isAr ? 'إجمالي المبيعات' : 'Total Revenue'}</span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full group-hover:scale-105 transition-transform">
-                  <ArrowUpRight className="w-2.5 h-2.5" />
+              <div className="flex items-center justify-between text-stone-500 mb-1.5">
+                <span className="text-xs font-bold text-stone-700">{isAr ? 'إجمالي المبيعات' : 'Total Revenue'}</span>
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs group-hover:scale-105 transition-transform">
+                  <ArrowUpRight className="w-3 h-3 text-emerald-600" />
                   +14.2%
                 </span>
               </div>
@@ -607,10 +650,10 @@ export default function SalesAndProfitsDashboard({
             </div>
 
             <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'منحنى الإيراد' : 'Trend'}</span>
+              <span className="text-[10px] font-medium text-stone-400">{isAr ? 'منحنى الإيراد' : 'Trend'}</span>
               <Sparkline
                 data={[240, 310, 275, 420, 380, 490, 525, 990]}
-                color="#0284C7"
+                color="#065F46"
                 gradientId="grad-revenue"
               />
             </div>
@@ -618,31 +661,31 @@ export default function SalesAndProfitsDashboard({
 
           {/* KPI 2: PRIMARY METRIC - Net Profit (With Subtle Emerald Accent Glow & Pulse) */}
           <div
-            className="bg-gradient-to-b from-white via-white to-emerald-50/30 rounded-3xl p-4 sm:p-5 border border-emerald-500/40 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.18)] hover:shadow-[0_12px_30px_-4px_rgba(16,185,129,0.28)] hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer ring-1 ring-emerald-500/10"
+            className="bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/40 rounded-3xl p-4 sm:p-5 border border-emerald-500/50 shadow-[0_8px_30px_-6px_rgba(16,185,129,0.2)] hover:shadow-[0_20px_45px_-6px_rgba(16,185,129,0.3)] hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer ring-1 ring-emerald-500/20"
             style={{ animationDelay: '0.12s' }}
           >
             {/* Animated Glow Indicator Bar */}
-            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 animate-pulse" />
+            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 animate-pulse" />
 
             <div>
-              <div className="flex items-center justify-between text-stone-600 mb-1">
+              <div className="flex items-center justify-between text-stone-600 mb-1.5">
                 <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600 group-hover:rotate-12 transition-transform duration-300" />
                   <span>{isAr ? 'صافي الأرباح' : 'Net Profit'}</span>
                 </span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-100/90 px-1.5 py-0.5 rounded-full shadow-2xs group-hover:scale-105 transition-transform">
-                  <ArrowUpRight className="w-2.5 h-2.5" />
-                  +18.5%
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-300/60 shadow-2xs group-hover:scale-105 transition-transform">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
+                  <span>+18.5%</span>
                 </span>
               </div>
-              <div className="text-lg sm:text-2xl font-bold font-serif text-emerald-900 tracking-tight">
+              <div className="text-lg sm:text-2xl font-bold font-serif text-emerald-950 tracking-tight">
                 <AnimatedNumber value={kpis.netProfit} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
             <div className="mt-3 flex items-end justify-between pt-2 border-t border-emerald-100/70">
-              <span className="text-[10px] font-bold text-emerald-700 font-mono flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+              <span className="text-[10px] font-bold text-emerald-800 font-mono flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
                 <span>{isAr ? `هامش: ${kpis.overallMargin.toFixed(1)}%` : `Margin: ${kpis.overallMargin.toFixed(1)}%`}</span>
               </span>
               <Sparkline
@@ -655,24 +698,27 @@ export default function SalesAndProfitsDashboard({
 
           {/* KPI 3: Successful Orders */}
           <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
+            className="bg-gradient-to-br from-white via-amber-50/20 to-orange-50/15 rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.19s' }}
           >
+            {/* Top Micro Accent Line */}
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 to-orange-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+
             <div>
-              <div className="flex items-center justify-between text-stone-500 mb-1">
-                <span className="text-xs font-semibold">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
-                <span className="text-[10px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
+              <div className="flex items-center justify-between text-stone-500 mb-1.5">
+                <span className="text-xs font-bold text-stone-700">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
+                <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
                   98% تسليم
                 </span>
               </div>
               <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
                 <AnimatedNumber value={kpis.totalOrdersCount} />{' '}
-                <span className="text-xs font-normal text-stone-400">{isAr ? 'طلب' : 'orders'}</span>
+                <span className="text-xs font-normal text-stone-500">{isAr ? 'طلب' : 'orders'}</span>
               </div>
             </div>
 
             <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'معدل الطلب' : 'Velocity'}</span>
+              <span className="text-[10px] font-medium text-stone-400">{isAr ? 'معدل الطلب' : 'Velocity'}</span>
               <Sparkline
                 data={[1, 2, 1, 3, 2, 2, 4, 5]}
                 color="#D97706"
@@ -683,14 +729,17 @@ export default function SalesAndProfitsDashboard({
 
           {/* KPI 4: Average Order Value (AOV) */}
           <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
+            className="bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/15 rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.26s' }}
           >
+            {/* Top Micro Accent Line */}
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+
             <div>
-              <div className="flex items-center justify-between text-stone-500 mb-1">
-                <span className="text-xs font-semibold">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
-                <span className="text-[10px] font-bold text-stone-600 bg-stone-100 px-1.5 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
-                  AOV
+              <div className="flex items-center justify-between text-stone-500 mb-1.5">
+                <span className="text-xs font-bold text-stone-700">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
+                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
+                  AOV سلة
                 </span>
               </div>
               <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
@@ -699,7 +748,7 @@ export default function SalesAndProfitsDashboard({
             </div>
 
             <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'قيمة السلة' : 'Basket'}</span>
+              <span className="text-[10px] font-medium text-stone-400">{isAr ? 'قيمة السلة' : 'Basket'}</span>
               <Sparkline
                 data={[210, 245, 320, 275, 360, 450, 490, 356]}
                 color="#6366F1"
@@ -779,18 +828,24 @@ export default function SalesAndProfitsDashboard({
           {/* Responsive Area Chart Viewport */}
           <div className="w-full h-64 sm:h-72 pt-2" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <AreaChart
+                key={`chart-${chartGranularity}-${dateFilter}-${showRevenueArea ? 'rev' : 'no'}-${showProfitArea ? 'prof' : 'no'}`}
+                data={chartData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
                 <defs>
-                  {/* Revenue Curve Gradient */}
+                  {/* Revenue Curve Liquid Multi-Stop Gradient */}
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1C1917" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#1C1917" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor="#1C1917" stopOpacity={0.28} />
+                    <stop offset="65%" stopColor="#292524" stopOpacity={0.06} />
+                    <stop offset="100%" stopColor="#44403C" stopOpacity={0.0} />
                   </linearGradient>
 
                   {/* Profit Curve Vibrant Emerald Gradient */}
                   <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.45} />
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0.0} />
+                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.5} />
+                    <stop offset="45%" stopColor="#059669" stopOpacity={0.18} />
+                    <stop offset="100%" stopColor="#047857" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
 
@@ -818,13 +873,13 @@ export default function SalesAndProfitsDashboard({
                     type="monotone"
                     dataKey="revenue"
                     stroke="#1C1917"
-                    strokeWidth={2.5}
+                    strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#revenueGradient)"
-                    activeDot={{ r: 6, fill: '#1C1917', stroke: '#fff', strokeWidth: 2 }}
+                    activeDot={{ r: 6.5, fill: '#1C1917', stroke: '#fff', strokeWidth: 2.5 }}
                     isAnimationActive={true}
-                    animationDuration={1300}
-                    animationEasing="ease-out"
+                    animationDuration={1350}
+                    animationEasing="cubic-bezier(0.16, 1, 0.3, 1)"
                   />
                 )}
 
@@ -834,13 +889,13 @@ export default function SalesAndProfitsDashboard({
                     type="monotone"
                     dataKey="profit"
                     stroke="#059669"
-                    strokeWidth={2.5}
+                    strokeWidth={3.5}
                     fillOpacity={1}
                     fill="url(#profitGradient)"
-                    activeDot={{ r: 6, fill: '#059669', stroke: '#fff', strokeWidth: 2 }}
+                    activeDot={{ r: 7, fill: '#059669', stroke: '#fff', strokeWidth: 2.5 }}
                     isAnimationActive={true}
-                    animationDuration={1500}
-                    animationEasing="ease-out"
+                    animationDuration={1450}
+                    animationEasing="cubic-bezier(0.16, 1, 0.3, 1)"
                   />
                 )}
             </AreaChart>

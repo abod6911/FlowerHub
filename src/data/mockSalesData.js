@@ -479,11 +479,12 @@ export const ANALYTICS_TIMELINES = {
 /**
  * Currency Formatter Utility for Saudi Riyal (SAR / ر.س)
  */
-export function formatCurrency(amount, lang = 'ar') {
+export function formatCurrency(amount, lang = 'ar', forceDecimals = false) {
   const num = Number(amount) || 0;
+  const hasDecimals = forceDecimals || (num % 1 !== 0);
   const formatted = num.toLocaleString(lang === 'ar' ? 'ar-SA' : 'en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: hasDecimals ? 2 : 0,
   });
   return lang === 'ar' ? `${formatted} ر.س` : `${formatted} SAR`;
 }
