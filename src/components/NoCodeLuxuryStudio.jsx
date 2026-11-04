@@ -18,7 +18,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { useStudioStore } from '../context/StudioThemeContext';
-import TypeGardenStudioSection from './TypeGardenStudioSection';
 
 export default function NoCodeLuxuryStudio({
   isOpen,
@@ -350,9 +349,6 @@ export default function NoCodeLuxuryStudio({
                       </div>
                     </div>
                   </div>
-
-                  {/* Botanical Engine Controls - Type Garden Arabic Engine */}
-                  <TypeGardenStudioSection />
                 </div>
               )}
 

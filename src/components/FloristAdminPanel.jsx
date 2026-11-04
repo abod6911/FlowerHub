@@ -35,8 +35,6 @@ import {
   CURATED_TEMPLATES,
 } from '../data/mockData';
 import { t } from '../utils/translations';
-import DarAlwardAnimatedTitle from './DarAlwardAnimatedTitle';
-import TypeGardenStudioSection from './TypeGardenStudioSection';
 import { DEFAULT_BOTANICAL_BRAND_CONFIG } from '../types/botanical';
 
 class TabSafeBoundary extends React.Component {
@@ -1018,11 +1016,6 @@ export default function FloristAdminPanel({
             )}
           </div>
 
-          {/* Type Garden Arabic Engine Studio Controls */}
-          <TabSafeBoundary>
-            <TypeGardenStudioSection lang={lang} />
-          </TabSafeBoundary>
-
           {/* 1. LIVE MINI-STOREFRONT PREVIEW CARD AT TOP */}
           <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-sm space-y-2.5">
             <div className="flex items-center justify-between">
@@ -1128,114 +1121,6 @@ export default function FloristAdminPanel({
                   +
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Botanical Brand Title Management Card (Admin-to-Storefront Sync) */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
-                <span>{isAr ? 'العنوان النباتي الفاخر للمتجر' : 'Botanical Brand Header'}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full">
-                <Check className="w-3 h-3 text-emerald-600" />
-                <span>{isAr ? 'مُزامَن مع الهيدر' : 'Live Synced'}</span>
-              </span>
-            </div>
-
-            {/* Live Visual Mini Canvas */}
-            <div
-              className="rounded-xl p-3 border border-stone-200/80 overflow-hidden flex items-center justify-center transition-all duration-300 relative group"
-              style={{
-                backgroundColor:
-                  botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter'
-                    ? '#F7F4EE'
-                    : '#0F172A',
-              }}
-            >
-              <div className="w-full max-w-[360px]">
-                <TabSafeBoundary>
-                  <DarAlwardAnimatedTitle
-                    config={botanicalBrandConfig}
-                    isDark={!(botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter')}
-                    textColor={
-                      botanicalBrandConfig?.paletteId === 'paper' || botanicalBrandConfig?.paletteId === 'butter'
-                        ? '#111827'
-                        : '#F9FAFB'
-                    }
-                    className="py-1"
-                  />
-                </TabSafeBoundary>
-              </div>
-            </div>
-
-            {/* Configuration Status Chips */}
-            <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-              <span className="px-2 py-1 rounded-lg bg-stone-100 text-stone-700 font-medium flex items-center gap-1">
-                <Type className="w-3 h-3 text-stone-400" />
-                <span>{botanicalBrandConfig?.fontFamily || 'Amiri'}</span>
-              </span>
-              <span className="px-2 py-1 rounded-lg bg-stone-100 text-stone-700 font-medium flex items-center gap-1">
-                <Palette className="w-3 h-3 text-stone-400" />
-                <span className="capitalize">{botanicalBrandConfig?.paletteId || 'rosaNoir'}</span>
-              </span>
-              <span className="px-2 py-1 rounded-lg bg-stone-100 text-stone-700 font-medium flex items-center gap-1">
-                <Wind className="w-3 h-3 text-stone-400" />
-                <span className="capitalize">{botanicalBrandConfig?.motionMode || 'gust'}</span>
-              </span>
-              <span className="px-2 py-1 rounded-lg bg-stone-100 text-stone-500 font-mono text-[10px]">
-                Seed #{botanicalBrandConfig?.seed || 48271}
-              </span>
-            </div>
-
-            {/* Actions Toolbar */}
-            <div className="flex items-center gap-2 pt-1">
-              {onOpenBotanicalTypography && (
-                <button
-                  type="button"
-                  onClick={onOpenBotanicalTypography}
-                  className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 transition-all active:scale-95"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{isAr ? 'تخصيص في استوديو الزهور' : 'Customize in Studio'}</span>
-                </button>
-              )}
-
-              {onPublishBotanicalConfig && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newSeed = Math.floor(Math.random() * 999999);
-                    onPublishBotanicalConfig({
-                      ...(botanicalBrandConfig || DEFAULT_BOTANICAL_BRAND_CONFIG),
-                      seed: newSeed,
-                      updatedAt: Date.now(),
-                    });
-                  }}
-                  className="p-2 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-700 font-medium text-xs flex items-center gap-1 transition-all"
-                  title={isAr ? 'توليد بذرة أزهار عشوائية جديدة وحفظها' : 'Shuffle Flower Seed'}
-                >
-                  <Shuffle className="w-3.5 h-3.5 text-stone-500" />
-                  <span className="hidden sm:inline">{isAr ? 'بذرة عشوائية' : 'Shuffle'}</span>
-                </button>
-              )}
-
-              {onPublishBotanicalConfig && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onPublishBotanicalConfig({
-                      ...DEFAULT_BOTANICAL_BRAND_CONFIG,
-                      updatedAt: Date.now(),
-                    });
-                  }}
-                  className="p-2 rounded-xl border border-stone-200 hover:bg-rose-50 hover:border-rose-200 text-stone-500 hover:text-rose-600 transition-all"
-                  title={isAr ? 'استعادة العنوان النباتي الملكي الافتراضي' : 'Reset to Default'}
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                </button>
-              )}
             </div>
           </div>
 
