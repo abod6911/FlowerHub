@@ -23,6 +23,11 @@ import {
   Wind,
   Type,
   TrendingUp,
+  Search,
+  Wifi,
+  Battery,
+  MapPin,
+  Phone,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import {
@@ -36,6 +41,45 @@ import {
 } from '../data/mockData';
 import { t } from '../utils/translations';
 import { DEFAULT_BOTANICAL_BRAND_CONFIG } from '../types/botanical';
+
+const CURATED_LOGO_OPTIONS = [
+  {
+    id: 'default-gold-seal',
+    titleAr: 'ختم د.و الملكي',
+    titleEn: 'Royal Monogram Seal',
+    url: '',
+  },
+  {
+    id: 'royal-red-roses',
+    titleAr: 'جوري أحمر مخملي',
+    titleEn: 'Royal Crimson Velvet',
+    url: './images/products/royal-red-roses.jpg',
+  },
+  {
+    id: 'casablanca-orchid',
+    titleAr: 'كازابلانكا وأوركيد',
+    titleEn: 'Casablanca & Orchid',
+    url: './images/products/casablanca-orchid-vase.jpg',
+  },
+  {
+    id: 'blush-hydrangea',
+    titleAr: 'هيدرنجيا وروز باستيل',
+    titleEn: 'Blush Hydrangea',
+    url: './images/products/blush-hydrangea-vase.jpg',
+  },
+  {
+    id: 'acrylic-celebration',
+    titleAr: 'بوكس أكريليك ذهبي',
+    titleEn: 'Acrylic Luxury Box',
+    url: './images/products/acrylic-box-celebration.jpg',
+  },
+  {
+    id: 'chocolates-floral',
+    titleAr: 'صينية شوكولاتة وزهور',
+    titleEn: 'Chocolates & Flowers',
+    url: './images/products/chocolates-floral-box.jpg',
+  },
+];
 
 class TabSafeBoundary extends React.Component {
   constructor(props) {
@@ -175,6 +219,22 @@ export default function FloristAdminPanel({
     triggerDesignFeedback(isAr ? '✨ تمت استعادة الشعار الملكي الافتراضي فورياً!' : 'Default seal restored live!');
     setTimeout(() => setLogoToast(''), 3000);
   };
+
+  const handleApplyCuratedLogo = (url) => {
+    try {
+      if (url) localStorage.setItem('flowerhub_store_avatar', url);
+      else localStorage.removeItem('flowerhub_store_avatar');
+    } catch {}
+    if (onUpdateShopConfig) {
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url || null, logoUrl: url || null }));
+    }
+    setLogoToast(isAr ? 'تم تطبيق الشعار بنجاح!' : 'Logo applied live!');
+    triggerDesignFeedback(isAr ? '✨ تم تطبيق الشعار فورياً على المتجر!' : 'Logo applied live!');
+    setTimeout(() => setLogoToast(''), 3000);
+  };
+
+  const [addPhotoCategory, setAddPhotoCategory] = useState('all');
+  const [productUrlInput, setProductUrlInput] = useState('');
 
   const handleStoryPhotoUpload = (e) => {
     const file = e.target.files?.[0];
@@ -803,13 +863,45 @@ export default function FloristAdminPanel({
               </div>
             )}
 
-            {/* Compact horizontal strip of sample floral photos */}
-            <div className="pt-1">
-              <span className="text-[11px] text-stone-500 font-medium block mb-1.5">
-                {isAr ? 'أو اختر من الزهور الطبيعية المعتمدة:' : 'Or pick a verified sample floral photo:'}
-              </span>
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
-                {VERIFIED_FLORAL_PRESETS.map((preset) => {
+            {/* 1.5. Curated Floral Library with 1-Tap Category Filters */}
+            <div className="pt-2 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-stone-700 font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{isAr ? 'أو اختر صورة جاهزة عالية الدقة بنقرة واحدة:' : 'Or pick a verified high-res photo in 1 tap:'}</span>
+                </span>
+                <span className="text-[10px] text-stone-400 font-mono">
+                  12 {isAr ? 'صورة معتمدة' : 'Photos'}
+                </span>
+              </div>
+
+              {/* Category Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                {[
+                  { id: 'all', labelAr: '🌸 الكل', labelEn: 'All' },
+                  { id: 'roses', labelAr: '🌹 باقات جوري', labelEn: 'Roses' },
+                  { id: 'vases', labelAr: '🏺 فازات زجاجية', labelEn: 'Vases' },
+                  { id: 'boxes', labelAr: '🎁 بوكسات وهدايا', labelEn: 'Gift Boxes' },
+                  { id: 'occasions', labelAr: '🌻 مناسبات ومواليد', labelEn: 'Occasions' },
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setAddPhotoCategory(cat.id)}
+                    className={`py-1 px-2.5 rounded-full text-[10px] font-bold whitespace-nowrap transition-all cursor-pointer ${
+                      addPhotoCategory === cat.id
+                        ? 'bg-stone-900 text-white shadow-2xs'
+                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                    }`}
+                  >
+                    {isAr ? cat.labelAr : cat.labelEn}
+                  </button>
+                ))}
+              </div>
+
+              {/* Photo Grid */}
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {VERIFIED_FLORAL_PRESETS.filter((p) => addPhotoCategory === 'all' || p.category === addPhotoCategory).map((preset) => {
                   const isSelected = newImage === preset.url && !uploadedImagePreview;
                   return (
                     <button
@@ -819,26 +911,58 @@ export default function FloristAdminPanel({
                         setUploadedImagePreview(null);
                         setNewImage(preset.url);
                       }}
-                      className={`relative flex-none w-14 h-14 rounded-xl overflow-hidden border-2 transition-all ${
+                      className={`relative rounded-xl overflow-hidden border-2 text-start p-1 flex flex-col gap-1 transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-stone-900 ring-2 ring-stone-900/30 scale-105 shadow-xs'
-                          : 'border-transparent opacity-70 hover:opacity-100'
+                          ? 'border-stone-900 ring-2 ring-stone-900/30 scale-[1.02] bg-stone-50 shadow-xs'
+                          : 'border-stone-200/80 bg-white hover:border-stone-400'
                       }`}
                       title={preset.nameAr}
                     >
-                      <img
-                        src={preset.url}
-                        alt={preset.nameEn}
-                        className="w-full h-full object-cover"
-                      />
-                      {isSelected && (
-                        <span className="absolute bottom-1 end-1 bg-stone-900 text-white rounded-full p-0.5">
-                          <Check className="w-2.5 h-2.5" />
-                        </span>
-                      )}
+                      <div className="aspect-square rounded-lg overflow-hidden bg-stone-100 relative">
+                        <img
+                          src={preset.url}
+                          alt={preset.nameEn}
+                          className="w-full h-full object-cover"
+                        />
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-stone-950/40 flex items-center justify-center">
+                            <span className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center shadow-xs">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[9px] font-bold text-stone-700 truncate block">
+                        {isAr ? preset.nameAr : preset.nameEn}
+                      </span>
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Direct Photo URL Input */}
+              <div className="pt-1 flex gap-1.5 items-center">
+                <input
+                  type="url"
+                  value={productUrlInput}
+                  onChange={(e) => setProductUrlInput(e.target.value)}
+                  placeholder={isAr ? 'أو ضع رابط صورة خارجي مباشر (URL)...' : 'Or paste direct image URL...'}
+                  className="flex-1 text-xs p-2 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 font-mono"
+                />
+                <button
+                  type="button"
+                  disabled={!productUrlInput.trim()}
+                  onClick={() => {
+                    if (productUrlInput.trim()) {
+                      setUploadedImagePreview(productUrlInput.trim());
+                      setNewImage(productUrlInput.trim());
+                      setProductUrlInput('');
+                    }
+                  }}
+                  className="px-3 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 disabled:opacity-40 text-amber-300 font-bold text-xs shrink-0 cursor-pointer"
+                >
+                  {isAr ? 'تطبيق' : 'Apply'}
+                </button>
               </div>
             </div>
           </div>
@@ -1091,8 +1215,412 @@ export default function FloristAdminPanel({
             )}
           </div>
 
-          {/* 0.5. Store Logo & Identity Customizer (Dedicated Card for Store Owner) */}
-          <div className="rounded-2xl border border-amber-300/60 bg-gradient-to-br from-amber-50/40 via-white to-amber-50/20 p-4 shadow-sm space-y-3.5">
+          {/* 1. REALISTIC INTERACTIVE MINI-PHONE LIVE PREVIEW */}
+          <div className="rounded-3xl border border-stone-200/90 bg-gradient-to-b from-stone-50 via-white to-stone-50/50 p-4 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-stone-900 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <Eye className="w-4 h-4 text-emerald-600" />
+                <span>{isAr ? 'معاينة حية حقيقية للمتجر (هاتف العميل)' : 'Live Mobile Phone Preview'}</span>
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/40">
+                  {isAr ? 'مباشر وتفاعلي' : 'Live Interactive'}
+                </span>
+                <span className="text-[10px] font-mono text-stone-400">
+                  {shopConfig.theme}
+                </span>
+              </div>
+            </div>
+
+            {/* iPhone Device Shell */}
+            <div className="max-w-[340px] mx-auto rounded-[38px] p-2.5 bg-stone-950 shadow-2xl ring-1 ring-stone-800 border-4 border-stone-800 transition-all duration-300">
+              {/* Screen Container */}
+              <div
+                className={`rounded-[28px] overflow-hidden border border-stone-700/40 relative shadow-inner text-start transition-all duration-300 ${
+                  themeTokens.pageBg
+                }`}
+                style={{ minHeight: '460px' }}
+              >
+                {/* Phone Top Status Bar (9:41, Dynamic Island, Wifi, Battery) */}
+                <div className="pt-2 px-4 pb-1 flex items-center justify-between text-[10px] font-bold text-stone-800 dark:text-stone-200 select-none">
+                  <span>9:41</span>
+                  {/* Dynamic Island Pill */}
+                  <div className="w-20 h-4 rounded-full bg-black flex items-center justify-center gap-1.5 shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
+                  </div>
+                  <div className="flex items-center gap-1 text-[9px]">
+                    <Wifi className="w-2.5 h-2.5" />
+                    <Battery className="w-3 h-3" />
+                  </div>
+                </div>
+
+                {/* Mini Store Header */}
+                <div className="p-3 border-b border-stone-200/60 dark:border-stone-800/60 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    {/* Rating Pill */}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-400/30 flex items-center gap-0.5">
+                      <span className="text-amber-500">★</span> 4.9
+                    </span>
+
+                    {/* Operational Status Pill */}
+                    <span
+                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs ${
+                        shopConfig.status === 'closed'
+                          ? 'bg-stone-200 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
+                          : shopConfig.status === 'busy_60m'
+                          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
+                          : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300'
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          shopConfig.status === 'closed'
+                            ? 'bg-stone-400'
+                            : shopConfig.status === 'busy_60m'
+                            ? 'bg-amber-500'
+                            : 'bg-emerald-500 animate-pulse'
+                        }`}
+                      />
+                      <span>
+                        {shopConfig.status === 'closed'
+                          ? (isAr ? 'مغلق مؤقتاً' : 'Closed')
+                          : shopConfig.status === 'busy_60m'
+                          ? (isAr ? 'مشغول • ٦٠ د' : 'Busy • 60m')
+                          : (isAr ? 'مفتوح • تجهيز فوري' : 'Open • Instant')}
+                      </span>
+                    </span>
+
+                    {/* Logo / Seal */}
+                    <div className="w-8 h-8 rounded-xl overflow-hidden bg-stone-900 text-amber-300 flex items-center justify-center font-serif text-xs font-bold shadow-xs border border-amber-400/40 shrink-0">
+                      {shopConfig.avatarUrl || shopConfig.logoUrl ? (
+                        <img
+                          src={shopConfig.avatarUrl || shopConfig.logoUrl}
+                          alt="Logo"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>د.و</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Store Title & Tagline */}
+                  <div className="text-center pt-0.5">
+                    <h3 className={`font-serif font-bold text-sm leading-tight ${themeTokens.textMain}`}>
+                      {isAr ? shopConfig.shopNameAr : shopConfig.shopNameEn}
+                    </h3>
+                    <p className={`text-[10px] mt-0.5 truncate ${themeTokens.textMuted}`}>
+                      {isAr ? shopConfig.taglineAr : shopConfig.taglineEn}
+                    </p>
+                    <div className="inline-flex items-center gap-1 text-[9px] font-medium text-stone-500 dark:text-stone-400 mt-1 px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-850">
+                      <MapPin className="w-2.5 h-2.5 text-stone-400" />
+                      <span>{shopConfig.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : 'Riyadh delivery')}</span>
+                    </div>
+                  </div>
+
+                  {/* Mini Search Mockup */}
+                  <div className="pt-1">
+                    <div className="w-full py-1.5 px-2.5 rounded-xl bg-white dark:bg-stone-850 border border-stone-200/80 dark:border-stone-700/80 text-[10px] text-stone-400 flex items-center justify-between shadow-2xs">
+                      <span>{isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets...'}</span>
+                      <Search className="w-3 h-3 text-stone-400" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mini Occasions Circles (if showStories !== false) */}
+                {shopConfig.showStories !== false && (
+                  <div className="px-3 py-2 border-b border-stone-200/40 dark:border-stone-800/40">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      {occasions.slice(0, 4).map((occ) => (
+                        <div key={occ.id} className="flex flex-col items-center gap-1 shrink-0">
+                          <div
+                            className="w-9 h-9 rounded-full p-0.5 ring-1.5 shadow-2xs overflow-hidden"
+                            style={{ borderColor: themeTokens.primaryHex }}
+                          >
+                            <img
+                              src={occ.image}
+                              alt={occ.nameAr}
+                              className="w-full h-full object-cover rounded-full"
+                            />
+                          </div>
+                          <span className={`text-[8px] font-bold truncate max-w-[42px] ${themeTokens.textMain}`}>
+                            {isAr ? occ.nameAr : occ.nameEn}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Mini Daily Specials (if showSpecials !== false) */}
+                {shopConfig.showSpecials !== false && (
+                  <div className="p-3 border-b border-stone-200/40 dark:border-stone-800/40">
+                    <div className="flex items-center justify-between mb-1.5 text-[9px] font-bold">
+                      <span className={themeTokens.textMain}>
+                        {isAr ? 'جاهز للاستلام الفوري ❄️' : 'Ready Today Specials'}
+                      </span>
+                      <span className={`px-1.5 py-0.2 rounded font-mono text-[8px] ${themeTokens.badge} ${themeTokens.textMain}`}>
+                        {shopConfig.specialsStyle}
+                      </span>
+                    </div>
+                    <div className={`p-2 rounded-xl border border-stone-200/60 dark:border-stone-700/60 flex items-center justify-between gap-2 shadow-2xs ${themeTokens.cardBg}`}>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <img
+                          src={products[0]?.imageUrl || './images/products/royal-red-roses.jpg'}
+                          alt="Product"
+                          className="w-9 h-9 rounded-lg object-cover shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <span className={`text-[10px] font-bold truncate block ${themeTokens.textMain}`}>
+                            {isAr ? products[0]?.titleAr : products[0]?.titleEn}
+                          </span>
+                          <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                            {products[0]?.price} {strings.sar}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[8px] font-bold px-2 py-1 rounded-full bg-stone-900 text-white shrink-0">
+                        {isAr ? 'حجز فوري' : 'Reserve'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mini Custom Order Banner (if showCustomBanner !== false) */}
+                {shopConfig.showCustomBanner !== false && (
+                  <div className="px-3 py-1.5">
+                    <div className="p-2 rounded-xl bg-gradient-to-r from-emerald-950 via-stone-900 to-amber-950 text-white flex items-center justify-between shadow-2xs">
+                      <span className="text-[9px] font-bold">
+                        {isAr ? '🎨 صمم باقتك الخاصة حسب ذوقك' : 'Custom Bouquet Designer'}
+                      </span>
+                      <span className="text-[8px] px-2 py-0.5 rounded-full bg-amber-400 text-stone-950 font-bold">
+                        {isAr ? 'طلب خاص' : 'Bespoke'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mini 2-Column Product Grid */}
+                <div className="p-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    {products.slice(0, 2).map((prod) => (
+                      <div
+                        key={prod.id}
+                        className={`p-1.5 rounded-xl border border-stone-200/60 dark:border-stone-800 shadow-2xs ${themeTokens.cardBg}`}
+                      >
+                        <div className="aspect-[4/3] rounded-lg overflow-hidden mb-1.5 bg-stone-100">
+                          <img
+                            src={prod.imageUrl}
+                            alt={prod.titleAr}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <h5 className={`text-[9px] font-bold truncate ${themeTokens.textMain}`}>
+                          {isAr ? prod.titleAr : prod.titleEn}
+                        </h5>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className={`text-[9px] font-bold ${themeTokens.textMain}`}>
+                            {prod.price} {strings.sar}
+                          </span>
+                          <span
+                            className="w-4 h-4 rounded-full flex items-center justify-center text-white text-[9px] font-bold shadow-2xs"
+                            style={{ backgroundColor: themeTokens.primaryHex }}
+                          >
+                            +
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. STORE OPERATIONAL STATUS & SECTION TOGGLES */}
+          <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm text-stone-900">
+                    {isAr ? 'الحالة التشغيلية وسرعة التجهيز' : 'Store Status & Order Speed'}
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    {isAr ? 'تحديث فوري يظهر للعملاء في أعلى المتجر والطلبات' : 'Updates live for shoppers at top of store'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Status Pills */}
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdateShopConfig({ ...shopConfig, status: 'open_20m' });
+                  triggerDesignFeedback(isAr ? '✨ تم ضبط الحالة: مفتوح • تجهيز فوري ٢٠ دقيقة!' : 'Status set to Open');
+                }}
+                className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                  shopConfig.status === 'open_20m'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm ring-2 ring-emerald-300'
+                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-1.5 text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+                  <span>{isAr ? 'مفتوح للطلبات' : 'Open'}</span>
+                </div>
+                <span className="text-[10px] block opacity-85 mt-0.5">
+                  {isAr ? 'تجهيز فوري ٢٠ د' : '20 min prep'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' });
+                  triggerDesignFeedback(isAr ? '✨ تم ضبط الحالة: مشغول • تجهيز خلال ٦٠ دقيقة!' : 'Status set to Busy');
+                }}
+                className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                  shopConfig.status === 'busy_60m'
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-sm ring-2 ring-amber-300'
+                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-1.5 text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-amber-300" />
+                  <span>{isAr ? 'مشغول بالطلبات' : 'Busy'}</span>
+                </div>
+                <span className="text-[10px] block opacity-85 mt-0.5">
+                  {isAr ? 'تجهيز ٦٠ دقيقة' : '60 min prep'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  onUpdateShopConfig({ ...shopConfig, status: 'closed' });
+                  triggerDesignFeedback(isAr ? '✨ تم ضبط الحالة: المتجر مغلق مؤقتاً!' : 'Status set to Closed');
+                }}
+                className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                  shopConfig.status === 'closed'
+                    ? 'bg-stone-900 text-white border-stone-900 shadow-sm ring-2 ring-stone-400'
+                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-1.5 text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-stone-400" />
+                  <span>{isAr ? 'مغلق مؤقتاً' : 'Closed'}</span>
+                </div>
+                <span className="text-[10px] block opacity-85 mt-0.5">
+                  {isAr ? 'حجوزات فقط' : 'Bookings only'}
+                </span>
+              </button>
+            </div>
+
+            {/* Section Visibility Switches */}
+            <div className="pt-2 border-t border-stone-100 space-y-2">
+              <span className="text-xs font-bold text-stone-800 block">
+                {isAr ? 'إظهار وإخفاء أقسام المتجر الرئيسية بنقرة واحدة:' : 'Toggle Storefront Sections:'}
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {/* Switch 1: Stories */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = shopConfig.showStories === false ? true : false;
+                    onUpdateShopConfig({ ...shopConfig, showStories: next });
+                    triggerDesignFeedback(
+                      next
+                        ? (isAr ? '✨ تم إظهار قسم قصص المناسبات في المتجر!' : 'Stories section shown')
+                        : (isAr ? '✨ تم إخفاء قسم قصص المناسبات من المتجر!' : 'Stories section hidden')
+                    );
+                  }}
+                  className={`p-2.5 rounded-xl border flex items-center justify-between text-start transition-all cursor-pointer ${
+                    shopConfig.showStories !== false
+                      ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950 font-bold'
+                      : 'bg-stone-50 border-stone-200 text-stone-400 font-medium'
+                  }`}
+                >
+                  <span className="text-xs flex items-center gap-1.5">
+                    <span>🌸</span>
+                    <span>{isAr ? 'قصص المناسبات' : 'Occasion Stories'}</span>
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    shopConfig.showStories !== false ? 'bg-emerald-600 text-white' : 'bg-stone-200 text-stone-500'
+                  }`}>
+                    {shopConfig.showStories !== false ? (isAr ? 'مفعل ✓' : 'ON') : (isAr ? 'مخفي ✕' : 'OFF')}
+                  </span>
+                </button>
+
+                {/* Switch 2: Cooler Specials */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = shopConfig.showSpecials === false ? true : false;
+                    onUpdateShopConfig({ ...shopConfig, showSpecials: next });
+                    triggerDesignFeedback(
+                      next
+                        ? (isAr ? '✨ تم إظهار شريط جاهز بالثلاجة في المتجر!' : 'Cooler specials shown')
+                        : (isAr ? '✨ تم إخفاء شريط جاهز بالثلاجة من المتجر!' : 'Cooler specials hidden')
+                    );
+                  }}
+                  className={`p-2.5 rounded-xl border flex items-center justify-between text-start transition-all cursor-pointer ${
+                    shopConfig.showSpecials !== false
+                      ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950 font-bold'
+                      : 'bg-stone-50 border-stone-200 text-stone-400 font-medium'
+                  }`}
+                >
+                  <span className="text-xs flex items-center gap-1.5">
+                    <span>❄️</span>
+                    <span>{isAr ? 'باقات جاهزة بالثلاجة' : 'Ready Specials'}</span>
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    shopConfig.showSpecials !== false ? 'bg-emerald-600 text-white' : 'bg-stone-200 text-stone-500'
+                  }`}>
+                    {shopConfig.showSpecials !== false ? (isAr ? 'مفعل ✓' : 'ON') : (isAr ? 'مخفي ✕' : 'OFF')}
+                  </span>
+                </button>
+
+                {/* Switch 3: Custom Order Banner */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = shopConfig.showCustomBanner === false ? true : false;
+                    onUpdateShopConfig({ ...shopConfig, showCustomBanner: next });
+                    triggerDesignFeedback(
+                      next
+                        ? (isAr ? '✨ تم إظهار بانر التنسيق المخصص في المتجر!' : 'Custom banner shown')
+                        : (isAr ? '✨ تم إخفاء بانر التنسيق المخصص من المتجر!' : 'Custom banner hidden')
+                    );
+                  }}
+                  className={`p-2.5 rounded-xl border flex items-center justify-between text-start transition-all cursor-pointer ${
+                    shopConfig.showCustomBanner !== false
+                      ? 'bg-emerald-50/70 border-emerald-300 text-emerald-950 font-bold'
+                      : 'bg-stone-50 border-stone-200 text-stone-400 font-medium'
+                  }`}
+                >
+                  <span className="text-xs flex items-center gap-1.5">
+                    <span>🎨</span>
+                    <span>{isAr ? 'بانر التنسيق الخاص' : 'Custom Banner'}</span>
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    shopConfig.showCustomBanner !== false ? 'bg-emerald-600 text-white' : 'bg-stone-200 text-stone-500'
+                  }`}>
+                    {shopConfig.showCustomBanner !== false ? (isAr ? 'مفعل ✓' : 'ON') : (isAr ? 'مخفي ✕' : 'OFF')}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. STORE LOGO & CURATED SEALS GALLERY */}
+          <div className="rounded-2xl border border-amber-300/70 bg-gradient-to-br from-amber-50/50 via-white to-amber-50/30 p-4 shadow-sm space-y-3.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
@@ -1100,20 +1628,19 @@ export default function FloristAdminPanel({
                 </div>
                 <div>
                   <h4 className="font-bold text-xs sm:text-sm text-stone-900 flex items-center gap-1.5">
-                    <span>{isAr ? 'شعار وهوية المتجر (صورة الختم والأفاتار)' : 'Store Logo & Avatar Badge'}</span>
+                    <span>{isAr ? 'شعار وهوية المتجر (صورة الختم والأفاتار)' : 'Store Logo & Avatar Seal'}</span>
                     <span className="text-[9px] uppercase px-1.5 py-0.2 rounded font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300/40">
-                      {isAr ? 'مخصص للمالك' : 'Owner Custom'}
+                      {isAr ? 'سهل وفوري' : 'Easy 1-Tap'}
                     </span>
                   </h4>
                   <p className="text-[11px] text-stone-500">
-                    {isAr ? 'الصورة التي تظهر في زاوية المتجر العلوية بجوار التقييم والحالة' : 'Displayed in the top storefront header next to rating'}
+                    {isAr ? 'اختر ختماً ملكياً جاهزاً بنقرة واحدة، أو ارفع صورتك الخاصة مباشرة' : 'Pick a curated luxury seal in 1 tap, or upload your custom logo'}
                   </p>
                 </div>
               </div>
 
-              {/* Toast message if active */}
               {logoToast && (
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full animate-fade-in">
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full animate-fade-in shadow-xs">
                   {logoToast}
                 </span>
               )}
@@ -1128,172 +1655,215 @@ export default function FloristAdminPanel({
               className="hidden"
             />
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-3.5 rounded-xl border border-stone-200/80">
-              {/* Avatar Preview */}
-              <div className="relative w-16 h-16 rounded-2xl flex items-center justify-center font-serif text-lg font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 shrink-0 overflow-hidden">
-                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white z-20">
-                  <Sparkles className="w-2.5 h-2.5" />
-                </div>
-                {shopConfig.avatarUrl ? (
-                  <img
-                    src={shopConfig.avatarUrl}
-                    alt="Store Logo"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>د.و</span>
-                )}
-              </div>
-
-              {/* Controls */}
-              <div className="flex-1 w-full space-y-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => logoFileInputRef.current?.click()}
-                    className="py-2 px-3.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>{isAr ? 'رفع صورة من الجهاز' : 'Upload From Device'}</span>
-                  </button>
-
-                  {shopConfig.avatarUrl && (
-                    <button
-                      type="button"
-                      onClick={handleResetLogo}
-                      className="py-2 px-3 rounded-xl bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 font-semibold text-xs flex items-center gap-1 transition-colors cursor-pointer"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>{isAr ? 'استعادة الافتراضي' : 'Reset'}</span>
-                    </button>
+            {/* Current Active Logo Banner */}
+            <div className="flex items-center justify-between gap-3 bg-white p-3 rounded-xl border border-amber-200/80 shadow-2xs">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center font-serif text-lg font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 shrink-0 overflow-hidden">
+                  {shopConfig.avatarUrl || shopConfig.logoUrl ? (
+                    <img
+                      src={shopConfig.avatarUrl || shopConfig.logoUrl}
+                      alt="Store Logo"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span>د.و</span>
                   )}
                 </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-bold text-stone-900 block truncate">
+                    {shopConfig.avatarUrl || shopConfig.logoUrl
+                      ? (isAr ? 'شعار مخصص مفعل حالياً' : 'Active Custom Logo')
+                      : (isAr ? 'الختم الملكي الافتراضي (د.و)' : 'Default Royal Seal')}
+                  </span>
+                  <span className="text-[10px] text-stone-500 block truncate mt-0.5">
+                    {isAr ? 'يظهر في زاوية المتجر العلوية وكافة مشاركات الواتساب' : 'Shown at top header and WhatsApp slips'}
+                  </span>
+                </div>
+              </div>
 
-                {/* Direct URL Form */}
-                <form onSubmit={handleSaveLogoUrl} className="flex gap-1.5 items-center">
-                  <input
-                    type="url"
-                    value={logoUrlInput}
-                    onChange={(e) => setLogoUrlInput(e.target.value)}
-                    placeholder={isAr ? 'أو ضع رابط صورة مباشر (URL)...' : 'Or paste direct image URL...'}
-                    className="flex-1 py-1.5 px-3 text-xs rounded-xl bg-stone-50 border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => logoFileInputRef.current?.click()}
+                  className="py-1.5 px-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs flex items-center gap-1 shadow-xs transition-all active:scale-95 cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{isAr ? 'رفع صورة' : 'Upload'}</span>
+                </button>
+                {(shopConfig.avatarUrl || shopConfig.logoUrl) && (
                   <button
-                    type="submit"
-                    disabled={!logoUrlInput.trim()}
-                    className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold text-xs transition-all active:scale-95 shrink-0"
+                    type="button"
+                    onClick={handleResetLogo}
+                    title={isAr ? 'استعادة الختم الافتراضي' : 'Reset to default seal'}
+                    className="p-1.5 rounded-xl bg-stone-100 hover:bg-rose-50 hover:text-rose-700 text-stone-600 transition-colors cursor-pointer"
                   >
-                    {isAr ? 'حفظ' : 'Save'}
+                    <RotateCcw className="w-3.5 h-3.5" />
                   </button>
-                </form>
+                )}
               </div>
             </div>
+
+            {/* 1-Tap Curated Luxury Seals & Emblems (Makes adding logo effortless!) */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{isAr ? 'أختام وصور فاخرة جاهزة (بنقرة واحدة):' : '1-Tap Curated Luxury Seals:'}</span>
+                </span>
+                <span className="text-[10px] text-stone-400">
+                  {isAr ? 'انقر لتطبيق الشعار فوراً' : 'Tap to apply instantly'}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {CURATED_LOGO_OPTIONS.map((opt) => {
+                  const isCurrent =
+                    (!opt.url && !shopConfig.avatarUrl && !shopConfig.logoUrl) ||
+                    (opt.url && (shopConfig.avatarUrl === opt.url || shopConfig.logoUrl === opt.url));
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleApplyCuratedLogo(opt.url)}
+                      className={`p-2 rounded-xl border text-center flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                        isCurrent
+                          ? 'bg-amber-50 border-amber-500 shadow-sm ring-2 ring-amber-400/50 scale-[1.02]'
+                          : 'bg-white border-stone-200 hover:border-amber-300 hover:bg-amber-50/30'
+                      }`}
+                    >
+                      <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-2xs shrink-0 flex items-center justify-center bg-stone-900 text-amber-300 font-serif font-bold text-xs">
+                        {opt.url ? (
+                          <img src={opt.url} alt={opt.titleAr} className="w-full h-full object-cover" />
+                        ) : (
+                          <span>د.و</span>
+                        )}
+                        {isCurrent && (
+                          <div className="absolute inset-0 bg-stone-950/40 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-amber-300 stroke-[3]" />
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold text-stone-800 truncate w-full block">
+                        {isAr ? opt.titleAr : opt.titleEn}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Quick Direct URL Option */}
+            <form onSubmit={handleSaveLogoUrl} className="flex gap-1.5 items-center pt-1">
+              <div className="relative flex-1">
+                <input
+                  type="url"
+                  value={logoUrlInput}
+                  onChange={(e) => setLogoUrlInput(e.target.value)}
+                  placeholder={isAr ? 'أو الصق رابط صورة مباشر (URL)...' : 'Or paste direct image URL...'}
+                  className="w-full py-2 px-3 text-xs rounded-xl bg-white border border-stone-200 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500 font-mono"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!logoUrlInput.trim()}
+                className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold text-xs transition-all active:scale-95 shrink-0 cursor-pointer"
+              >
+                {isAr ? 'حفظ وتطبيق' : 'Apply'}
+              </button>
+            </form>
           </div>
 
-          {/* 1. LIVE MINI-STOREFRONT PREVIEW CARD AT TOP */}
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 shadow-sm space-y-2.5">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                <Eye className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{isAr ? 'معاينة حية للمتجر (مباشرة الآن)' : 'Live Storefront Mini Preview'}</span>
-              </span>
-              <span className="text-[10px] font-mono text-stone-400">
-                {shopConfig.theme} • {shopConfig.heroStyle}
-              </span>
+          {/* 4. STORE IDENTITY, LOCATION & WHATSAPP */}
+          <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center">
+                <FileText className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="font-bold text-xs sm:text-sm text-stone-900">
+                  {isAr ? 'بيانات وهوية المتجر ورقم الواتساب' : 'Store Identity & Contact Details'}
+                </h4>
+                <p className="text-[11px] text-stone-500">
+                  {isAr ? 'أي تعديل هنا ينعكس فورياً على الموقع وواتساب' : 'Updates live on storefront and checkout'}
+                </p>
+              </div>
             </div>
 
-            {/* The Mini Frame */}
-            <div
-              className={`rounded-2xl p-3.5 border transition-all duration-300 shadow-inner overflow-hidden ${
-                themeTokens.pageBg
-              }`}
-            >
-              {/* Mini Header Representation */}
-              {shopConfig.heroStyle === 'editorial' ? (
-                <div className="rounded-xl overflow-hidden relative h-20 bg-stone-900 p-2.5 flex flex-col justify-end text-white mb-2 shadow-xs">
-                  <img
-                    src="./images/hero/hero-atelier-banner.jpg"
-                    alt="Cover"
-                    className="absolute inset-0 w-full h-full object-cover filter brightness-[0.6]"
-                  />
-                  <div className="relative z-10">
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-white/20 backdrop-blur-md">
-                      {isAr ? 'مفتوح • ٢٠ د' : 'Open • 20m'}
-                    </span>
-                    <h4 className="font-serif font-bold text-sm leading-tight mt-0.5">
-                      {isAr ? shopConfig.shopNameAr : shopConfig.shopNameEn}
-                    </h4>
-                  </div>
-                </div>
-              ) : shopConfig.heroStyle === 'minimal' ? (
-                <div className="text-center py-1 mb-2">
-                  <div
-                    className="w-7 h-7 rounded-full mx-auto mb-1 flex items-center justify-center text-white text-[10px] font-bold shadow-xs"
-                    style={{ backgroundColor: themeTokens.primaryHex }}
-                  >
-                    M
-                  </div>
-                  <h4 className={`font-serif font-bold text-xs ${themeTokens.textMain}`}>
-                    {isAr ? shopConfig.shopNameAr : shopConfig.shopNameEn}
-                  </h4>
-                </div>
-              ) : (
-                /* Qlub style */
-                <div
-                  className={`p-2 rounded-xl mb-2 flex items-center gap-2 shadow-2xs ${themeTokens.cardBg}`}
-                >
-                  <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                    style={{ backgroundColor: themeTokens.primaryHex }}
-                  >
-                    M
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className={`font-bold text-xs truncate ${themeTokens.textMain}`}>
-                      {isAr ? shopConfig.shopNameAr : shopConfig.shopNameEn}
-                    </h4>
-                    <span className={`text-[9px] block ${themeTokens.textMuted}`}>
-                      {strings.statusOpen}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Mini Specials Tag + Sample Card */}
-              <div className="flex items-center justify-between mb-1 text-[10px]">
-                <span className={`font-bold ${themeTokens.textMain}`}>
-                  {strings.coolerTitle}
-                </span>
-                <span className={`px-1.5 py-0.2 rounded font-mono ${themeTokens.badge} ${themeTokens.textMain}`}>
-                  {shopConfig.specialsStyle}
-                </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label className="text-[11px] font-bold text-stone-700 block mb-1">
+                  {isAr ? 'اسم المتجر بالعربي:' : 'Store Name (Arabic):'}
+                </label>
+                <input
+                  type="text"
+                  value={shopConfig.shopNameAr}
+                  onChange={(e) => {
+                    onUpdateShopConfig({ ...shopConfig, shopNameAr: e.target.value });
+                  }}
+                  placeholder="دار الورد للمناسبات"
+                  className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 font-bold"
+                />
               </div>
 
-              {/* Sample Mini Product Card */}
-              <div
-                className={`p-2 rounded-xl flex items-center justify-between gap-2 shadow-2xs ${themeTokens.cardBg}`}
-              >
-                <div className="flex items-center gap-2">
-                  <img
-                    src="./images/products/royal-red-roses.jpg"
-                    alt="Rose"
-                    className="w-8 h-8 rounded-lg object-cover bg-stone-100"
-                  />
-                  <div>
-                    <span className={`text-[10px] font-bold block ${themeTokens.textMain}`}>
-                      {isAr ? 'بوكيه الروز الملكي' : 'Royal Velvet Rose'}
-                    </span>
-                    <span className={`text-[9px] font-bold ${themeTokens.textMain}`}>
-                      245 {strings.sar}
-                    </span>
-                  </div>
-                </div>
+              <div>
+                <label className="text-[11px] font-bold text-stone-700 block mb-1">
+                  {isAr ? 'اسم المتجر بالإنجليزي:' : 'Store Name (English):'}
+                </label>
+                <input
+                  type="text"
+                  value={shopConfig.shopNameEn}
+                  onChange={(e) => {
+                    onUpdateShopConfig({ ...shopConfig, shopNameEn: e.target.value });
+                  }}
+                  placeholder="Maison des Fleurs"
+                  className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                />
+              </div>
 
-                <div
-                  className={`px-2 py-0.5 rounded-full text-[9px] font-bold shadow-2xs ${themeTokens.primary}`}
-                >
-                  +
-                </div>
+              <div className="sm:col-span-2">
+                <label className="text-[11px] font-bold text-stone-700 block mb-1">
+                  {isAr ? 'الشعار اللفظي والوصف الترحيبي (Tagline):' : 'Store Tagline / Bio:'}
+                </label>
+                <input
+                  type="text"
+                  value={shopConfig.taglineAr}
+                  onChange={(e) => {
+                    onUpdateShopConfig({ ...shopConfig, taglineAr: e.target.value });
+                  }}
+                  placeholder="أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب"
+                  className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-stone-700 block mb-1">
+                  {isAr ? 'المدينة ونطاق التوصيل:' : 'Location / Delivery Area:'}
+                </label>
+                <input
+                  type="text"
+                  value={shopConfig.locationLabel || ''}
+                  onChange={(e) => {
+                    onUpdateShopConfig({ ...shopConfig, locationLabel: e.target.value });
+                  }}
+                  placeholder="الرياض • التوصيل لكافة الأحياء"
+                  className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-stone-700 block mb-1">
+                  {isAr ? 'رقم واتساب المنسق المباشر:' : 'Direct WhatsApp Number:'}
+                </label>
+                <input
+                  type="text"
+                  value={shopConfig.phone}
+                  onChange={(e) => {
+                    onUpdateShopConfig({ ...shopConfig, phone: e.target.value });
+                  }}
+                  placeholder="966500000000"
+                  className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-stone-50/50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 font-mono"
+                />
               </div>
             </div>
           </div>
@@ -1783,140 +2353,6 @@ export default function FloristAdminPanel({
                   </div>
                 );
               })}
-            </div>
-          </div>
-
-          {/* 6. Live Shop Info Editor */}
-          <div className="space-y-3 pt-2 border-t border-stone-200">
-            <label className="text-xs font-bold text-stone-900 block">
-              {isAr ? 'معلومات المتجر والشعار ورقم الواتساب:' : 'Shop Details, Logo & WhatsApp:'}
-            </label>
-
-            {/* Operational Status Selector */}
-            <div>
-              <span className="text-[11px] font-bold text-stone-700 block mb-1">
-                {isAr ? 'الحالة التشغيلية للمحل:' : 'Operational Status:'}
-              </span>
-              <div className="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200 text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => {
-                    onUpdateShopConfig({ ...shopConfig, status: 'open_20m' });
-                    triggerDesignFeedback(isAr ? '✨ تم تحديث حالة المحل إلى (مفتوح • ٢٠ د) فورياً!' : 'Status set to Open');
-                  }}
-                  className={`py-1.5 px-2 rounded-lg transition-all ${
-                    shopConfig.status === 'open_20m'
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {isAr ? 'مفتوح • ٢٠ د' : 'Open • 20m'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' });
-                    triggerDesignFeedback(isAr ? '✨ تم تحديث حالة المحل إلى (مشغول • ٦٠ د) فورياً!' : 'Status set to Busy');
-                  }}
-                  className={`py-1.5 px-2 rounded-lg transition-all ${
-                    shopConfig.status === 'busy_60m'
-                      ? 'bg-amber-600 text-white shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {isAr ? 'مشغول • ٦٠ د' : 'Busy • 60m'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onUpdateShopConfig({ ...shopConfig, status: 'closed' });
-                    triggerDesignFeedback(isAr ? '✨ تم تحديث حالة المحل إلى (مغلق مؤقتاً) فورياً!' : 'Status set to Closed');
-                  }}
-                  className={`py-1.5 px-2 rounded-lg transition-all ${
-                    shopConfig.status === 'closed'
-                      ? 'bg-stone-800 text-white shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {isAr ? 'مغلق مؤقتاً' : 'Closed'}
-                </button>
-              </div>
-            </div>
-
-            {/* Live Logo URL & Avatar */}
-            <div className="flex items-center gap-3 p-2.5 rounded-xl border border-stone-200 bg-stone-50">
-              <div className="w-12 h-12 rounded-xl bg-stone-900 text-white flex items-center justify-center overflow-hidden shrink-0 font-serif font-bold text-lg shadow-xs">
-                {shopConfig.logoUrl || shopConfig.avatarUrl ? (
-                  <img
-                    src={shopConfig.logoUrl || shopConfig.avatarUrl}
-                    alt="Logo"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>د.و</span>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <label className="text-[10px] text-stone-500 font-bold block mb-1">
-                  {isAr ? 'رابط شعار المتجر (Logo URL):' : 'Store Logo URL:'}
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://.../logo.png"
-                  value={shopConfig.logoUrl || shopConfig.avatarUrl || ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    onUpdateShopConfig({ ...shopConfig, logoUrl: val, avatarUrl: val });
-                    try {
-                      if (val) localStorage.setItem('flowerhub_store_avatar', val);
-                      else localStorage.removeItem('flowerhub_store_avatar');
-                    } catch {}
-                  }}
-                  className="w-full text-xs p-1.5 rounded-lg border border-stone-200 bg-white font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder={isAr ? 'اسم المتجر بالعربي' : 'Shop Name AR'}
-                value={shopConfig.shopNameAr}
-                onChange={(e) =>
-                  onUpdateShopConfig({ ...shopConfig, shopNameAr: e.target.value })
-                }
-                className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-              />
-
-              <input
-                type="text"
-                placeholder={isAr ? 'اسم المتجر بالإنجليزي' : 'Shop Name EN'}
-                value={shopConfig.shopNameEn}
-                onChange={(e) =>
-                  onUpdateShopConfig({ ...shopConfig, shopNameEn: e.target.value })
-                }
-                className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-              />
-
-              <input
-                type="text"
-                placeholder={isAr ? 'شعار المتجر (Tagline)' : 'Shop Tagline'}
-                value={shopConfig.taglineAr}
-                onChange={(e) =>
-                  onUpdateShopConfig({ ...shopConfig, taglineAr: e.target.value })
-                }
-                className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-              />
-
-              <input
-                type="text"
-                placeholder={isAr ? 'رقم الواتساب للاستقبال (مثلاً: 966500000000)' : 'WhatsApp Phone'}
-                value={shopConfig.phone}
-                onChange={(e) =>
-                  onUpdateShopConfig({ ...shopConfig, phone: e.target.value })
-                }
-                className="w-full text-xs p-2.5 rounded-xl border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 font-mono"
-              />
             </div>
           </div>
         </div>

@@ -172,7 +172,7 @@ function ShopHeader({
 
   const avatarText = rawStudio?.avatarText || brand?.avatarText || 'د.و';
   const avatarUrl = shopConfig?.avatarUrl || shopConfig?.logoUrl || customAvatar || brand?.avatarUrl;
-  const locationLabel = rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
+  const locationLabel = shopConfig?.locationLabel || rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
 

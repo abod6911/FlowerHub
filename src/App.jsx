@@ -386,16 +386,18 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       />
 
       {/* Floward-Style Circular Occasion Stories */}
-      <OccasionStories
-        selectedCategory={selectedCategory}
-        onSelectCategory={(catId) => setSelectedCategory(catId)}
-        lang={lang}
-        occasions={occasions}
-        themeTokens={themeTokens}
-      />
+      {shopConfig.showStories !== false && (
+        <OccasionStories
+          selectedCategory={selectedCategory}
+          onSelectCategory={(catId) => setSelectedCategory(catId)}
+          lang={lang}
+          occasions={occasions}
+          themeTokens={themeTokens}
+        />
+      )}
 
       {/* Ready in Cooler & Daily Specials Carousel with 4 switchable motion styles */}
-      {selectedCategory !== 'past_work' && (
+      {selectedCategory !== 'past_work' && shopConfig.showSpecials !== false && (
         <CoolerSpecialsCarousel
           onSelectProduct={handleOpenProduct}
           lang={lang}
@@ -406,11 +408,13 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       )}
 
       {/* 1-Step Custom Order Banner */}
-      <CustomOrderBanner
-        onOpenCustomDrawer={() => setIsCustomDrawerOpen(true)}
-        lang={lang}
-        themeTokens={themeTokens}
-      />
+      {shopConfig.showCustomBanner !== false && (
+        <CustomOrderBanner
+          onOpenCustomDrawer={() => setIsCustomDrawerOpen(true)}
+          lang={lang}
+          themeTokens={themeTokens}
+        />
+      )}
 
       {/* Sticky Filter Bar */}
       <StickyFilterBar
