@@ -12,33 +12,29 @@ export default function CustomOrderBanner({
   const isAr = lang === 'ar';
 
   return (
-    <section className="py-2 px-3.5 sm:px-4 w-full transition-colors duration-300">
+    <section className="py-2 px-3 sm:px-4 w-full transition-colors duration-300">
       <div
         onClick={onOpenCustomDrawer}
-        className={`relative overflow-hidden rounded-[24px] p-4 cursor-pointer transition-all duration-200 hover:shadow-md border border-amber-300/40 dark:border-stone-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group select-none active:scale-[0.99] ${themeTokens.banner}`}
+        className={`relative overflow-hidden rounded-[20px] p-3.5 cursor-pointer transition-all duration-200 hover:shadow-md border border-amber-300/40 dark:border-stone-800 flex flex-col gap-2.5 group select-none active:scale-[0.99] ${themeTokens.banner}`}
       >
-        <div className="flex items-center gap-3 flex-1 min-w-0 relative z-10">
-          <div className="w-10 h-10 rounded-2xl bg-amber-400/20 text-amber-300 border border-amber-400/30 flex items-center justify-center shrink-0 shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30 flex items-center justify-center shrink-0">
             <Palette className="w-4 h-4 text-amber-300" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <span className="text-[10px] font-semibold text-amber-300/90 tracking-wide block">
-              {isAr ? 'خدمة التنسيق الخاص' : 'Bespoke Floral Design'}
-            </span>
-
-            <h3 className="text-sm font-bold text-white tracking-tight leading-snug mt-0.5 font-serif">
+            <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight font-serif truncate">
               {isAr ? 'صمّم باقتك الخاصة حسب ذوقك' : (strings.customBannerTitle || 'Custom Bespoke Order')}
             </h3>
-            <p className="text-[11px] text-stone-300 mt-0.5 line-clamp-1">
-              {strings.customBannerDesc}
+            <p className="text-[11px] text-stone-300 mt-0.5 truncate">
+              {isAr ? 'اختر الأزهار والميزانية وسينسقها خبيرنا بعناية' : strings.customBannerDesc}
             </p>
           </div>
         </div>
 
         <button
           type="button"
-          className="shrink-0 w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs transition-all shadow-xs active:scale-95 group relative z-10"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold text-xs transition-all shadow-xs active:scale-95"
         >
           <span>{isAr ? 'طلب تنسيق خاص' : (strings.customBannerCta || 'Customize')}</span>
           {isAr ? (

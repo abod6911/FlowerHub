@@ -444,7 +444,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   : 'Bespoke setups. Request a similar quote'}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {pastWorks.map((item) => (
                 <ProductCard
                   key={item.id}
@@ -458,7 +458,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3.5 md:gap-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {filteredProducts.map((product, idx) => (
               <ProductCard
                 key={product.id}
@@ -595,7 +595,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {activeView === 'storefront' && (
         <div className="w-full flex justify-center py-0 sm:py-6 sm:px-4">
           <div
-            className={`w-full sm:max-w-[430px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-hidden`}
+            className={`w-full sm:max-w-[460px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-hidden`}
           >
             {renderStorefrontContent()}
           </div>

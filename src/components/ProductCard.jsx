@@ -230,9 +230,9 @@ function ProductCard({
 
         {/* 1. TOP-RIGHT CORNER: Status Badge with Mobile Safe Max-Width */}
         {badgeConfig && (
-          <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 pointer-events-none max-w-[calc(100%-2.5rem)]">
+          <div className="absolute top-2 right-2 z-10 pointer-events-none max-w-[calc(100%-2.2rem)]">
             <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold backdrop-blur-md shadow-sm truncate ${badgeConfig.className}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold backdrop-blur-md shadow-xs truncate ${badgeConfig.className}`}
             >
               {badgeConfig.icon}
               <span className="leading-none tracking-tight truncate">{badgeConfig.text}</span>
@@ -245,12 +245,12 @@ function ProductCard({
           type="button"
           onClick={handleToggleFavorite}
           aria-label={isAr ? 'إضافة إلى المفضلة' : 'Add to favorites'}
-          className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 w-8 h-8 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 dark:border-stone-700 transition-all duration-200 active:scale-90 shrink-0 ${
+          className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md flex items-center justify-center shadow-xs border border-white/60 dark:border-stone-700 transition-all duration-200 active:scale-90 shrink-0 ${
             heartPop ? 'scale-125' : 'scale-100'
           } ${isFavorite ? 'text-rose-600' : 'text-stone-500 dark:text-stone-400 hover:text-rose-600'}`}
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${
+            className={`w-3.5 h-3.5 transition-colors ${
               isFavorite ? 'fill-[#BE123C] text-[#BE123C]' : 'stroke-[2]'
             }`}
           />
@@ -258,32 +258,32 @@ function ProductCard({
       </div>
 
       {/* Card Content & Unified Responsive Footer */}
-      <div className="flex flex-col justify-between flex-1 p-2.5 sm:p-3.5 gap-2">
+      <div className="flex flex-col justify-between flex-1 p-2.5 gap-1.5">
         {/* Title: Exactly 2 lines max with uniform height */}
         <h3
-          className="line-clamp-2 min-h-[2.4rem] sm:min-h-[2.75rem] text-xs sm:text-sm font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200"
+          className="line-clamp-2 min-h-[2.2rem] text-xs font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200"
           style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
         >
           {isAr ? product.titleAr : product.titleEn}
         </h3>
 
         {/* Unified Bottom Bar: Prices on Right, + Add Button on Left (Zero Wrap on Mobile) */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-stone-100 dark:border-stone-800 gap-1">
+        <div className="flex items-center justify-between pt-1.5 mt-auto border-t border-stone-100 dark:border-stone-800 gap-1">
           {/* Right Side: Consistent Price Row */}
           <div className="flex flex-col items-start leading-none min-w-0">
             {product.originalPrice && (
-              <span className="text-[10px] sm:text-[11px] text-stone-400 line-through mb-0.5">
+              <span className="text-[10px] text-stone-400 line-through mb-0.5">
                 {isAr ? toArabicDigits(product.originalPrice) : product.originalPrice}
               </span>
             )}
-            <div className="flex items-baseline gap-0.5 sm:gap-1">
+            <div className="flex items-baseline gap-0.5">
               <span
-                className="text-sm sm:text-base font-extrabold text-[var(--accent-primary,#123524)] dark:text-emerald-400 tracking-tight"
+                className="text-sm font-extrabold text-[var(--accent-primary,#123524)] dark:text-emerald-400 tracking-tight"
                 style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
               >
                 {isAr ? toArabicDigits(product.price) : product.price}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-stone-500 dark:text-stone-400">
+              <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">
                 {strings.sar}
               </span>
             </div>
@@ -293,7 +293,7 @@ function ProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`inline-flex items-center justify-center gap-1 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white transition-all duration-200 active:scale-90 shadow-xs cursor-pointer shrink-0 ${
+            className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white transition-all duration-200 active:scale-90 shadow-xs cursor-pointer shrink-0 ${
               isMorphed
                 ? 'bg-emerald-600 scale-102 ring-2 ring-emerald-300'
                 : 'bg-[var(--accent-primary,#123524)] hover:opacity-90'
@@ -302,14 +302,14 @@ function ProductCard({
           >
             {isMorphed ? (
               <>
-                <Check className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+                <Check className="w-3 h-3 stroke-[3] animate-bounce" />
                 <span className="whitespace-nowrap font-bold text-[11px]">
                   {isAr ? '✓ أُضيف' : 'Added!'}
                 </span>
               </>
             ) : (
               <>
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <Plus className="w-3 h-3 stroke-[2.5]" />
                 <span className="whitespace-nowrap font-bold text-[11px]">
                   {isAr ? '+ أضف' : '+ Add'}
                 </span>
