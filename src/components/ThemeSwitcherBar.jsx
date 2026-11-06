@@ -29,6 +29,7 @@ export default function ThemeSwitcherBar({
   onToggleStudio,
   isStudioOpen = false,
   onOpenBotanicalTypography,
+  hasBagItems = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -42,7 +43,11 @@ export default function ThemeSwitcherBar({
     <>
       {/* Mobile Floating Controls Launcher Pill (Only on Storefront when bar is collapsed) */}
       {isStorefront && !isMobileOpen && (
-        <div className="sm:hidden fixed bottom-5 start-4 z-40 animate-fade-in pointer-events-auto">
+        <div
+          className={`sm:hidden fixed ${
+            hasBagItems ? 'bottom-[max(5rem,calc(env(safe-area-inset-bottom)+4.2rem))]' : 'bottom-[max(1.25rem,env(safe-area-inset-bottom))]'
+          } start-4 z-40 animate-fade-in pointer-events-auto transition-all duration-300`}
+        >
           <button
             type="button"
             onClick={() => setIsMobileOpen(true)}

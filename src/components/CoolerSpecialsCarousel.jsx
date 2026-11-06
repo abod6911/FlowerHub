@@ -137,20 +137,21 @@ function CoolerSpecialsCarousel({
                 <div
                   key={`${product.id}-${index}`}
                   onClick={() => onSelectProduct(product)}
-                  className="flex-none w-44 sm:w-48 rounded-2xl bg-white border border-neutral-100 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer group/card flex flex-col justify-between active:scale-95"
+                  className="flex-none w-44 sm:w-48 rounded-[22px] bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-[0_4px_16px_-4px_rgba(0,0,0,0.05)] hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer group/card flex flex-col justify-between active:scale-[0.97]"
                 >
-                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
                     <img
                       src={product.image}
                       alt={isAr ? product.titleAr : product.titleEn}
-                      className="w-full h-full object-cover group-hover/card:scale-104 transition-transform duration-500 ease-out"
+                      className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500 ease-out"
                       loading="lazy"
                       decoding="async"
                     />
+                    <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                     {badgeCfg && (
-                      <div className="absolute top-2.5 right-2.5 z-10">
+                      <div className="absolute top-2 right-2 z-10">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md shadow-md ${badgeCfg.className}`}
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md shadow-sm ${badgeCfg.className}`}
                         >
                           {badgeCfg.icon}
                           <span className="leading-none">{badgeCfg.text}</span>
@@ -161,21 +162,21 @@ function CoolerSpecialsCarousel({
 
                   <div className="p-3 flex flex-col justify-between flex-1 gap-2">
                     <h3
-                      className="text-xs sm:text-sm font-bold text-stone-900 line-clamp-2 min-h-[2.5rem] leading-snug transition-colors duration-200"
+                      className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 line-clamp-2 min-h-[2.5rem] leading-snug transition-colors duration-200"
                       style={{ fontFamily: "'Readex Pro', 'Cairo', 'Alexandria', sans-serif" }}
                     >
                       {isAr ? product.titleAr : product.titleEn}
                     </h3>
 
-                    <div className="pt-1.5 flex items-center justify-between gap-1 border-t border-stone-100">
+                    <div className="pt-2 flex items-center justify-between gap-1 border-t border-stone-100 dark:border-stone-800">
                       <div className="flex items-baseline gap-1">
                         <span
-                          className="text-sm sm:text-base font-bold text-[#123524] tracking-tight"
+                          className="text-sm sm:text-base font-extrabold text-[var(--accent-primary,#123524)] dark:text-emerald-400 tracking-tight"
                           style={{ fontFamily: "'Readex Pro', 'Cairo', 'Alexandria', sans-serif" }}
                         >
                           {isAr ? toArabicDigits(product.price) : product.price}
                         </span>
-                        <span className="text-[10px] font-semibold text-stone-500">
+                        <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">
                           {strings.sar}
                         </span>
                         {product.originalPrice && (
@@ -191,7 +192,7 @@ function CoolerSpecialsCarousel({
                           e.stopPropagation();
                           onSelectProduct(product);
                         }}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#123524] hover:bg-[#0c2519] text-white text-xs font-medium shadow-xs active:scale-95 transition-all duration-200"
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[var(--accent-primary,#123524)] hover:opacity-90 text-white text-xs font-bold shadow-xs active:scale-90 transition-all duration-200"
                         aria-label="Add to order"
                       >
                         <Plus className="w-3 h-3 stroke-[2.5]" />

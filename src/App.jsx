@@ -539,12 +539,12 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="pointer-events-auto max-w-md sm:max-w-lg w-full py-3.5 px-5 rounded-full bg-[#022C22] text-white shadow-2xl flex items-center justify-between border border-white/20 active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
+            className="pointer-events-auto max-w-md sm:max-w-lg w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-emerald-950 via-[var(--accent-primary,#022C22)] to-emerald-950 text-white shadow-[0_12px_40px_-6px_rgba(2,44,34,0.45)] flex items-center justify-between border border-amber-400/35 backdrop-blur-xl active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="relative">
                 <ShoppingBag className="w-5 h-5 text-amber-300" />
-                <span className="absolute -top-1.5 -right-2 bg-amber-500 text-stone-950 text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center shadow-xs ring-2 ring-[#022C22]">
+                <span className="absolute -top-1.5 -right-2 bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs ring-2 ring-emerald-950">
                   {bagItems.reduce((s, it) => s + (it.quantity || 1), 0)}
                 </span>
               </div>
@@ -553,10 +553,10 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-bold font-mono text-amber-200">
+              <span className="text-xs sm:text-sm font-black font-mono text-amber-200">
                 {bagItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)} {isAr ? 'ر.س' : 'SAR'}
               </span>
-              <span className="text-[11px] bg-white/20 px-2.5 py-1 rounded-full font-bold">
+              <span className="text-[11px] sm:text-xs bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 px-3.5 py-1.5 rounded-full font-black shadow-sm">
                 {isAr ? 'إتمام الطلب ←' : 'Checkout →'}
               </span>
             </div>
@@ -584,6 +584,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         setCurrentSpecialsStyle={(newStyle) =>
           setShopConfig((prev) => ({ ...prev, specialsStyle: newStyle }))
         }
+        hasBagItems={bagItems.length > 0}
         activeView={activeView}
         setActiveView={setActiveView}
         lang={lang}

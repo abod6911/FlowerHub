@@ -97,19 +97,19 @@ function OccasionStories({
         <button
           type="button"
           onClick={() => handleStoryClick('all')}
-          className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none transition-transform active:scale-95 group"
+          className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none transition-transform active:scale-92 group snap-start"
         >
           <div
-            className={`relative w-[60px] h-[60px] rounded-full p-[2px] transition-all duration-300 ${
+            className={`relative w-[64px] h-[64px] rounded-full p-[2.5px] transition-all duration-300 ${
               selectedCategory === 'all'
-                ? 'scale-105 shadow-md'
-                : 'hover:scale-102 opacity-90 hover:opacity-100'
+                ? 'scale-105 shadow-[0_6px_20px_-3px_rgba(212,175,55,0.4)] ring-2 ring-amber-400/80'
+                : 'hover:scale-102 opacity-95 hover:opacity-100 shadow-xs'
             }`}
             style={{
               background:
                 selectedCategory === 'all'
                   ? 'linear-gradient(135deg, var(--accent-gold, #D4AF37), var(--accent-primary, #022C22), var(--accent-gold, #D4AF37))'
-                  : 'linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(150, 150, 150, 0.25))',
+                  : 'linear-gradient(135deg, rgba(212, 175, 55, 0.45), rgba(180, 180, 180, 0.2))',
             }}
           >
             <div
@@ -126,15 +126,15 @@ function OccasionStories({
               >
                 <Sparkles
                   className={`w-4 h-4 transition-transform ${
-                    selectedCategory === 'all' ? 'animate-pulse text-amber-300' : 'text-stone-500'
+                    selectedCategory === 'all' ? 'animate-pulse text-amber-300 scale-110' : 'text-stone-500'
                   }`}
                 />
               </div>
             </div>
 
-            {/* Top-Right Badge: Number or Checkmark with ring-2 ring-white */}
+            {/* Active Checkmark Pill on Top */}
             {selectedCategory === 'all' && (
-              <div className="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900">
+              <div className="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900">
                 <Check className="w-2.5 h-2.5 stroke-[3]" />
               </div>
             )}
@@ -142,17 +142,17 @@ function OccasionStories({
 
           <span
             className={`text-xs whitespace-nowrap text-center transition-colors duration-200 ${
-              selectedCategory === 'all' ? 'font-extrabold' : 'font-bold'
+              selectedCategory === 'all' ? 'font-extrabold text-amber-700 dark:text-amber-400' : 'font-semibold text-stone-700 dark:text-stone-300'
             }`}
-            style={{
-              color:
-                selectedCategory === 'all'
-                  ? 'var(--accent-gold, #B45309)'
-                  : 'var(--text-main, #1C1917)',
-            }}
           >
             {strings.allOccasions}
           </span>
+          {selectedCategory === 'all' && (
+            <span
+              className="w-1.5 h-1.5 rounded-full shadow-xs -mt-1"
+              style={{ backgroundColor: 'var(--accent-gold, #D4AF37)' }}
+            />
+          )}
         </button>
 
         {/* 2. Dynamic Occasion Discs */}
@@ -165,21 +165,21 @@ function OccasionStories({
               key={occ.id}
               type="button"
               onClick={() => handleStoryClick(occ.id)}
-              className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none transition-transform active:scale-95 group relative"
+              className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none transition-transform active:scale-92 group relative snap-start"
             >
-              {/* Outer Golden / Brand Shimmer Ring */}
+              {/* Outer Luxury Concentric Ring */}
               <div
-                className={`relative w-[60px] h-[60px] rounded-full p-[2px] transition-all duration-300 ${
+                className={`relative w-[64px] h-[64px] rounded-full p-[2.5px] transition-all duration-300 ${
                   isSelected
-                    ? 'scale-105 shadow-md'
-                    : 'hover:scale-102 opacity-90 hover:opacity-100'
+                    ? 'scale-105 shadow-[0_6px_20px_-3px_rgba(212,175,55,0.4)] ring-2 ring-amber-400/80'
+                    : 'hover:scale-102 opacity-95 hover:opacity-100 shadow-xs'
                 }`}
                 style={{
                   background: isSelected
                     ? 'linear-gradient(135deg, var(--accent-gold, #D4AF37), var(--accent-primary, #022C22), var(--accent-gold, #D4AF37))'
                     : isSpecials
                     ? 'linear-gradient(135deg, #10B981, #059669, #34D399)'
-                    : 'linear-gradient(135deg, var(--accent-gold, #D4AF37), rgba(212, 175, 55, 0.35), var(--accent-primary, #022C22))',
+                    : 'linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(200, 200, 200, 0.25), rgba(2, 44, 34, 0.2))',
                 }}
               >
                 <div
@@ -191,7 +191,7 @@ function OccasionStories({
                     <img
                       src={occ.image}
                       alt={isAr ? occ.nameAr : occ.nameEn}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading={idx < 3 ? 'eager' : 'lazy'}
                       decoding="async"
                       draggable={false}
@@ -200,33 +200,24 @@ function OccasionStories({
                   </div>
                 </div>
 
-                {/* Top-Right Badge: Clean positioning (-top-1 -right-1 z-10) with ring-2 ring-white */}
+                {/* Status Badges: Specials flame OR Selected checkmark (Zero random index numbering) */}
                 {isSpecials ? (
-                  <div className="absolute -top-1 -right-1 z-10 px-1 py-0.5 rounded-full bg-emerald-600 text-[8px] font-bold text-white flex items-center gap-0.5 shadow-xs ring-2 ring-white dark:ring-stone-900">
+                  <div className="absolute -top-1 -right-1 z-10 px-1.5 py-0.5 rounded-full bg-emerald-600 text-[8px] font-bold text-white flex items-center gap-0.5 shadow-sm ring-2 ring-white dark:ring-stone-900">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping" />
                     <Flame className="w-2.5 h-2.5 text-amber-300" />
                   </div>
                 ) : isSelected ? (
-                  <div className="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-amber-500 text-stone-950 flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900">
+                  <div className="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900">
                     <Check className="w-2.5 h-2.5 stroke-[3]" />
                   </div>
-                ) : (
-                  <div className="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-stone-800 text-white text-[9px] font-bold flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900">
-                    {idx + 1}
-                  </div>
-                )}
+                ) : null}
               </div>
 
-              {/* Story Title Label: text-xs whitespace-nowrap (No Ellipsis Clipping) */}
+              {/* Story Title Label */}
               <span
                 className={`text-xs whitespace-nowrap text-center transition-colors duration-200 ${
-                  isSelected ? 'font-extrabold' : 'font-bold'
+                  isSelected ? 'font-extrabold text-amber-700 dark:text-amber-400' : 'font-semibold text-stone-700 dark:text-stone-300'
                 }`}
-                style={{
-                  color: isSelected
-                    ? 'var(--accent-gold, #B45309)'
-                    : 'var(--text-main, #1C1917)',
-                }}
               >
                 {isAr ? occ.nameAr : occ.nameEn}
               </span>
@@ -234,7 +225,7 @@ function OccasionStories({
               {/* Active Indicator Underline Dot */}
               {isSelected && (
                 <span
-                  className="w-1.5 h-1.5 rounded-full shadow-xs -mt-0.5"
+                  className="w-1.5 h-1.5 rounded-full shadow-xs -mt-1"
                   style={{ backgroundColor: 'var(--accent-gold, #D4AF37)' }}
                 />
               )}

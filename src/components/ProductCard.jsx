@@ -119,12 +119,12 @@ function ProductCard({
     return (
       <div
         onClick={() => onRequestPortfolio && onRequestPortfolio(product)}
-        className="bg-white border border-neutral-100 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer relative active:scale-98 animate-card-entrance"
+        className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl overflow-hidden shadow-[0_4px_16px_-4px_rgba(0,0,0,0.05)] hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer relative active:scale-98 animate-card-entrance"
         style={{
           animationDelay: `${(index % 8) * 0.045}s`,
         }}
       >
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
           {/* Skeleton Shimmer while loading */}
           <div
             className={`absolute inset-0 bg-stone-200/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
@@ -155,7 +155,7 @@ function ProductCard({
             type="button"
             onClick={handleToggleFavorite}
             aria-label="Add to favorites"
-            className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full bg-white/85 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 transition-all duration-200 active:scale-90 ${
+            className={`absolute top-2.5 left-2.5 z-10 w-8 h-8 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 dark:border-stone-700 transition-all duration-200 active:scale-90 ${
               heartPop ? 'scale-125' : 'scale-100'
             } ${isFavorite ? 'text-rose-600' : 'text-stone-500 hover:text-rose-600'}`}
           >
@@ -169,10 +169,10 @@ function ProductCard({
 
         <div className="p-3 flex flex-col justify-between flex-1 gap-2">
           <div>
-            <h3 className="font-bold text-sm leading-snug text-stone-900 line-clamp-2 min-h-[2.75rem]">
+            <h3 className="font-bold text-sm leading-snug text-stone-900 dark:text-stone-100 line-clamp-2 min-h-[2.75rem]">
               {isAr ? product.titleAr : product.titleEn}
             </h3>
-            <p className="text-xs text-stone-500 truncate font-medium mt-0.5">
+            <p className="text-xs text-stone-500 dark:text-stone-400 truncate font-medium mt-0.5">
               {isAr ? product.venueAr : product.venueEn}
             </p>
           </div>
@@ -185,7 +185,7 @@ function ProductCard({
                 onRequestPortfolio(product);
               }
             }}
-            className="w-full py-2 px-3 bg-[var(--accent-primary,#123524)] hover:opacity-90 text-white font-medium text-xs flex items-center justify-center gap-1.5 rounded-full transition-all active:scale-95 shadow-xs"
+            className="w-full py-2 px-3 bg-[var(--accent-primary,#123524)] hover:opacity-90 text-white font-bold text-xs flex items-center justify-center gap-1.5 rounded-full transition-all active:scale-95 shadow-xs"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             <span>{strings.requestSimilar}</span>
@@ -199,17 +199,17 @@ function ProductCard({
   return (
     <div
       onClick={() => onSelectProduct && onSelectProduct(product)}
-      className="bg-white border border-neutral-100/90 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] animate-card-entrance"
+      className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 shadow-[0_4px_18px_-4px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] animate-card-entrance rounded-[22px]"
       style={{
-        borderRadius: `${cardRadius}px`,
+        borderRadius: `${cardRadius || 22}px`,
         animationDelay: `${(index % 8) * 0.045}s`,
       }}
     >
       {/* 4:5 Aspect Ratio Image with Strict Corner Separation */}
-      <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
         {/* Skeleton Shimmer while loading */}
         <div
-          className={`absolute inset-0 bg-stone-200/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
+          className={`absolute inset-0 bg-stone-200/50 dark:bg-stone-700/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
             imgLoaded ? 'opacity-0' : 'opacity-100'
           }`}
         />
@@ -217,7 +217,7 @@ function ProductCard({
         <img
           src={product.image}
           alt={isAr ? product.titleAr : product.titleEn}
-          className={`w-full h-full object-cover group-hover:scale-104 transition-all duration-500 ease-out ${
+          className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out ${
             imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
           }`}
           loading={index < 4 ? 'eager' : 'lazy'}
@@ -226,13 +226,13 @@ function ProductCard({
           onLoad={() => setImgLoaded(true)}
         />
 
-        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
 
         {/* 1. TOP-RIGHT CORNER: Status Badge with Mobile Safe Max-Width */}
         {badgeConfig && (
           <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 pointer-events-none max-w-[calc(100%-2.5rem)]">
             <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold backdrop-blur-md shadow-md truncate ${badgeConfig.className}`}
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold backdrop-blur-md shadow-sm truncate ${badgeConfig.className}`}
             >
               {badgeConfig.icon}
               <span className="leading-none tracking-tight truncate">{badgeConfig.text}</span>
@@ -245,12 +245,12 @@ function ProductCard({
           type="button"
           onClick={handleToggleFavorite}
           aria-label={isAr ? 'إضافة إلى المفضلة' : 'Add to favorites'}
-          className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/85 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 transition-all duration-200 active:scale-90 shrink-0 ${
+          className={`absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 w-8 h-8 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md flex items-center justify-center shadow-sm border border-white/60 dark:border-stone-700 transition-all duration-200 active:scale-90 shrink-0 ${
             heartPop ? 'scale-125' : 'scale-100'
-          } ${isFavorite ? 'text-rose-600' : 'text-stone-500 hover:text-rose-600'}`}
+          } ${isFavorite ? 'text-rose-600' : 'text-stone-500 dark:text-stone-400 hover:text-rose-600'}`}
         >
           <Heart
-            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-colors ${
+            className={`w-4 h-4 transition-colors ${
               isFavorite ? 'fill-[#BE123C] text-[#BE123C]' : 'stroke-[2]'
             }`}
           />
@@ -261,14 +261,14 @@ function ProductCard({
       <div className="flex flex-col justify-between flex-1 p-2.5 sm:p-3.5 gap-2">
         {/* Title: Exactly 2 lines max with uniform height */}
         <h3
-          className="line-clamp-2 min-h-[2.4rem] sm:min-h-[2.75rem] text-xs sm:text-sm font-bold leading-snug text-stone-900 transition-colors duration-200"
+          className="line-clamp-2 min-h-[2.4rem] sm:min-h-[2.75rem] text-xs sm:text-sm font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200"
           style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
         >
           {isAr ? product.titleAr : product.titleEn}
         </h3>
 
         {/* Unified Bottom Bar: Prices on Right, + Add Button on Left (Zero Wrap on Mobile) */}
-        <div className="flex items-center justify-between pt-1.5 sm:pt-2 mt-auto border-t border-stone-100 gap-1">
+        <div className="flex items-center justify-between pt-2 mt-auto border-t border-stone-100 dark:border-stone-800 gap-1">
           {/* Right Side: Consistent Price Row */}
           <div className="flex flex-col items-start leading-none min-w-0">
             {product.originalPrice && (
@@ -278,12 +278,12 @@ function ProductCard({
             )}
             <div className="flex items-baseline gap-0.5 sm:gap-1">
               <span
-                className="text-sm sm:text-base font-extrabold text-[var(--accent-primary,#123524)] tracking-tight"
+                className="text-sm sm:text-base font-extrabold text-[var(--accent-primary,#123524)] dark:text-emerald-400 tracking-tight"
                 style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
               >
                 {isAr ? toArabicDigits(product.price) : product.price}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-stone-500">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-stone-500 dark:text-stone-400">
                 {strings.sar}
               </span>
             </div>
@@ -293,7 +293,7 @@ function ProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`inline-flex items-center justify-center gap-0.5 sm:gap-1 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold text-white transition-all duration-200 active:scale-95 shadow-xs cursor-pointer shrink-0 ${
+            className={`inline-flex items-center justify-center gap-1 px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-bold text-white transition-all duration-200 active:scale-90 shadow-xs cursor-pointer shrink-0 ${
               isMorphed
                 ? 'bg-emerald-600 scale-102 ring-2 ring-emerald-300'
                 : 'bg-[var(--accent-primary,#123524)] hover:opacity-90'
@@ -302,15 +302,15 @@ function ProductCard({
           >
             {isMorphed ? (
               <>
-                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3] animate-bounce" />
-                <span className="whitespace-nowrap font-bold text-[10px] sm:text-xs">
-                  {isAr ? '✓ تمت الإضافة' : 'Added!'}
+                <Check className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+                <span className="whitespace-nowrap font-bold text-[11px]">
+                  {isAr ? '✓ أُضيف' : 'Added!'}
                 </span>
               </>
             ) : (
               <>
-                <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.5]" />
-                <span className="whitespace-nowrap font-semibold text-[11px] sm:text-xs">
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span className="whitespace-nowrap font-bold text-[11px]">
                   {isAr ? '+ أضف' : '+ Add'}
                 </span>
               </>
