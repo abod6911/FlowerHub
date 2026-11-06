@@ -4,9 +4,7 @@ import {
   Star,
   MessageCircle,
   Search,
-  Sparkles,
   X,
-  Crown,
   Camera,
   Upload,
   Trash2,
@@ -14,8 +12,6 @@ import {
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
 import { useStoreTheme } from '../context/StoreThemeContext';
-import { BreathingText } from './fancy/breathing-text';
-import { FloatingHeroPetals } from './AmbientRosePetals';
 
 // Dynamic Rotating Search Placeholders
 const SEARCH_PLACEHOLDERS_AR = [
@@ -74,19 +70,9 @@ function ShopHeader({
     }
   }, [shopConfig?.avatarUrl, shopConfig?.logoUrl]);
 
-  const [placeholderIdx, setPlaceholderIdx] = useState(0);
-
-  useEffect(() => {
-    const list = isAr ? SEARCH_PLACEHOLDERS_AR : SEARCH_PLACEHOLDERS_EN;
-    const timer = setInterval(() => {
-      setPlaceholderIdx((prev) => (prev + 1) % list.length);
-    }, 3200);
-    return () => clearInterval(timer);
-  }, [isAr]);
-
   const currentPlaceholder = isAr
-    ? SEARCH_PLACEHOLDERS_AR[placeholderIdx]
-    : SEARCH_PLACEHOLDERS_EN[placeholderIdx];
+    ? 'ابحث عن باقة، فازة، أو مناسبة...'
+    : 'Search bouquets, vases, occasions...';
 
   const handleAvatarFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -190,20 +176,15 @@ function ShopHeader({
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
 
-  // Render Royal Avatar Button
+  // Render Refined Boutique Seal / Logo
   const renderAvatarButton = (sizeClass = 'w-11 h-11') => (
     <button
       type="button"
       onClick={() => setIsAvatarModalOpen(true)}
-      className={`relative ${sizeClass} rounded-2xl flex items-center justify-center font-serif text-base font-bold text-amber-100 shadow-md ring-2 ring-amber-400/60 bg-gradient-to-br from-emerald-950 via-emerald-900 to-stone-950 cursor-pointer select-none group/avatar hover:scale-105 hover:rotate-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 overflow-visible shrink-0`}
-      title={isAr ? 'انقر لتغيير أو رفع شعار المتجر' : 'Click to change store logo'}
+      className={`relative ${sizeClass} rounded-2xl flex items-center justify-center font-serif text-sm font-bold text-stone-100 shadow-sm border border-stone-200/60 dark:border-stone-700 bg-stone-900 dark:bg-stone-850 cursor-pointer select-none group/avatar hover:opacity-90 active:scale-95 transition-all overflow-hidden shrink-0`}
+      title={isAr ? 'شعار وهوية المتجر (انقر للتعديل)' : 'Store logo (click to edit)'}
     >
-      {/* Crown Spark Accent */}
-      <div className="absolute -top-1.5 -right-1 w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs ring-1 ring-white z-20">
-        <Crown className="w-2.5 h-2.5 stroke-[2.5]" />
-      </div>
-
-      {/* Avatar Image or Monogram */}
+      {/* Avatar Image or Clean Monogram */}
       {avatarUrl ? (
         <img
           src={avatarUrl}
@@ -213,51 +194,40 @@ function ShopHeader({
           decoding="async"
         />
       ) : (
-        <span className="tracking-wider drop-shadow-xs">{avatarText}</span>
+        <span className="tracking-widest font-serif text-stone-100 font-bold">{avatarText}</span>
       )}
 
-      {/* Camera Icon Overlay on Hover */}
-      <div className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white z-10">
-        <Camera className="w-4 h-4 text-amber-300" />
+      {/* Subtle Camera Overlay on Hover */}
+      <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white z-10">
+        <Camera className="w-3.5 h-3.5 text-stone-200" />
       </div>
     </button>
   );
 
-  // Render Dynamic Search Capsule
+  // Render Clean Luxury Search Pill
   const renderSearchCapsule = () => (
-    <div className="relative w-full group">
-      {/* Outer Ambient Glow on Hover/Focus */}
-      <div className="absolute -inset-0.5 rounded-[22px] bg-gradient-to-r from-amber-400/25 via-emerald-400/15 to-amber-400/25 opacity-0 group-hover:opacity-70 group-focus-within:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none" />
+    <div className="relative w-full">
+      <div className="relative w-full flex items-center bg-stone-100/80 dark:bg-stone-850 rounded-2xl border border-stone-200/80 dark:border-stone-700/80 px-3.5 py-2 transition-all duration-200 focus-within:border-stone-800 dark:focus-within:border-stone-300 focus-within:bg-white dark:focus-within:bg-stone-900 focus-within:shadow-xs">
+        <Search className="w-4 h-4 text-stone-400 shrink-0 ms-0.5" />
 
-      {/* Main Search Pill Shell */}
-      <div className="relative w-full flex items-center bg-white dark:bg-stone-800/95 rounded-[20px] border border-stone-200/90 dark:border-stone-700/80 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.04)] group-hover:border-amber-300 dark:group-hover:border-stone-600 group-focus-within:border-amber-500 dark:group-focus-within:border-amber-400 group-focus-within:ring-2 group-focus-within:ring-amber-500/20 group-focus-within:shadow-[0_4px_20px_-2px_rgba(212,175,55,0.18)] transition-all duration-300 p-1">
-        {/* Jewel Search Icon */}
-        <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 dark:from-amber-500 dark:to-amber-700 text-stone-950 flex items-center justify-center shrink-0 shadow-xs select-none">
-          <Search className="w-4 h-4 stroke-[2.5]" />
-        </div>
-
-        {/* Input Element */}
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
           placeholder={currentPlaceholder}
           aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-          className="w-full py-2 px-3 bg-transparent text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs sm:text-sm font-medium focus:outline-none transition-colors"
+          className="w-full py-1 px-2.5 bg-transparent text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs font-medium focus:outline-none"
         />
 
-        {/* Clear Button (when text exists) */}
         {searchQuery && (
-          <div className="flex items-center shrink-0 pl-2 pr-1">
-            <button
-              type="button"
-              onClick={() => onSearchChange && onSearchChange('')}
-              className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-700 hover:bg-stone-900 hover:text-white dark:hover:bg-stone-600 text-stone-500 flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-90"
-              aria-label="Clear search"
-            >
-              <X className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => onSearchChange && onSearchChange('')}
+            className="w-6 h-6 rounded-full bg-stone-200/70 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-600 dark:text-stone-300 flex items-center justify-center transition-all cursor-pointer active:scale-90 shrink-0"
+            aria-label="Clear search"
+          >
+            <X className="w-3 h-3 stroke-[2.5]" />
+          </button>
         )}
       </div>
     </div>
@@ -289,7 +259,6 @@ function ShopHeader({
             className="absolute inset-0 w-full h-full object-cover filter brightness-[0.40] transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-stone-950/60 to-black/45 pointer-events-none" />
-          <FloatingHeroPetals className="z-10 opacity-35" />
 
           {/* Top Row */}
           <div className="flex items-center justify-between w-full relative z-10">
@@ -299,11 +268,8 @@ function ShopHeader({
 
             {/* Status Capsule */}
             <div className="flex items-center justify-center px-1">
-              <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs transition-all border ${statusColorClasses}`}>
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
-                  <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${radarDotClasses} ring-2 ${radarRingClasses}`} />
-                </span>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs transition-all border ${statusColorClasses}`}>
+                <span className={`inline-flex rounded-full h-2 w-2 ${radarDotClasses}`} />
                 <span className="text-[11px] sm:text-xs font-bold text-white tracking-normal whitespace-nowrap">
                   {statusText}
                 </span>
@@ -416,34 +382,19 @@ function ShopHeader({
         <div
           className="relative p-4 sm:p-6 shadow-[0_12px_36px_-6px_rgba(212,175,55,0.08),0_4px_18px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-3 sm:gap-4 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-amber-200/80 dark:border-stone-800 bg-gradient-to-b from-[#FDFAF6] via-white to-[#FDF8F3] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 backdrop-blur-xl group"
         >
-          {/* Poetic floating rose petals drifting gently across background layer */}
-          <FloatingHeroPetals className="z-0 opacity-25" />
-
-          {/* Ambient Warm Golden Aura in Background */}
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-44 bg-gradient-to-b from-amber-200/20 via-rose-100/10 to-transparent rounded-full blur-2xl pointer-events-none z-0" />
-
-          {/* 1. TOP ROW: Monogram Royal Seal | Live Status Capsule | Rating Jewel */}
+          {/* 1. TOP ROW: Store Seal | Calm Status Indicator | Contact & Rating */}
           <div className="flex items-center justify-between w-full relative z-10">
             <div className="flex items-center">
               {renderAvatarButton('w-11 h-11')}
             </div>
 
-            {/* Center: Live Status Badge Capsule with Dual-Pulse Radar */}
+            {/* Center: Live Status Badge Capsule */}
             <div className="flex items-center justify-center px-1">
-              <span className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs transition-all border ${statusColorClasses}`}>
-                <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
-                  <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${radarDotClasses} ring-2 ${radarRingClasses}`} />
-                </span>
-                <BreathingText
-                  fromFontVariationSettings="'wght' 500"
-                  toFontVariationSettings="'wght' 800"
-                  staggerFrom="center"
-                  duration={2.2}
-                  className="tracking-normal whitespace-nowrap text-[11px] sm:text-xs font-bold text-inherit"
-                >
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border ${statusColorClasses}`}>
+                <span className={`inline-flex rounded-full h-2 w-2 ${radarDotClasses}`} />
+                <span className="tracking-normal whitespace-nowrap text-[11px] font-bold">
                   {statusText}
-                </BreathingText>
+                </span>
               </span>
             </div>
 
@@ -454,15 +405,15 @@ function ShopHeader({
                 target="_blank"
                 rel="noreferrer"
                 aria-label={isAr ? 'واتساب' : 'WhatsApp'}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/25 transition-all duration-200 active:scale-95 shadow-2xs"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/25 transition-all duration-200 active:scale-95 shadow-2xs"
                 title={isAr ? 'واتساب مباشر' : 'Direct WhatsApp'}
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
               </a>
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-amber-50 to-amber-100/60 dark:bg-stone-800 text-amber-950 dark:text-amber-100 border border-amber-300/80 dark:border-stone-700 shadow-2xs whitespace-nowrap">
-                <Star className="w-3.5 h-3.5 fill-[var(--accent-gold,#D4AF37)] text-[var(--accent-gold,#D4AF37)] shrink-0" />
+              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 shadow-2xs whitespace-nowrap">
+                <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
                 <span className="font-extrabold text-xs tracking-tight">4.9 ★</span>
               </span>
             </div>

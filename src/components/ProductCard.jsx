@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Check, MessageCircle, Heart, Clock, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { Plus, Check, MessageCircle, Heart, Clock, SlidersHorizontal } from 'lucide-react';
 import { THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
 import { useStoreTheme } from '../context/StoreThemeContext';
@@ -84,29 +84,29 @@ function ProductCard({
     if (product.badge && typeof product.badge === 'string' && product.badge.trim() !== '') {
       return {
         text: product.badge.trim(),
-        icon: <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-md font-bold',
+        icon: null,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-sm font-bold',
       };
     }
     if (product.isOneTimeSpecial) {
       return {
         text: strings.oneTimeBadge || 'قطعة واحدة فقط',
-        icon: <Sparkles className="w-3 h-3 text-rose-600 dark:text-rose-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-md font-bold',
+        icon: null,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-sm font-bold',
       };
     }
     if (product.isReadyNow) {
       return {
         text: strings.readyNowBadge || 'جاهز الآن',
-        icon: <Clock className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-md font-bold',
+        icon: <Clock className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-sm font-bold',
       };
     }
     if (product.type === 'editable' || product.allowCustomColors || product.allowCustomText) {
       return {
         text: strings.customizableBadge || 'قابل للتخصيص',
-        icon: <SlidersHorizontal className="w-3 h-3 text-emerald-700 dark:text-emerald-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-md font-bold',
+        icon: <SlidersHorizontal className="w-2.5 h-2.5 text-stone-600 dark:text-stone-400 shrink-0" />,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-sm font-bold',
       };
     }
     return null;

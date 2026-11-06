@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Sparkles, Flame, Check } from 'lucide-react';
+import { Layers, Flame, Check } from 'lucide-react';
 import { INITIAL_OCCASIONS, THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
 
@@ -124,9 +124,9 @@ function OccasionStories({
                     : `${themeTokens.badge} ${themeTokens.textMain}`
                 }`}
               >
-                <Sparkles
+                <Layers
                   className={`w-4 h-4 transition-transform ${
-                    selectedCategory === 'all' ? 'animate-pulse text-amber-300 scale-110' : 'text-stone-500'
+                    selectedCategory === 'all' ? 'text-amber-300 scale-105' : 'text-stone-500'
                   }`}
                 />
               </div>

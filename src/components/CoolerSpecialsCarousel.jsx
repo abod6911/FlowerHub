@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Plus, ChevronLeft, ChevronRight, Sparkles, Clock } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import { PRODUCTS, THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
-import { VariableFontHoverByRandomLetter } from './fancy/variable-font-hover-by-random-letter';
 
 // Helper to convert standard digits to Eastern Arabic numerals for luxury typography
 const toArabicDigits = (num) => {
@@ -50,15 +49,15 @@ function CoolerSpecialsCarousel({
     if (product.isOneTimeSpecial) {
       return {
         text: strings.oneTimeBadge || 'قطعة واحدة فقط',
-        icon: <Sparkles className="w-2.5 h-2.5 text-rose-600 dark:text-rose-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-md font-bold',
+        icon: null,
+        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-sm font-bold',
       };
     }
     if (product.isReadyNow) {
       return {
         text: strings.readyNowBadge || 'جاهز الآن',
         icon: <Clock className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-md font-bold',
+        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-sm font-bold',
       };
     }
     return null;
@@ -71,48 +70,23 @@ function CoolerSpecialsCarousel({
     const marqueeItems = [...coolerItems, ...coolerItems];
 
     return (
-      <section className="py-2.5 px-4 w-full overflow-hidden transition-colors duration-300 select-none">
-        <div className="flex items-center justify-between mb-2.5">
+      <section className="py-2 px-3.5 sm:px-4 w-full overflow-hidden transition-colors duration-300 select-none">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
             <div>
               <h2
-                className="text-sm sm:text-base font-bold tracking-tight transition-colors duration-300"
-                style={{ color: 'var(--text-main, #1C1917)' }}
+                className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-100 font-serif"
               >
-                <VariableFontHoverByRandomLetter
-                  label={isAr ? 'جاهز للاستلام اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
-                  fromFontVariationSettings="'wght' 300"
-                  toFontVariationSettings="'wght' 800"
-                  staggerDuration={0.035}
-                  className="inline-block cursor-pointer"
-                />
+                {isAr ? 'جاهز للاستلام والتوصيل اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
               </h2>
               <p
-                className="text-[11px] transition-colors duration-300"
-                style={{ color: 'var(--text-muted, #78716C)' }}
+                className="text-[11px] text-stone-500 dark:text-stone-400"
               >
                 {strings.coolerSubtitle}
               </p>
             </div>
           </div>
-          <span
-            className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1.5 border backdrop-blur-md"
-            style={{
-              backgroundColor: 'var(--surface-card, #FFFFFF)',
-              color: 'var(--text-main, #1C1917)',
-              borderColor: 'var(--border-subtle, #E7E5E4)',
-            }}
-          >
-            <span className="relative flex h-1.5 w-1.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-            </span>
-            <span>{isAr ? 'حركة حية مستمرة' : 'Live Motion'}</span>
-          </span>
         </div>
 
         <div
@@ -218,16 +192,9 @@ function CoolerSpecialsCarousel({
         <div className="flex items-center justify-between mb-2.5">
           <div>
             <h2
-              className="text-sm sm:text-base font-bold tracking-tight"
-              style={{ color: 'var(--text-main, #1C1917)' }}
+              className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-100 font-serif"
             >
-              <VariableFontHoverByRandomLetter
-                label={isAr ? 'جاهز للاستلام اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
-                fromFontVariationSettings="'wght' 300"
-                toFontVariationSettings="'wght' 800"
-                staggerDuration={0.035}
-                className="inline-block cursor-pointer"
-              />
+              {isAr ? 'جاهز للاستلام والتوصيل اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
             </h2>
             <p
               className="text-[11px]"
@@ -430,17 +397,10 @@ function CoolerSpecialsCarousel({
                   borderColor: 'rgba(212, 175, 55, 0.35)',
                 }}
               >
-                <Sparkles className="w-3 h-3" />
-                <span>{isAr ? 'منصة التنسيق الفاخر' : 'Luxury Showcase'}</span>
+                <span>{isAr ? 'مختارات اليوم الفاخرة' : 'Curated Selection'}</span>
               </div>
-              <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">
-                <VariableFontHoverByRandomLetter
-                  label={isAr ? 'جاهز للاستلام اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
-                  fromFontVariationSettings="'wght' 300"
-                  toFontVariationSettings="'wght' 800"
-                  staggerDuration={0.035}
-                  className="inline-block cursor-pointer text-white"
-                />
+              <h2 className="text-sm sm:text-base font-bold text-white tracking-tight font-serif">
+                {isAr ? 'جاهز للاستلام والتوصيل اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
               </h2>
               <p className="text-[11px] text-white/80">
                 {strings.coolerSubtitle}
@@ -531,16 +491,9 @@ function CoolerSpecialsCarousel({
       <div className="flex items-center justify-between mb-2">
         <div>
           <h2
-            className="text-sm sm:text-base font-bold tracking-tight"
-            style={{ color: 'var(--text-main, #1C1917)' }}
+            className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-100 font-serif"
           >
-            <VariableFontHoverByRandomLetter
-              label={isAr ? 'جاهز للاستلام اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
-              fromFontVariationSettings="'wght' 300"
-              toFontVariationSettings="'wght' 800"
-              staggerDuration={0.035}
-              className="inline-block cursor-pointer"
-            />
+            {isAr ? 'جاهز للاستلام والتوصيل اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
           </h2>
           <p
             className="text-[11px]"

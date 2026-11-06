@@ -527,8 +527,20 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
 
           <div className={`text-[10px] pt-1 ${themeTokens.textMuted}`}>
             {isAr
-              ? 'سجل تجاري رقم: ١٠١٠٨٤٩٢٠٠ • المركز السعودي للأعمال'
+              ? 'سجل تجاري رقم: ١٠١٠٨٩٢٠٠ • المركز السعودي للأعمال'
               : 'Commercial Registration: 1010849200'}
+          </div>
+
+          {/* Discreet Coordinator Entrance Link */}
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={() => setActiveView('admin')}
+              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors cursor-pointer"
+            >
+              <Sliders className="w-3 h-3" />
+              <span>{isAr ? 'لوحة تحكم المنسق' : 'Florist Admin'}</span>
+            </button>
           </div>
         </footer>
       </main>
@@ -539,24 +551,24 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="pointer-events-auto max-w-md sm:max-w-lg w-full py-3.5 px-5 rounded-full bg-gradient-to-r from-emerald-950 via-[var(--accent-primary,#022C22)] to-emerald-950 text-white shadow-[0_12px_40px_-6px_rgba(2,44,34,0.45)] flex items-center justify-between border border-amber-400/35 backdrop-blur-xl active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
+            className="pointer-events-auto max-w-[390px] w-full py-3 px-4 rounded-full bg-stone-950 text-white shadow-[0_12px_40px_-6px_rgba(0,0,0,0.45)] flex items-center justify-between border border-amber-400/40 backdrop-blur-xl active:scale-[0.98] transition-all hover:opacity-95 cursor-pointer"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               <div className="relative">
-                <ShoppingBag className="w-5 h-5 text-amber-300" />
-                <span className="absolute -top-1.5 -right-2 bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs ring-2 ring-emerald-950">
+                <ShoppingBag className="w-4 h-4 text-amber-300" />
+                <span className="absolute -top-1.5 -right-2 bg-amber-400 text-stone-950 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-xs ring-2 ring-stone-950">
                   {bagItems.reduce((s, it) => s + (it.quantity || 1), 0)}
                 </span>
               </div>
-              <span className="text-xs sm:text-sm font-bold">
-                {isAr ? 'عرض سلة الطلبات' : 'View Shopping Cart'}
+              <span className="text-xs font-bold">
+                {isAr ? 'سلة الطلبات' : 'Shopping Cart'}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-black font-mono text-amber-200">
+              <span className="text-xs font-black font-mono text-amber-200">
                 {bagItems.reduce((s, it) => s + (it.price || 0) * (it.quantity || 1), 0)} {isAr ? 'ر.س' : 'SAR'}
               </span>
-              <span className="text-[11px] sm:text-xs bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 px-3.5 py-1.5 rounded-full font-black shadow-sm">
+              <span className="text-[11px] bg-amber-400 text-stone-950 px-3 py-1 rounded-full font-black shadow-sm">
                 {isAr ? 'إتمام الطلب ←' : 'Checkout →'}
               </span>
             </div>
@@ -568,23 +580,10 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
 
   return (
     <div
-      className={`min-h-screen ${themeTokens.pageBg} flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white transition-colors duration-300 w-full overflow-x-hidden`}
+      className={`min-h-screen bg-[#F6F5F2] dark:bg-[#0A0A0B] flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white transition-colors duration-300 w-full overflow-x-hidden`}
     >
-      {/* 1. Multi-Tenant Theme, Hero, View & Motion Switcher Bar */}
+      {/* 1. Executive Management Bar (Desktop Only) */}
       <ThemeSwitcherBar
-        currentTheme={shopConfig.theme}
-        setCurrentTheme={(newTheme) =>
-          setShopConfig((prev) => ({ ...prev, theme: newTheme }))
-        }
-        currentHero={shopConfig.heroStyle}
-        setCurrentHero={(newHero) =>
-          setShopConfig((prev) => ({ ...prev, heroStyle: newHero }))
-        }
-        currentSpecialsStyle={shopConfig.specialsStyle}
-        setCurrentSpecialsStyle={(newStyle) =>
-          setShopConfig((prev) => ({ ...prev, specialsStyle: newStyle }))
-        }
-        hasBagItems={bagItems.length > 0}
         activeView={activeView}
         setActiveView={setActiveView}
         lang={lang}
@@ -592,12 +591,14 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       />
 
       {/* 2. Main View Canvas */}
-      {/* VIEW A: Storefront (Fully Responsive from Mobile to Desktop) */}
+      {/* VIEW A: Storefront (Dedicated Mobile Phone Architecture) */}
       {activeView === 'storefront' && (
-        <div
-          className={`w-full max-w-xl md:max-w-3xl lg:max-w-5xl ${themeTokens.pageBg} min-h-screen flex flex-col relative transition-colors duration-300 mx-auto`}
-        >
-          {renderStorefrontContent()}
+        <div className="w-full flex justify-center py-0 sm:py-6 sm:px-4">
+          <div
+            className={`w-full sm:max-w-[430px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-hidden`}
+          >
+            {renderStorefrontContent()}
+          </div>
         </div>
       )}
 
