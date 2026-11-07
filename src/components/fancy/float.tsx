@@ -1,5 +1,5 @@
 import React from "react"
-import { motion, useReducedMotion } from "motion/react"
+import { motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 export interface FloatProps extends React.HTMLAttributes<HTMLDivElement> {

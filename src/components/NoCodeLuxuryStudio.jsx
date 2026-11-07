@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Sparkles,
@@ -22,9 +23,305 @@ import {
   Plus,
   Heart,
 } from 'lucide-react';
+import AmbientRosePetals from './AmbientRosePetals';
 import { useStudioStore } from '../context/StudioThemeContext';
 
-function StudioStorefrontLiveSimulation({ config }) {
+function StudioSimulatedCard({
+  product,
+  index,
+  config,
+  colors,
+  catalogFont,
+  cardRadius,
+  isAdded,
+  onAdd,
+  cardEntranceMotion,
+  staggerDelay,
+  cardHoverEffect,
+  buyButtonPhysics,
+  cardShadow,
+  buyButtonStyle,
+  fullTitleWrap,
+  showBadges,
+  badgeStyle,
+  showFavoriteButton,
+  replayKey,
+  isBentoSpan = false,
+}) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  const [ripples, setRipples] = useState([]);
+
+  const handleMouseMove = (e) => {
+    if (cardHoverEffect !== 'tilt_3d') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const py = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    setTilt({
+      x: -py * 9,
+      y: px * 9,
+      active: true,
+      glareX: ((px + 1) / 2) * 100,
+      glareY: ((py + 1) / 2) * 100,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (cardHoverEffect === 'tilt_3d') {
+      setTilt({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+    }
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    if (buyButtonPhysics === 'ripple_wave') {
+      const ripId = Date.now() + Math.random();
+      setRipples((prev) => [...prev, { id: ripId, x: clickX, y: clickY }]);
+      setTimeout(() => {
+        setRipples((prev) => prev.filter((r) => r.id !== ripId));
+      }, 700);
+    }
+
+    onAdd(product, {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      targetRect: rect,
+    });
+  };
+
+  // Entrance variants based on cardEntranceMotion
+  const entranceVariants = {
+    fade_up: {
+      initial: { opacity: 0, y: 22 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: index * staggerDelay },
+    },
+    elastic_scale: {
+      initial: { opacity: 0, scale: 0.68 },
+      animate: { opacity: 1, scale: 1 },
+      transition: { type: 'spring', damping: 11, stiffness: 170, delay: index * staggerDelay },
+    },
+    slide: {
+      initial: { opacity: 0, x: 35 },
+      animate: { opacity: 1, x: 0 },
+      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: index * staggerDelay },
+    },
+    none: {
+      initial: { opacity: 1, scale: 1 },
+      animate: { opacity: 1, scale: 1 },
+      transition: { duration: 0 },
+    },
+  };
+
+  const motionProps = entranceVariants[cardEntranceMotion] || entranceVariants.fade_up;
+
+  // Shadow class
+  const shadowClass =
+    cardShadow === 'none'
+      ? 'shadow-none border border-stone-200/80'
+      : cardShadow === 'medium'
+      ? 'shadow-md hover:shadow-lg'
+      : cardShadow === 'high'
+      ? 'shadow-xl hover:shadow-2xl'
+      : 'shadow-xs hover:shadow-md';
+
+  // Hover transform and visual classes
+  let transformStyle = '';
+  let hoverClasses = '';
+  if (cardHoverEffect === 'tilt_3d') {
+    transformStyle = tilt.active
+      ? `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.025, 1.025, 1.025)`
+      : 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+  } else if (cardHoverEffect === 'zoom_soft') {
+    hoverClasses = 'hover:scale-[1.03] transition-transform duration-300';
+  } else if (cardHoverEffect === 'gold_glow') {
+    hoverClasses =
+      'hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] hover:border-amber-400 transition-all duration-300';
+  }
+
+  return (
+    <motion.div
+      key={`${cardEntranceMotion}-${staggerDelay}-${replayKey}-${product.id}`}
+      initial={motionProps.initial}
+      animate={motionProps.animate}
+      transition={motionProps.transition}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`border border-stone-200/70 p-2.5 flex flex-col justify-between transition-all group overflow-hidden relative cursor-pointer ${shadowClass} ${hoverClasses} ${
+        isBentoSpan ? 'col-span-2' : 'col-span-1'
+      }`}
+      style={{
+        backgroundColor: colors.cardSurface,
+        borderRadius: `${cardRadius}px`,
+        transform: transformStyle,
+        transition: tilt.active
+          ? 'transform 0.08s ease-out'
+          : 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease',
+      }}
+    >
+      {/* 3D Specular Light Sheen */}
+      {cardHoverEffect === 'tilt_3d' && tilt.active && (
+        <div
+          className="absolute inset-0 pointer-events-none rounded-[inherit] transition-opacity duration-200 z-20"
+          style={{
+            background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.24) 0%, transparent 65%)`,
+          }}
+        />
+      )}
+
+      <div>
+        <div
+          className={`rounded-xl overflow-hidden mb-2 bg-stone-100 relative ${
+            isBentoSpan ? 'aspect-[16/9]' : 'aspect-[4/5]'
+          }`}
+        >
+          <img
+            src={product.image}
+            alt={product.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = './images/products/royal-red-roses.jpg';
+            }}
+          />
+
+          {/* Top-Right Badge */}
+          {showBadges && (
+            <span
+              className={`absolute top-1.5 right-1.5 text-[8px] font-bold px-2 py-0.5 rounded-full shadow-2xs z-10 ${
+                badgeStyle === 'solid_pastel'
+                  ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                  : 'bg-white/90 backdrop-blur-md text-stone-900 border border-white/60'
+              }`}
+            >
+              {product.tag}
+            </span>
+          )}
+
+          {/* Top-Left Heart Favorite Button */}
+          {showFavoriteButton && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsFav(!isFav);
+              }}
+              className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-xs border border-white/60 z-10 transition-transform active:scale-75"
+            >
+              <Heart
+                className={`w-3 h-3 transition-colors ${
+                  isFav ? 'fill-rose-600 text-rose-600' : 'text-stone-400 hover:text-rose-500'
+                }`}
+              />
+            </button>
+          )}
+        </div>
+
+        {/* Title */}
+        <h4
+          className={`text-xs font-bold leading-snug ${
+            fullTitleWrap ? 'line-clamp-2 min-h-[2.3rem]' : 'truncate'
+          }`}
+          style={{ color: colors.textMain }}
+        >
+          {product.title}
+        </h4>
+        <span className="text-[10px] text-stone-400 block mt-0.5">توصيل ساعتين • مبرد</span>
+      </div>
+
+      {/* Footer / Buy Action Area */}
+      <div
+        className={`pt-2 mt-1.5 border-t border-stone-100 ${
+          buyButtonStyle === 'full_width'
+            ? 'flex flex-col gap-1.5'
+            : 'flex items-center justify-between'
+        }`}
+      >
+        <div className="flex items-baseline gap-0.5">
+          <span className="text-xs font-black" style={{ color: colors.priceColor }}>
+            {product.price}
+          </span>
+          <span className="text-[9px] text-stone-500 font-medium">ر.س</span>
+        </div>
+
+        {/* Buy Button */}
+        <button
+          type="button"
+          onClick={handleButtonClick}
+          className={`font-bold transition-all active:scale-95 shadow-2xs flex items-center justify-center gap-1 relative overflow-hidden ${
+            buyButtonStyle === 'circle_plus'
+              ? 'w-7 h-7 rounded-full text-white shrink-0'
+              : buyButtonStyle === 'full_width'
+              ? 'w-full py-1.5 rounded-xl text-white text-[10px]'
+              : 'px-2.5 py-1 rounded-full text-white text-[10px] shrink-0'
+          }`}
+          style={{
+            backgroundColor: isAdded ? '#059669' : colors.primary,
+          }}
+        >
+          {/* Ripple Wave Elements */}
+          {ripples.map((rip) => (
+            <motion.span
+              key={rip.id}
+              initial={{ scale: 0, opacity: 0.8 }}
+              animate={{ scale: 3.8, opacity: 0 }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
+              className="absolute rounded-full pointer-events-none bg-white/60 shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+              style={{
+                left: rip.x - 12,
+                top: rip.y - 12,
+                width: 24,
+                height: 24,
+              }}
+            />
+          ))}
+
+          {/* Morphing Checkmark / Text */}
+          <AnimatePresence mode="wait">
+            {isAdded ? (
+              <motion.span
+                key="added"
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.16, ease: 'easeOut' }}
+                className="flex items-center gap-1 leading-none"
+              >
+                <Check className="w-3 h-3 stroke-[3]" />
+                {buyButtonStyle !== 'circle_plus' && <span>أُضيف</span>}
+              </motion.span>
+            ) : (
+              <motion.span
+                key="add"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.14, ease: 'easeOut' }}
+                className="flex items-center gap-1 leading-none"
+              >
+                <Plus className="w-3 h-3 stroke-[2.5]" />
+                {buyButtonStyle !== 'circle_plus' && <span>أضف</span>}
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+function StudioStorefrontLiveSimulation({ config, replayTrigger = 0 }) {
   const colors = {
     primary: config?.colors?.primary || '#7E1529',
     secondary: config?.colors?.secondary || '#BE123C',
@@ -53,7 +350,18 @@ function StudioStorefrontLiveSimulation({ config }) {
       ? "'Cairo', sans-serif"
       : "'Readex Pro', sans-serif";
 
-  const cardRadius = config?.cardBorderRadius ?? 20;
+  const cardRadius = config?.cardBorderRadius ?? 22;
+  const cardEntranceMotion = config?.cardEntranceMotion || 'fade_up';
+  const staggerDelay = config?.staggerDelay ?? 0.08;
+  const buyButtonPhysics = config?.buyButtonPhysics || 'morph_checkmark';
+  const cardHoverEffect = config?.cardHoverEffect || 'zoom_soft';
+  const cardShadow = config?.cardShadow || 'soft';
+  const buyButtonStyle = config?.buyButtonStyle || 'pill_add';
+  const fullTitleWrap = config?.fullTitleWrap !== false;
+  const showBadges = config?.showBadges !== false;
+  const badgeStyle = config?.badgeStyle || 'glassmorphic';
+  const showFavoriteButton = config?.showFavoriteButton !== false;
+  const gridLayout = config?.gridLayout || 'bento';
 
   const sampleProducts = [
     {
@@ -87,235 +395,321 @@ function StudioStorefrontLiveSimulation({ config }) {
   ];
 
   const [activeItemAdded, setActiveItemAdded] = useState(null);
+  const [flyingPetals, setFlyingPetals] = useState([]);
+  const [headerPulse, setHeaderPulse] = useState(false);
+  const containerRef = useRef(null);
 
-  const handleAdd = (id) => {
-    setActiveItemAdded(id);
-    setTimeout(() => setActiveItemAdded(null), 1200);
+  const handleAddProduct = (product, meta) => {
+    setActiveItemAdded(product.id);
+
+    // If fly_to_cart physics is active, spawn an animated particle
+    if (buyButtonPhysics === 'fly_to_cart' && containerRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const startX = meta.clientX - containerRect.left;
+      const startY = meta.clientY - containerRect.top;
+      const targetX = containerRect.width / 2;
+      const targetY = 24;
+
+      const petalId = Date.now() + Math.random();
+      setFlyingPetals((prev) => [
+        ...prev,
+        { id: petalId, startX, startY, targetX, targetY },
+      ]);
+
+      setTimeout(() => {
+        setHeaderPulse(true);
+        setTimeout(() => setHeaderPulse(false), 450);
+      }, 550);
+
+      setTimeout(() => {
+        setFlyingPetals((prev) => prev.filter((p) => p.id !== petalId));
+      }, 850);
+    }
+
+    setTimeout(() => {
+      setActiveItemAdded(null);
+    }, 1300);
+  };
+
+  // Sections management helper
+  const sectionsOrder = config?.sections || [
+    { id: 'header', visible: true },
+    { id: 'occasions', visible: true },
+    { id: 'cooler', visible: true },
+    { id: 'custom_banner', visible: true },
+    { id: 'catalog', visible: true },
+  ];
+
+  const isSectionVisible = (secId) => {
+    const sec = sectionsOrder.find((s) => s.id === secId);
+    return sec ? sec.visible !== false : true;
   };
 
   return (
     <div
-      className="p-3 sm:p-4 space-y-3 select-none text-start transition-all duration-300"
+      ref={containerRef}
+      className="p-3 sm:p-4 space-y-3 select-none text-start transition-all duration-300 relative min-h-full"
       style={{
         backgroundColor: colors.canvasBg,
         color: colors.textMain,
         fontFamily: catalogFont,
       }}
     >
-      {/* 1. Header Card */}
-      <div
-        className="p-3.5 rounded-2xl border border-stone-200/70 shadow-xs space-y-2.5 transition-all duration-300"
-        style={{ backgroundColor: colors.cardSurface }}
-      >
-        <div className="flex items-center justify-between gap-2">
-          {/* Rating */}
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-800 border border-amber-300/40 flex items-center gap-1 shadow-2xs">
-            <span className="text-amber-500">★</span> 4.9
-          </span>
+      {/* 🌸 Live Falling Rose Petals Contained Inside iPhone Simulation */}
+      <AmbientRosePetals
+        isAbsolute={true}
+        enabled={config?.floatingPetalsEnabled}
+        count={config?.petalsCount}
+        opacity={config?.petalsOpacity}
+      />
 
-          {/* Status Pill */}
-          <span
-            className="text-[9px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs text-white"
-            style={{ backgroundColor: colors.primary }}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="truncate max-w-[130px]">{config?.statusText || 'مفتوح • تجهيز فوري ٢٠ د'}</span>
-          </span>
+      {/* 🌸 Flying Rose Petals along Arced Trajectory (Fly to Cart Physics) */}
+      {flyingPetals.map((fp) => (
+        <motion.div
+          key={fp.id}
+          initial={{ x: fp.startX, y: fp.startY, scale: 0.9, opacity: 1 }}
+          animate={{
+            x: [fp.startX, fp.startX - 30, fp.targetX],
+            y: [fp.startY, fp.startY - 120, fp.targetY],
+            scale: [0.9, 1.4, 0.4],
+            opacity: [1, 1, 0],
+            rotate: [0, 60, 240],
+          }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute pointer-events-none z-50 text-base flex items-center justify-center filter drop-shadow-md"
+        >
+          🌸
+        </motion.div>
+      ))}
 
-          {/* Logo / Monogram Seal */}
-          <div
-            className="w-8 h-8 rounded-xl overflow-hidden text-amber-300 flex items-center justify-center font-serif text-xs font-bold shadow-xs border border-amber-400/40 shrink-0"
-            style={{ backgroundColor: colors.primary }}
-          >
-            {config?.avatarUrl ? (
-              <img src={config.avatarUrl} alt="Logo" className="w-full h-full object-cover" />
-            ) : (
-              <span>{config?.avatarText || 'د.و'}</span>
-            )}
-          </div>
-        </div>
+      {/* Render Sections in Configured Dynamic Order */}
+      {sectionsOrder.map((section) => {
+        if (!section.visible) return null;
 
-        {/* Store Title & Tagline */}
-        <div className="text-center pt-0.5">
-          <h2
-            className="font-black text-lg leading-tight"
-            style={{ fontFamily: headerFont, color: colors.textMain }}
-          >
-            {config?.storeName || 'دار الورد للمناسبات'}
-          </h2>
-          <p
-            className="text-[11px] mt-0.5 truncate"
-            style={{ color: colors.textMuted }}
-          >
-            {config?.storeSubtitle || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب'}
-          </p>
-          <div className="inline-flex items-center gap-1 text-[9px] font-medium text-stone-500 mt-1 px-2 py-0.5 rounded-full bg-stone-100/80">
-            <MapPin className="w-2.5 h-2.5 text-stone-400" />
-            <span>{config?.locationLabel || 'الرياض • التوصيل لكافة الأحياء'}</span>
-          </div>
-        </div>
+        if (section.id === 'header') {
+          return (
+            <div
+              key="header"
+              className="p-3.5 rounded-2xl border border-stone-200/70 shadow-xs space-y-2.5 transition-all duration-300 relative z-20"
+              style={{ backgroundColor: colors.cardSurface }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                {/* Rating with Header Confirmation Bounce */}
+                <motion.span
+                  animate={headerPulse ? { scale: [1, 1.25, 0.95, 1] } : {}}
+                  transition={{ duration: 0.4 }}
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-800 border border-amber-300/40 flex items-center gap-1 shadow-2xs"
+                >
+                  <span className="text-amber-500">★</span> {config?.rating || '4.9'}
+                </motion.span>
 
-        {/* Search Mockup */}
-        <div className="pt-0.5">
-          <div className="w-full py-1.5 px-2.5 rounded-xl bg-stone-50 border border-stone-200 text-[10px] text-stone-400 flex items-center justify-between">
-            <span>ابحث عن باقة، فازة، أو مناسبة...</span>
-            <Search className="w-3 h-3 text-stone-400" />
-          </div>
-        </div>
-      </div>
+                {/* Status Pill with Dynamic Pulse */}
+                <span
+                  className="text-[9px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs text-white"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full bg-emerald-400 ${
+                      config?.statusPulse !== false ? 'animate-pulse' : ''
+                    }`}
+                  />
+                  <span className="truncate max-w-[130px]">
+                    {config?.statusText || 'مفتوح • تجهيز فوري ٢٠ د'}
+                  </span>
+                </span>
 
-      {/* 2. Occasion Circles Reel */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-[11px] font-bold">
-          <span style={{ color: colors.textMain }}>المناسبات</span>
-          <span className="text-[9px] text-stone-400">تصفح سريع</span>
-        </div>
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
-          {[
-            { id: 'specials', name: 'جاهز اليوم', img: './images/occasions/occasion-ready-today.jpg' },
-            { id: 'grad', name: 'تخرج', img: './images/occasions/occasion-graduation.jpg' },
-            { id: 'romance', name: 'حب ورومانسية', img: './images/occasions/occasion-romance.jpg' },
-            { id: 'newborn', name: 'مواليد', img: './images/occasions/occasion-newborn.jpg' },
-          ].map((occ) => (
-            <div key={occ.id} className="flex flex-col items-center gap-1 shrink-0">
-              <div
-                className="w-11 h-11 rounded-full p-0.5 border-2 shadow-2xs overflow-hidden transition-transform active:scale-95"
-                style={{ borderColor: colors.primary }}
-              >
-                <img
-                  src={occ.img}
-                  alt={occ.name}
-                  className="w-full h-full object-cover rounded-full"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = './images/products/royal-red-roses.jpg';
-                  }}
-                />
+                {/* Logo / Monogram Seal */}
+                <div
+                  className="w-8 h-8 rounded-xl overflow-hidden text-amber-300 flex items-center justify-center font-serif text-xs font-bold shadow-xs border border-amber-400/40 shrink-0"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  {config?.avatarUrl ? (
+                    <img src={config.avatarUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{config?.avatarText || 'د.و'}</span>
+                  )}
+                </div>
               </div>
-              <span className="text-[9px] font-bold truncate max-w-[50px]" style={{ color: colors.textMain }}>
-                {occ.name}
+
+              {/* Store Title & Tagline */}
+              <div className="text-center pt-0.5">
+                <h2
+                  className="font-black text-lg leading-tight"
+                  style={{ fontFamily: headerFont, color: colors.textMain }}
+                >
+                  {config?.storeName || 'دار الورد للمناسبات'}
+                </h2>
+                <p className="text-[11px] mt-0.5 truncate" style={{ color: colors.textMuted }}>
+                  {config?.storeSubtitle || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب'}
+                </p>
+                <div className="inline-flex items-center gap-1 text-[9px] font-medium text-stone-500 mt-1 px-2 py-0.5 rounded-full bg-stone-100/80">
+                  <MapPin className="w-2.5 h-2.5 text-stone-400" />
+                  <span>{config?.locationLabel || 'الرياض • التوصيل لكافة الأحياء'}</span>
+                </div>
+              </div>
+
+              {/* Search Mockup */}
+              <div className="pt-0.5">
+                <div className="w-full py-1.5 px-2.5 rounded-xl bg-stone-50 border border-stone-200 text-[10px] text-stone-400 flex items-center justify-between">
+                  <span>ابحث عن باقة، فازة، أو مناسبة...</span>
+                  <Search className="w-3 h-3 text-stone-400" />
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        if (section.id === 'occasions') {
+          return (
+            <div key="occasions" className="space-y-1.5 relative z-10">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span style={{ color: colors.textMain }}>المناسبات</span>
+                <span className="text-[9px] text-stone-400">تصفح سريع</span>
+              </div>
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                {[
+                  { id: 'specials', name: 'جاهز اليوم', img: './images/occasions/occasion-ready-today.jpg' },
+                  { id: 'grad', name: 'تخرج', img: './images/occasions/occasion-graduation.jpg' },
+                  { id: 'romance', name: 'حب ورومانسية', img: './images/occasions/occasion-romance.jpg' },
+                  { id: 'newborn', name: 'مواليد', img: './images/occasions/occasion-newborn.jpg' },
+                ].map((occ) => (
+                  <div key={occ.id} className="flex flex-col items-center gap-1 shrink-0">
+                    <div
+                      className="w-11 h-11 rounded-full p-0.5 border-2 shadow-2xs overflow-hidden transition-transform active:scale-95"
+                      style={{ borderColor: colors.primary }}
+                    >
+                      <img
+                        src={occ.img}
+                        alt={occ.name}
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                        }}
+                      />
+                    </div>
+                    <span
+                      className="text-[9px] font-bold truncate max-w-[50px]"
+                      style={{ color: colors.textMain }}
+                    >
+                      {occ.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+        if (section.id === 'cooler') {
+          return (
+            <div
+              key="cooler"
+              className="p-2.5 rounded-2xl border border-stone-200/70 shadow-xs flex items-center justify-between gap-2.5 transition-all relative z-10"
+              style={{ backgroundColor: colors.cardSurface }}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src="./images/products/royal-red-roses.jpg"
+                  alt="Royal Roses"
+                  className="w-12 h-12 rounded-xl object-cover shrink-0 bg-stone-100"
+                />
+                <div className="min-w-0">
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200/60 inline-block mb-0.5">
+                    جاهز بالثلاجة ❄️
+                  </span>
+                  <h4 className="text-xs font-bold truncate" style={{ color: colors.textMain }}>
+                    بوكيه الروز الملكي
+                  </h4>
+                  <span className="text-xs font-black" style={{ color: colors.priceColor }}>
+                    245 ر.س
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="px-3 py-1.5 rounded-full text-white font-bold text-[10px] shadow-xs active:scale-95 shrink-0"
+                style={{ backgroundColor: colors.primary }}
+              >
+                حجز فوري
+              </button>
+            </div>
+          );
+        }
+
+        if (section.id === 'custom_banner') {
+          return (
+            <div
+              key="custom_banner"
+              className="p-2.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950 text-white flex items-center justify-between shadow-xs relative z-10"
+            >
+              <div>
+                <span className="text-xs font-bold block">🎨 صمم باقتك الخاصة حسب ذوقك</span>
+                <span className="text-[10px] text-stone-300 block">ننسقها بعناية حسب ميزانيتك</span>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-amber-400 text-stone-950 font-bold text-[10px] shrink-0 shadow-xs">
+                طلب خاص
               </span>
             </div>
-          ))}
-        </div>
-      </div>
+          );
+        }
 
-      {/* 3. Daily Specials Card */}
-      <div
-        className="p-2.5 rounded-2xl border border-stone-200/70 shadow-xs flex items-center justify-between gap-2.5 transition-all"
-        style={{ backgroundColor: colors.cardSurface }}
-      >
-        <div className="flex items-center gap-2.5 min-w-0">
-          <img
-            src="./images/products/royal-red-roses.jpg"
-            alt="Royal Roses"
-            className="w-12 h-12 rounded-xl object-cover shrink-0 bg-stone-100"
-          />
-          <div className="min-w-0">
-            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200/60 inline-block mb-0.5">
-              جاهز بالثلاجة ❄️
-            </span>
-            <h4 className="text-xs font-bold truncate" style={{ color: colors.textMain }}>
-              بوكيه الروز الملكي
-            </h4>
-            <span className="text-xs font-black" style={{ color: colors.priceColor }}>
-              245 ر.س
-            </span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="px-3 py-1.5 rounded-full text-white font-bold text-[10px] shadow-xs active:scale-95 shrink-0"
-          style={{ backgroundColor: colors.primary }}
-        >
-          حجز فوري
-        </button>
-      </div>
-
-      {/* 4. Bespoke Custom Bouquet Banner */}
-      <div className="p-2.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950 text-white flex items-center justify-between shadow-xs">
-        <div>
-          <span className="text-xs font-bold block">🎨 صمم باقتك الخاصة حسب ذوقك</span>
-          <span className="text-[10px] text-stone-300 block">ننسقها بعناية حسب ميزانيتك</span>
-        </div>
-        <span className="px-2.5 py-1 rounded-full bg-amber-400 text-stone-950 font-bold text-[10px] shrink-0 shadow-xs">
-          طلب خاص
-        </span>
-      </div>
-
-      {/* 5. Product Grid (2 columns) */}
-      <div className="space-y-1.5 pt-1">
-        <div className="flex items-center justify-between text-[11px] font-bold">
-          <span style={{ color: colors.textMain }}>جميع التنسيقات الفاخرة</span>
-          <span className="text-[9px] text-stone-400">4 باقات مختارة</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          {sampleProducts.map((p) => {
-            const isAdded = activeItemAdded === p.id;
-            return (
-              <div
-                key={p.id}
-                className="border border-stone-200/70 p-2 flex flex-col justify-between transition-all group overflow-hidden shadow-xs"
-                style={{
-                  backgroundColor: colors.cardSurface,
-                  borderRadius: `${cardRadius}px`,
-                }}
-              >
-                <div>
-                  <div className="aspect-[4/5] rounded-xl overflow-hidden mb-2 bg-stone-100 relative">
-                    <img
-                      src={p.image}
-                      alt={p.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <span className="absolute top-1.5 right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-white/95 text-stone-900 shadow-2xs">
-                      {p.tag}
-                    </span>
-                  </div>
-
-                  <h4
-                    className="text-xs font-bold truncate leading-snug"
-                    style={{ color: colors.textMain }}
-                  >
-                    {p.title}
-                  </h4>
-                  <span className="text-[10px] text-stone-400 block mt-0.5">توصيل ساعتين • مبرد</span>
-                </div>
-
-                <div className="flex items-center justify-between pt-2 mt-1 border-t border-stone-100">
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-xs font-black" style={{ color: colors.priceColor }}>
-                      {p.price}
-                    </span>
-                    <span className="text-[9px] text-stone-500 font-medium">ر.س</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleAdd(p.id)}
-                    className="px-2.5 py-1 rounded-full text-white font-bold text-[10px] transition-all active:scale-90 shadow-2xs flex items-center gap-1"
-                    style={{ backgroundColor: isAdded ? '#059669' : colors.primary }}
-                  >
-                    {isAdded ? (
-                      <>
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                        <span>أُضيف</span>
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-2.5 h-2.5 stroke-[3]" />
-                        <span>أضف</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+        if (section.id === 'catalog') {
+          return (
+            <div key="catalog" className="space-y-1.5 pt-1 relative z-10">
+              <div className="flex items-center justify-between text-[11px] font-bold">
+                <span style={{ color: colors.textMain }}>جميع التنسيقات الفاخرة</span>
+                <span className="text-[9px] text-stone-400">4 باقات مختارة</span>
               </div>
-            );
-          })}
-        </div>
-      </div>
+
+              {/* Dynamic Grid Layout */}
+              <div
+                className={`grid gap-2 ${
+                  gridLayout === '1col'
+                    ? 'grid-cols-1'
+                    : gridLayout === 'bento'
+                    ? 'grid-cols-2'
+                    : 'grid-cols-2'
+                }`}
+              >
+                {sampleProducts.map((p, idx) => {
+                  const isAdded = activeItemAdded === p.id;
+                  const isBentoSpan = gridLayout === 'bento' && idx === 0;
+
+                  return (
+                    <StudioSimulatedCard
+                      key={p.id}
+                      product={p}
+                      index={idx}
+                      config={config}
+                      colors={colors}
+                      catalogFont={catalogFont}
+                      cardRadius={cardRadius}
+                      isAdded={isAdded}
+                      onAdd={handleAddProduct}
+                      cardEntranceMotion={cardEntranceMotion}
+                      staggerDelay={staggerDelay}
+                      cardHoverEffect={cardHoverEffect}
+                      buyButtonPhysics={buyButtonPhysics}
+                      cardShadow={cardShadow}
+                      buyButtonStyle={buyButtonStyle}
+                      fullTitleWrap={fullTitleWrap}
+                      showBadges={showBadges}
+                      badgeStyle={badgeStyle}
+                      showFavoriteButton={showFavoriteButton}
+                      replayKey={replayTrigger}
+                      isBentoSpan={isBentoSpan}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+
+        return null;
+      })}
     </div>
   );
 }
@@ -343,6 +737,7 @@ export default function NoCodeLuxuryStudio({
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState('');
   const [toastMessage, setToastMessage] = useState('');
+  const [replayTrigger, setReplayTrigger] = useState(0);
 
   if (!isOpen) return null;
 
@@ -507,7 +902,7 @@ export default function NoCodeLuxuryStudio({
                 {renderPreviewContent ? (
                   renderPreviewContent()
                 ) : (
-                  <StudioStorefrontLiveSimulation config={config} />
+                  <StudioStorefrontLiveSimulation config={config} replayTrigger={replayTrigger} />
                 )}
               </div>
             </div>
@@ -852,7 +1247,10 @@ export default function NoCodeLuxuryStudio({
                         <button
                           key={m.id}
                           type="button"
-                          onClick={() => updateField('cardEntranceMotion', m.id)}
+                          onClick={() => {
+                            updateField('cardEntranceMotion', m.id);
+                            setReplayTrigger((prev) => prev + 1);
+                          }}
                           className={`py-2 rounded-xl border text-center transition-all ${
                             config.cardEntranceMotion === m.id
                               ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
@@ -875,10 +1273,22 @@ export default function NoCodeLuxuryStudio({
                         max="0.25"
                         step="0.01"
                         value={config.staggerDelay}
-                        onChange={(e) => updateField('staggerDelay', Number(e.target.value))}
+                        onChange={(e) => {
+                          updateField('staggerDelay', Number(e.target.value));
+                          setReplayTrigger((prev) => prev + 1);
+                        }}
                         className="w-full accent-[#7E1529] cursor-pointer"
                       />
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setReplayTrigger((prev) => prev + 1)}
+                      className="w-full mt-2.5 py-2 px-3 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 text-stone-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-95 shadow-2xs cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5 text-rose-700" />
+                      <span>إعادة تشغيل ومعاينة حركة الدخول والتتابع الآن</span>
+                    </button>
                   </div>
 
                   {/* Physics & Hover */}

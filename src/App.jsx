@@ -26,6 +26,7 @@ const FloristOrderSlipModal = React.lazy(() => import('./components/FloristOrder
 const FlowerStorefrontPage = React.lazy(() => import('./components/FlowerStorefrontPage'));
 const NoCodeLuxuryStudio = React.lazy(() => import('./components/NoCodeLuxuryStudio'));
 import AdminAuthGuard from './components/AdminAuthGuard';
+import AmbientRosePetals from './components/AmbientRosePetals';
 import { verifyAndRecalculateOrder } from './services/priceVerificationService';
 import { checkRateLimit, recordAttempt } from './services/rateLimiter';
 import { sanitizeText } from './utils/sanitizer';
@@ -576,7 +577,13 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+          <div
+            className={`grid gap-2.5 sm:gap-3 ${
+              shopConfig.gridLayout === '1col'
+                ? 'grid-cols-1 max-w-md mx-auto'
+                : 'grid-cols-2'
+            }`}
+          >
             {filteredProducts.map((product, idx) => (
               <ProductCard
                 key={product.id}
@@ -720,7 +727,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {/* 2. Main View Canvas */}
       {/* VIEW A: Storefront (Dedicated Mobile Phone Architecture) */}
       {activeView === 'storefront' && (
-        <div className="w-full flex justify-center py-0 sm:py-6 sm:px-4">
+        <div className="w-full flex justify-center py-0 sm:py-6 sm:px-4 relative">
+          <AmbientRosePetals />
           <div
             className={`w-full sm:max-w-[460px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-hidden`}
           >

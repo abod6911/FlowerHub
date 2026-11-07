@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Check, MessageCircle, Heart, Clock, SlidersHorizontal } from 'lucide-react';
 import { THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
@@ -33,7 +34,17 @@ function ProductCard({
   const rawStudio = storeThemeCtx?.rawConfig || storeThemeCtx?.config;
   const legacyConfig = storeThemeCtx?.legacyConfig || storeThemeCtx?.config;
 
-  const cardRadius = rawStudio?.cardBorderRadius ?? legacyConfig?.catalog?.cardRadius ?? 20;
+  const cardRadius = rawStudio?.cardBorderRadius ?? legacyConfig?.catalog?.cardRadius ?? 22;
+  const cardEntranceMotion = rawStudio?.cardEntranceMotion || 'fade_up';
+  const staggerDelay = rawStudio?.staggerDelay ?? 0.08;
+  const buyButtonPhysics = rawStudio?.buyButtonPhysics || 'morph_checkmark';
+  const cardHoverEffect = rawStudio?.cardHoverEffect || 'zoom_soft';
+  const cardShadow = rawStudio?.cardShadow || 'soft';
+  const buyButtonStyle = rawStudio?.buyButtonStyle || 'pill_add';
+  const fullTitleWrap = rawStudio?.fullTitleWrap !== false;
+  const showBadges = rawStudio?.showBadges !== false;
+  const badgeStyle = rawStudio?.badgeStyle || 'glassmorphic';
+  const showFavoriteButton = rawStudio?.showFavoriteButton !== false;
 
   // Local state for heart favorite with localStorage persistence
   const [isFavorite, setIsFavorite] = useState(() => {
@@ -47,7 +58,30 @@ function ProductCard({
 
   const [heartPop, setHeartPop] = useState(false);
   const [isMorphed, setIsMorphed] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const [ripples, setRipples] = useState([]);
+  const [flyingFlower, setFlyingFlower] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (cardHoverEffect !== 'tilt_3d') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const py = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    setTilt({
+      x: -py * 8.5,
+      y: px * 8.5,
+      active: true,
+      glareX: ((px + 1) / 2) * 100,
+      glareY: ((py + 1) / 2) * 100,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (cardHoverEffect === 'tilt_3d') {
+      setTilt({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+    }
+  };
 
   const handleToggleFavorite = (e) => {
     e.stopPropagation();
@@ -71,6 +105,22 @@ function ProductCard({
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
+
+    // Trigger physics
+    if (buyButtonPhysics === 'ripple_wave') {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      const ripId = Date.now();
+      setRipples((prev) => [...prev, { id: ripId, x: clickX, y: clickY }]);
+      setTimeout(() => {
+        setRipples((prev) => prev.filter((r) => r.id !== ripId));
+      }, 650);
+    } else if (buyButtonPhysics === 'fly_to_cart') {
+      setFlyingFlower(true);
+      setTimeout(() => setFlyingFlower(false), 800);
+    }
+
     setIsMorphed(true);
     setTimeout(() => setIsMorphed(false), 1200);
 
@@ -78,6 +128,56 @@ function ProductCard({
       onSelectProduct(product);
     }
   };
+
+  // Entrance variants based on cardEntranceMotion
+  const entranceVariants = {
+    fade_up: {
+      initial: { opacity: 0, y: 22 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: (index % 10) * staggerDelay },
+    },
+    elastic_scale: {
+      initial: { opacity: 0, scale: 0.7 },
+      animate: { opacity: 1, scale: 1 },
+      transition: { type: 'spring', damping: 11, stiffness: 170, delay: (index % 10) * staggerDelay },
+    },
+    slide: {
+      initial: { opacity: 0, x: 35 },
+      animate: { opacity: 1, x: 0 },
+      transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: (index % 10) * staggerDelay },
+    },
+    none: {
+      initial: { opacity: 1 },
+      animate: { opacity: 1 },
+      transition: { duration: 0 },
+    },
+  };
+
+  const currentEntrance = entranceVariants[cardEntranceMotion] || entranceVariants.fade_up;
+
+  // Shadow class
+  const shadowClass =
+    cardShadow === 'none'
+      ? 'shadow-none border border-stone-200/80 dark:border-stone-800'
+      : cardShadow === 'medium'
+      ? 'shadow-md hover:shadow-lg'
+      : cardShadow === 'high'
+      ? 'shadow-xl hover:shadow-2xl'
+      : 'shadow-[0_4px_18px_-4px_rgba(0,0,0,0.04)] hover:shadow-md';
+
+  // Hover transform and visual classes
+  let transformStyle = '';
+  let hoverClasses = '';
+  if (cardHoverEffect === 'tilt_3d') {
+    transformStyle = tilt.active
+      ? `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.025, 1.025, 1.025)`
+      : 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+  } else if (cardHoverEffect === 'zoom_soft') {
+    hoverClasses = 'hover:scale-[1.025] transition-transform duration-300';
+  } else if (cardHoverEffect === 'gold_glow') {
+    hoverClasses =
+      'hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] hover:border-amber-400/80 transition-all duration-300';
+  }
 
   // Determine badge config with strict restraint (no badge clutter on every single card)
   const getBadgeConfig = () => {
@@ -179,14 +279,51 @@ function ProductCard({
 
   // Standard Product Catalog Card
   return (
-    <div
+    <motion.div
+      ref={cardRef}
+      initial={currentEntrance.initial}
+      animate={currentEntrance.animate}
+      transition={currentEntrance.transition}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       onClick={() => onSelectProduct && onSelectProduct(product)}
-      className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 shadow-[0_4px_18px_-4px_rgba(0,0,0,0.04)] hover:shadow-md transition-all duration-300 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] animate-card-entrance rounded-[22px]"
+      className={`bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] ${shadowClass} ${hoverClasses}`}
       style={{
         borderRadius: `${cardRadius || 22}px`,
-        animationDelay: `${(index % 8) * 0.045}s`,
+        transform: transformStyle,
+        transition: tilt.active
+          ? 'transform 0.08s ease-out'
+          : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease',
       }}
     >
+      {/* 3D Specular Light Sheen */}
+      {cardHoverEffect === 'tilt_3d' && tilt.active && (
+        <div
+          className="absolute inset-0 pointer-events-none rounded-[inherit] transition-opacity duration-200 z-20"
+          style={{
+            background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.22) 0%, transparent 65%)`,
+          }}
+        />
+      )}
+
+      {/* 🌸 Flying Flower Particle to Cart */}
+      {flyingFlower && (
+        <motion.div
+          initial={{ x: 50, y: 150, scale: 0.8, opacity: 1 }}
+          animate={{
+            x: [50, 10, -60],
+            y: [150, 40, -180],
+            scale: [0.8, 1.4, 0.3],
+            opacity: [1, 1, 0],
+            rotate: [0, 90, 270],
+          }}
+          transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed pointer-events-none z-50 text-xl flex items-center justify-center filter drop-shadow-md"
+        >
+          🌸
+        </motion.div>
+      )}
+
       {/* 4:5 Aspect Ratio Image with Strict Corner Separation */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
         <img
@@ -205,10 +342,14 @@ function ProductCard({
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
 
         {/* 1. TOP-RIGHT CORNER: Status Badge with Mobile Safe Max-Width */}
-        {badgeConfig && (
+        {showBadges && badgeConfig && (
           <div className="absolute top-2 right-2 z-10 pointer-events-none max-w-[calc(100%-2.2rem)]">
             <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold backdrop-blur-md shadow-xs truncate ${badgeConfig.className}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold backdrop-blur-md shadow-xs truncate ${
+                badgeStyle === 'solid_pastel'
+                  ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                  : badgeConfig.className
+              }`}
             >
               {badgeConfig.icon}
               <span className="leading-none tracking-tight truncate">{badgeConfig.text}</span>
@@ -217,35 +358,45 @@ function ProductCard({
         )}
 
         {/* 2. TOP-LEFT CORNER: Reserved Exclusively for Heart Favorite Button */}
-        <button
-          type="button"
-          onClick={handleToggleFavorite}
-          aria-label={isAr ? 'إضافة إلى المفضلة' : 'Add to favorites'}
-          className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md flex items-center justify-center shadow-xs border border-white/60 dark:border-stone-700 transition-all duration-200 active:scale-90 shrink-0 ${
-            heartPop ? 'scale-125' : 'scale-100'
-          } ${isFavorite ? 'text-rose-600' : 'text-stone-500 dark:text-stone-400 hover:text-rose-600'}`}
-        >
-          <Heart
-            className={`w-3.5 h-3.5 transition-colors ${
-              isFavorite ? 'fill-[#BE123C] text-[#BE123C]' : 'stroke-[2]'
-            }`}
-          />
-        </button>
+        {showFavoriteButton && (
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            aria-label={isAr ? 'إضافة إلى المفضلة' : 'Add to favorites'}
+            className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full bg-white/90 dark:bg-stone-800/90 backdrop-blur-md flex items-center justify-center shadow-xs border border-white/60 dark:border-stone-700 transition-all duration-200 active:scale-90 shrink-0 ${
+              heartPop ? 'scale-125' : 'scale-100'
+            } ${isFavorite ? 'text-rose-600' : 'text-stone-500 dark:text-stone-400 hover:text-rose-600'}`}
+          >
+            <Heart
+              className={`w-3.5 h-3.5 transition-colors ${
+                isFavorite ? 'fill-[#BE123C] text-[#BE123C]' : 'stroke-[2]'
+              }`}
+            />
+          </button>
+        )}
       </div>
 
       {/* Card Content & Unified Responsive Footer */}
       <div className="flex flex-col justify-between flex-1 p-3 pt-2.5 pb-3 gap-2">
-        {/* Title: Exactly 2 lines max with uniform height */}
+        {/* Title: Respect fullTitleWrap */}
         <h3
-          className="line-clamp-2 min-h-[2.4rem] text-xs sm:text-sm font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200"
+          className={`text-xs sm:text-sm font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200 ${
+            fullTitleWrap ? 'line-clamp-2 min-h-[2.4rem]' : 'truncate'
+          }`}
           style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
         >
           {isAr ? product.titleAr : product.titleEn}
         </h3>
 
-        {/* Unified Bottom Bar: Prices on Right, + Add Button on Left (Zero Wrap on Mobile) */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-stone-100 dark:border-stone-800 gap-1">
-          {/* Right Side: Consistent Price Row */}
+        {/* Bottom Bar: Prices and Add Button */}
+        <div
+          className={`pt-2 mt-auto border-t border-stone-100 dark:border-stone-800 ${
+            buyButtonStyle === 'full_width'
+              ? 'flex flex-col gap-1.5'
+              : 'flex items-center justify-between gap-1'
+          }`}
+        >
+          {/* Price Row */}
           <div className="flex flex-col items-start leading-none min-w-0">
             {product.originalPrice && (
               <span className="text-[10px] text-stone-400 line-through mb-0.5">
@@ -265,36 +416,71 @@ function ProductCard({
             </div>
           </div>
 
-          {/* Left Side: Unified "+ Add" Button with Tactile Feedback & Spring Morph */}
+          {/* Unified "+ Add" Button with Tactile Feedback & Selected Physics */}
           <button
             type="button"
             onClick={handleAddToCart}
-            className={`inline-flex items-center justify-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white transition-all duration-200 active:scale-90 shadow-xs cursor-pointer shrink-0 ${
+            className={`font-bold text-white transition-all duration-200 active:scale-90 shadow-xs cursor-pointer relative overflow-hidden flex items-center justify-center gap-1 ${
+              buyButtonStyle === 'circle_plus'
+                ? 'w-7 h-7 rounded-full shrink-0'
+                : buyButtonStyle === 'full_width'
+                ? 'w-full py-1.5 rounded-xl text-xs mt-1'
+                : 'px-2.5 py-1 rounded-full text-xs shrink-0'
+            } ${
               isMorphed
                 ? 'bg-emerald-600 scale-102 ring-2 ring-emerald-300'
                 : 'bg-[var(--accent-primary,#123524)] hover:opacity-90'
             }`}
             aria-label={isAr ? `أضف ${product.titleAr}` : `Add ${product.titleEn}`}
           >
-            {isMorphed ? (
-              <>
-                <Check className="w-3 h-3 stroke-[3] animate-bounce" />
-                <span className="whitespace-nowrap font-bold text-[11px]">
-                  {isAr ? '✓ أُضيف' : 'Added!'}
-                </span>
-              </>
-            ) : (
-              <>
-                <Plus className="w-3 h-3 stroke-[2.5]" />
-                <span className="whitespace-nowrap font-bold text-[11px]">
-                  {isAr ? '+ أضف' : '+ Add'}
-                </span>
-              </>
-            )}
+            {/* Ripples */}
+            {ripples.map((rip) => (
+              <motion.span
+                key={rip.id}
+                initial={{ scale: 0, opacity: 0.8 }}
+                animate={{ scale: 3.8, opacity: 0 }}
+                transition={{ duration: 0.55, ease: 'easeOut' }}
+                className="absolute rounded-full pointer-events-none bg-white/60 shadow-[0_0_12px_rgba(255,255,255,0.8)]"
+                style={{
+                  left: rip.x - 12,
+                  top: rip.y - 12,
+                  width: 24,
+                  height: 24,
+                }}
+              />
+            ))}
+
+            <AnimatePresence mode="wait">
+              {isMorphed ? (
+                <motion.span
+                  key="morphed"
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.7, opacity: 0 }}
+                  transition={{ duration: 0.16 }}
+                  className="flex items-center gap-1 whitespace-nowrap text-[11px] leading-none"
+                >
+                  <Check className="w-3 h-3 stroke-[3]" />
+                  {buyButtonStyle !== 'circle_plus' && <span>{isAr ? '✓ أُضيف' : 'Added!'}</span>}
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="default"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.8, opacity: 0 }}
+                  transition={{ duration: 0.14 }}
+                  className="flex items-center gap-1 whitespace-nowrap text-[11px] leading-none"
+                >
+                  <Plus className="w-3 h-3 stroke-[2.5]" />
+                  {buyButtonStyle !== 'circle_plus' && <span>{isAr ? '+ أضف' : '+ Add'}</span>}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

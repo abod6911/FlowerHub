@@ -112,12 +112,14 @@ export function FloatingHeroPetals({ className = '' }) {
 
 /**
  * AmbientRosePetals
- * Subtle background ambient petals across the viewport (default low opacity)
+ * Subtle background ambient petals across the viewport or a contained preview device (e.g. iPhone)
  */
 export default function AmbientRosePetals({
-  enabled = false,
-  opacity = 0.25,
-  count = 8,
+  enabled,
+  opacity,
+  count,
+  isAbsolute = false,
+  containerClassName = '',
 }) {
   let storeCtx = null;
   try {
@@ -127,24 +129,40 @@ export default function AmbientRosePetals({
     // outside provider fallback
   }
 
-  const isEnabled = storeCtx?.config?.floatingPetalsEnabled !== undefined
-    ? storeCtx.config.floatingPetalsEnabled
-    : enabled;
-  const activeOpacity = storeCtx?.config?.petalsOpacity ?? opacity;
-  const activeCount = storeCtx?.config?.petalsCount ?? count;
+  const isEnabled =
+    enabled !== undefined
+      ? Boolean(enabled)
+      : storeCtx?.config?.floatingPetalsEnabled !== undefined
+      ? Boolean(storeCtx.config.floatingPetalsEnabled)
+      : true;
+
+  const activeOpacity =
+    opacity !== undefined
+      ? opacity
+      : storeCtx?.config?.petalsOpacity !== undefined
+      ? storeCtx.config.petalsOpacity
+      : 0.6;
+
+  const activeCount =
+    count !== undefined
+      ? count
+      : storeCtx?.config?.petalsCount !== undefined
+      ? storeCtx.config.petalsCount
+      : 14;
 
   const petals = useMemo(() => {
-    return Array.from({ length: Math.min(activeCount, 12) }, (_, i) => {
+    const total = Math.min(Math.max(activeCount, 4), 32);
+    return Array.from({ length: total }, (_, i) => {
       const pseudoRand = ((i * 37) % 100) / 100;
-      const left = (i * 100) / activeCount + (pseudoRand * 8 - 4);
-      const delay = (i * 0.7) % 8;
-      const duration = 10 + (i % 5) * 2;
-      const size = 14 + (i % 4) * 4;
+      const left = (i * 100) / total + (pseudoRand * 6 - 3);
+      const delay = (i * 0.45) % 6;
+      const duration = isAbsolute ? 7 + (i % 4) * 1.5 : 9 + (i % 5) * 2;
+      const size = 12 + (i % 5) * 3.5;
       const rotation = (i * 45) % 360;
-      const swayDuration = 4 + (i % 3);
+      const swayDuration = 3.2 + (i % 3);
       return {
         id: i,
-        left: `${Math.max(2, Math.min(96, left))}%`,
+        left: `${Math.max(2, Math.min(94, left))}%`,
         delay: `${delay}s`,
         duration: `${duration}s`,
         swayDuration: `${swayDuration}s`,
@@ -152,39 +170,57 @@ export default function AmbientRosePetals({
         rotation,
       };
     });
-  }, [activeCount]);
+  }, [activeCount, isAbsolute]);
 
   if (!isEnabled) return null;
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none -z-10 overflow-hidden"
+      className={`${
+        isAbsolute ? 'absolute inset-0 z-10' : 'fixed inset-0 -z-10'
+      } pointer-events-none overflow-hidden transition-opacity duration-300 ${containerClassName}`}
       style={{ opacity: activeOpacity }}
       aria-hidden="true"
     >
       <style>{`
-        @keyframes petalFall {
+        @keyframes petalFallFull {
           0% {
             transform: translateY(-40px) rotate(0deg);
             opacity: 0;
           }
           10% {
-            opacity: 0.6;
+            opacity: 0.75;
           }
           90% {
-            opacity: 0.5;
+            opacity: 0.65;
           }
           100% {
             transform: translateY(105vh) rotate(360deg);
             opacity: 0;
           }
         }
+        @keyframes petalFallContained {
+          0% {
+            transform: translateY(-30px) rotate(0deg);
+            opacity: 0;
+          }
+          10% {
+            opacity: 0.85;
+          }
+          90% {
+            opacity: 0.75;
+          }
+          100% {
+            transform: translateY(800px) rotate(360deg);
+            opacity: 0;
+          }
+        }
         @keyframes petalSway {
           0%, 100% {
-            transform: translateX(0px) rotate(-15deg);
+            transform: translateX(0px) rotate(-18deg);
           }
           50% {
-            transform: translateX(20px) rotate(15deg);
+            transform: translateX(22px) rotate(18deg);
           }
         }
       `}</style>
@@ -195,7 +231,7 @@ export default function AmbientRosePetals({
           className="absolute -top-10"
           style={{
             left: p.left,
-            animation: `petalFall ${p.duration} linear infinite`,
+            animation: `${isAbsolute ? 'petalFallContained' : 'petalFallFull'} ${p.duration} linear infinite`,
             animationDelay: p.delay,
             willChange: 'transform, opacity',
           }}
@@ -217,9 +253,9 @@ export default function AmbientRosePetals({
             >
               <defs>
                 <linearGradient id={`petal-grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.8" />
-                  <stop offset="60%" stopColor="#881337" stopOpacity="0.7" />
-                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.85" />
+                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.85" />
+                  <stop offset="60%" stopColor="#881337" stopOpacity="0.75" />
+                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.9" />
                 </linearGradient>
               </defs>
               <path
@@ -228,7 +264,7 @@ export default function AmbientRosePetals({
               />
               <path
                 d="M15 6 Q14 22 15 36"
-                stroke="rgba(255,255,255,0.2)"
+                stroke="rgba(255,255,255,0.25)"
                 strokeWidth="0.75"
                 strokeLinecap="round"
               />
