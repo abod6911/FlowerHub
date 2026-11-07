@@ -25,6 +25,10 @@ const FloristAdminPanel = React.lazy(() => import('./components/FloristAdminPane
 const FloristOrderSlipModal = React.lazy(() => import('./components/FloristOrderSlipModal'));
 const FlowerStorefrontPage = React.lazy(() => import('./components/FlowerStorefrontPage'));
 const NoCodeLuxuryStudio = React.lazy(() => import('./components/NoCodeLuxuryStudio'));
+import AdminAuthGuard from './components/AdminAuthGuard';
+import { verifyAndRecalculateOrder } from './services/priceVerificationService';
+import { checkRateLimit, recordAttempt } from './services/rateLimiter';
+import { sanitizeText } from './utils/sanitizer';
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
 
 class SafeErrorBoundary extends React.Component {
@@ -278,13 +282,42 @@ export default function App() {
     showToast(isAr ? 'تم حذف المنتج من السلة' : 'Item removed');
   };
 
-  // Direct 1-Tap WhatsApp Checkout from Product Drawer
+  // Direct 1-Tap WhatsApp Checkout from Product Drawer (Server-Side Price Recalculation + Rate Limiter)
   const handleDirectWhatsAppCheckout = (configuredItem) => {
+    // 1. Rate Limiting Check (Anti-Spam / Anti-Flooding)
+    const rateCheck = checkRateLimit('checkout_order');
+    if (!rateCheck.allowed) {
+      alert(rateCheck.error);
+      return;
+    }
+
+    // 2. Server-side price recalculation & anti-tampering verification
+    const verified = verifyAndRecalculateOrder([configuredItem]);
+    if (!verified.isValid || verified.verifiedItems.length === 0) {
+      alert(isAr ? 'عذراً، تعذر التحقق من بيانات وتكلفة الباقة المطلوبة.' : 'Unable to verify requested arrangement pricing.');
+      return;
+    }
+
+    // 3. Input Sanitization
+    const baseVerified = verified.verifiedItems[0];
+    const sanitizedItem = {
+      ...baseVerified,
+      giftCardMessage: configuredItem.giftCardMessage ? sanitizeText(configuredItem.giftCardMessage) : '',
+      handover: configuredItem.handover ? {
+        ...configuredItem.handover,
+        recipientName: configuredItem.handover.recipientName ? sanitizeText(configuredItem.handover.recipientName) : '',
+        recipientPhone: configuredItem.handover.recipientPhone ? sanitizeText(configuredItem.handover.recipientPhone) : '',
+        deliveryAddress: configuredItem.handover.deliveryAddress ? sanitizeText(configuredItem.handover.deliveryAddress) : '',
+        deliveryDistrict: configuredItem.handover.deliveryDistrict ? sanitizeText(configuredItem.handover.deliveryDistrict) : '',
+      } : configuredItem.handover,
+    };
+
     setIsProductDrawerOpen(false);
+    recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
       lang,
-      items: [configuredItem],
-      handover: configuredItem.handover,
+      items: [sanitizedItem],
+      handover: sanitizedItem.handover,
       trustPhoto: configuredItem.trustPhoto,
       orderId: '8492',
     });
@@ -293,13 +326,49 @@ export default function App() {
     setIsWhatsAppModalOpen(true);
   };
 
-  // Checkout Entire Bag
+  // Checkout Entire Bag (Server-Side Price Recalculation + Rate Limiter)
   const handleBagCheckout = () => {
+    // 1. Rate Limiting Check
+    const rateCheck = checkRateLimit('checkout_order');
+    if (!rateCheck.allowed) {
+      alert(rateCheck.error);
+      return;
+    }
+
+    if (!bagItems || bagItems.length === 0) {
+      alert(isAr ? 'سلة الطلبات فارغة.' : 'Your cart is empty.');
+      return;
+    }
+
+    // 2. Server-side price recalculation & anti-tampering verification
+    const verified = verifyAndRecalculateOrder(bagItems);
+    if (!verified.isValid || verified.verifiedItems.length === 0) {
+      alert(isAr ? 'تعذر التحقق من أسعار المنتجات في السلة.' : 'Unable to verify prices in cart.');
+      return;
+    }
+
+    // 3. Input Sanitization
+    const sanitizedItems = verified.verifiedItems.map((item, idx) => {
+      const orig = bagItems[idx] || {};
+      return {
+        ...item,
+        giftCardMessage: orig.giftCardMessage ? sanitizeText(orig.giftCardMessage) : '',
+        handover: orig.handover ? {
+          ...orig.handover,
+          recipientName: orig.handover.recipientName ? sanitizeText(orig.handover.recipientName) : '',
+          recipientPhone: orig.handover.recipientPhone ? sanitizeText(orig.handover.recipientPhone) : '',
+          deliveryAddress: orig.handover.deliveryAddress ? sanitizeText(orig.handover.deliveryAddress) : '',
+          deliveryDistrict: orig.handover.deliveryDistrict ? sanitizeText(orig.handover.deliveryDistrict) : '',
+        } : orig.handover,
+      };
+    });
+
     setIsCartDrawerOpen(false);
-    const handover = bagItems[0]?.handover || { type: 'gift' };
+    recordAttempt('checkout_order');
+    const handover = sanitizedItems[0]?.handover || { type: 'gift' };
     const text = generateWhatsAppMessage({
       lang,
-      items: bagItems,
+      items: sanitizedItems,
       handover,
       trustPhoto: true,
       orderId: '8492',
@@ -309,13 +378,39 @@ export default function App() {
     setIsWhatsAppModalOpen(true);
   };
 
-  // Custom Order Submission (Drawer B)
+  // Custom Order Submission (Drawer B) (Sanitization + Rate Limiting)
   const handleCustomOrderSubmit = (customOrderData, handoverData) => {
+    // 1. Rate Limiting Check
+    const rateCheck = checkRateLimit('checkout_order');
+    if (!rateCheck.allowed) {
+      alert(rateCheck.error);
+      return;
+    }
+
+    // 2. Sanitize user inputs to prevent XSS / Injection
+    const sanitizedCustomOrder = {
+      ...customOrderData,
+      modeTitle: sanitizeText(customOrderData.modeTitle || ''),
+      colorVibe: sanitizeText(customOrderData.colorVibe || ''),
+      budget: sanitizeText(customOrderData.budget || ''),
+      notes: customOrderData.notes ? sanitizeText(customOrderData.notes) : '',
+    };
+
+    const sanitizedHandover = handoverData ? {
+      ...handoverData,
+      recipientName: handoverData.recipientName ? sanitizeText(handoverData.recipientName) : '',
+      recipientPhone: handoverData.recipientPhone ? sanitizeText(handoverData.recipientPhone) : '',
+      deliveryAddress: handoverData.deliveryAddress ? sanitizeText(handoverData.deliveryAddress) : '',
+      deliveryDistrict: handoverData.deliveryDistrict ? sanitizeText(handoverData.deliveryDistrict) : '',
+      giftCardMessage: handoverData.giftCardMessage ? sanitizeText(handoverData.giftCardMessage) : '',
+    } : handoverData;
+
     setIsCustomDrawerOpen(false);
+    recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
       lang,
-      customOrder: customOrderData,
-      handover: handoverData,
+      customOrder: sanitizedCustomOrder,
+      handover: sanitizedHandover,
       trustPhoto: true,
       orderId: '8492',
     });
@@ -634,79 +729,11 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         </React.Suspense>
       )}
 
-      {/* VIEW B: Florist Admin Panel */}
+      {/* VIEW B: Florist Admin Panel (RBAC Protected) */}
       {activeView === 'admin' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
-            <FloristAdminPanel
-              shopConfig={shopConfig}
-              onUpdateShopConfig={setShopConfig}
-              products={products}
-              onUpdateProduct={handleUpdateProduct}
-              onAddProduct={handleAddProduct}
-              onMoveToPastWork={handleMoveToPastWork}
-              pastWorks={pastWorks}
-              lang={lang}
-              onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
-              themeTokens={themeTokens}
-              formats={formats}
-              onAddFormat={handleAddFormat}
-              occasions={occasions}
-              onAddOccasion={handleAddOccasion}
-              onToggleOccasionVisibility={handleToggleOccasionVisibility}
-              onDeleteOccasion={handleDeleteOccasion}
-              onApplyCuratedTemplate={handleApplyCuratedTemplate}
-              onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
-            />
-          </div>
-        </React.Suspense>
-      )}
-
-      {/* VIEW SALES: Direct Coordinator Sales & Profits View */}
-      {activeView === 'sales' && (
-        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
-            <FloristAdminPanel
-              shopConfig={shopConfig}
-              onUpdateShopConfig={setShopConfig}
-              products={products}
-              onUpdateProduct={handleUpdateProduct}
-              onAddProduct={handleAddProduct}
-              onMoveToPastWork={handleMoveToPastWork}
-              pastWorks={pastWorks}
-              lang={lang}
-              onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
-              themeTokens={themeTokens}
-              formats={formats}
-              onAddFormat={handleAddFormat}
-              occasions={occasions}
-              onAddOccasion={handleAddOccasion}
-              onToggleOccasionVisibility={handleToggleOccasionVisibility}
-              onDeleteOccasion={handleDeleteOccasion}
-              onApplyCuratedTemplate={handleApplyCuratedTemplate}
-              onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
-              initialTab="sales"
-            />
-          </div>
-        </React.Suspense>
-      )}
-
-      {/* VIEW C: Split Studio (Side-by-side Live Florist Admin + Live Customer Storefront) */}
-      {activeView === 'split' && (
-        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <div className="w-full max-w-6xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-            {/* Left Column: Florist Management Workspace */}
-            <div className="w-full bg-[#FAF9F6] rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
-              <div className="bg-stone-900 text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between border-b border-stone-800">
-                <span className="flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{isAr ? 'لوحة تحكم المنسق المباشرة' : 'Florist Studio Workspace'}</span>
-                </span>
-                <span className="text-[10px] font-mono text-stone-400">
-                  Live Sync Active
-                </span>
-              </div>
-
+          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+            <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
               <FloristAdminPanel
                 shopConfig={shopConfig}
                 onUpdateShopConfig={setShopConfig}
@@ -728,34 +755,108 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
               />
             </div>
+          </AdminAuthGuard>
+        </React.Suspense>
+      )}
 
-            {/* Right Column: Mobile Device Frame with Live Storefront */}
-            <div className="w-full flex flex-col items-center lg:sticky lg:top-14">
-              <div className="w-full max-w-[430px] flex items-center justify-between mb-2 px-2 text-xs font-bold text-stone-700">
-                <span className="flex items-center gap-1.5">
-                  <Store className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>{isAr ? 'معاينة متجر العميل الحي' : 'Live Customer Preview'}</span>
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
-                  {isAr ? 'محدث لحظياً' : 'Instant Sync'}
-                </span>
-              </div>
+      {/* VIEW SALES: Direct Coordinator Sales & Profits View (RBAC Protected) */}
+      {activeView === 'sales' && (
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+            <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
+              <FloristAdminPanel
+                shopConfig={shopConfig}
+                onUpdateShopConfig={setShopConfig}
+                products={products}
+                onUpdateProduct={handleUpdateProduct}
+                onAddProduct={handleAddProduct}
+                onMoveToPastWork={handleMoveToPastWork}
+                pastWorks={pastWorks}
+                lang={lang}
+                onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+                themeTokens={themeTokens}
+                formats={formats}
+                onAddFormat={handleAddFormat}
+                occasions={occasions}
+                onAddOccasion={handleAddOccasion}
+                onToggleOccasionVisibility={handleToggleOccasionVisibility}
+                onDeleteOccasion={handleDeleteOccasion}
+                onApplyCuratedTemplate={handleApplyCuratedTemplate}
+                onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                initialTab="sales"
+              />
+            </div>
+          </AdminAuthGuard>
+        </React.Suspense>
+      )}
 
-              <div
-                className={`w-full max-w-[430px] ${themeTokens.pageBg} rounded-[2.5rem] border-[5px] border-stone-800 shadow-2xl overflow-hidden relative transition-colors duration-300`}
-              >
-                {/* Smartphone Top Speaker Pill */}
-                <div className="h-4 bg-stone-800 w-full flex items-center justify-center">
-                  <div className="w-12 h-1 bg-stone-700 rounded-full" />
+      {/* VIEW C: Split Studio (Side-by-side Live Florist Admin + Live Customer Storefront) (RBAC Protected) */}
+      {activeView === 'split' && (
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+            <div className="w-full max-w-6xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+              {/* Left Column: Florist Management Workspace */}
+              <div className="w-full bg-[#FAF9F6] rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
+                <div className="bg-stone-900 text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between border-b border-stone-800">
+                  <span className="flex items-center gap-1.5">
+                    <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{isAr ? 'لوحة تحكم المنسق المباشرة' : 'Florist Studio Workspace'}</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-stone-400">
+                    Live Sync Active
+                  </span>
                 </div>
 
-                {/* Scrollable Storefront Frame */}
-                <div className="max-h-[80vh] overflow-y-auto no-scrollbar">
-                  {renderStorefrontContent()}
+                <FloristAdminPanel
+                  shopConfig={shopConfig}
+                  onUpdateShopConfig={setShopConfig}
+                  products={products}
+                  onUpdateProduct={handleUpdateProduct}
+                  onAddProduct={handleAddProduct}
+                  onMoveToPastWork={handleMoveToPastWork}
+                  pastWorks={pastWorks}
+                  lang={lang}
+                  onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+                  themeTokens={themeTokens}
+                  formats={formats}
+                  onAddFormat={handleAddFormat}
+                  occasions={occasions}
+                  onAddOccasion={handleAddOccasion}
+                  onToggleOccasionVisibility={handleToggleOccasionVisibility}
+                  onDeleteOccasion={handleDeleteOccasion}
+                  onApplyCuratedTemplate={handleApplyCuratedTemplate}
+                  onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                />
+              </div>
+
+              {/* Right Column: Mobile Device Frame with Live Storefront */}
+              <div className="w-full flex flex-col items-center lg:sticky lg:top-14">
+                <div className="w-full max-w-[430px] flex items-center justify-between mb-2 px-2 text-xs font-bold text-stone-700">
+                  <span className="flex items-center gap-1.5">
+                    <Store className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>{isAr ? 'معاينة متجر العميل الحي' : 'Live Customer Preview'}</span>
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
+                    {isAr ? 'محدث لحظياً' : 'Instant Sync'}
+                  </span>
+                </div>
+
+                <div
+                  className={`w-full max-w-[430px] ${themeTokens.pageBg} rounded-[2.5rem] border-[5px] border-stone-800 shadow-2xl overflow-hidden relative transition-colors duration-300`}
+                >
+                  {/* Smartphone Top Speaker Pill */}
+                  <div className="h-4 bg-stone-800 w-full flex items-center justify-center">
+                    <div className="w-12 h-1 bg-stone-700 rounded-full" />
+                  </div>
+
+                  {/* Scrollable Storefront Frame */}
+                  <div className="max-h-[80vh] overflow-y-auto no-scrollbar">
+                    {renderStorefrontContent()}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </AdminAuthGuard>
         </React.Suspense>
       )}
 

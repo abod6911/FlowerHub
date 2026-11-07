@@ -3,19 +3,26 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { StudioThemeProvider } from './context/StudioThemeContext.jsx'
+import { initSecureLogger, generateIncidentCode } from './utils/secureLogger.js'
+
+// Initialize production security logger (disables verbose console debug logs in production)
+initSecureLogger();
 
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, incidentCode: null };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    return { hasError: true, incidentCode: generateIncidentCode() };
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('FlowerHub ErrorBoundary caught an error:', error, errorInfo);
+    // In production, traces are only sent to internal monitoring, never exposed in client UI
+    if (!import.meta.env.PROD) {
+      console.error('FlowerHub ErrorBoundary caught an error:', error, errorInfo);
+    }
   }
 
   handleReset = () => {
@@ -28,7 +35,7 @@ class ErrorBoundary extends Component {
   };
 
   handleSoftRetry = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, incidentCode: null });
   };
 
   render() {
@@ -92,15 +99,10 @@ class ErrorBoundary extends Component {
                 محاولة المتابعة
               </button>
             </div>
-            {this.state.error && (
-              <details style={{ marginTop: '16px', textAlign: 'left', fontSize: '11px', color: '#991B1B' }}>
-                <summary style={{ cursor: 'pointer', textAlign: 'center', color: '#A8A29E', fontSize: '11px' }}>
-                  تفاصيل الخطأ التقني
-                </summary>
-                <pre style={{ marginTop: '8px', padding: '8px', background: '#FEF2F2', borderRadius: '8px', overflow: 'auto', maxHeight: '100px', whiteSpace: 'pre-wrap' }}>
-                  {String(this.state.error?.message || this.state.error)}
-                </pre>
-              </details>
+            {this.state.incidentCode && (
+              <div style={{ marginTop: '16px', padding: '8px 12px', background: '#F5F5F4', borderRadius: '8px', fontSize: '11px', color: '#78716C', fontFamily: 'monospace' }}>
+                رمز التحقق الأمني: {this.state.incidentCode}
+              </div>
             )}
           </div>
         </div>

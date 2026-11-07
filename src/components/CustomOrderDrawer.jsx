@@ -12,6 +12,7 @@ import {
   Store,
 } from 'lucide-react';
 import { t } from '../utils/translations';
+import { validateUploadedFile } from '../services/uploadSecurity';
 
 const INSPIRATION_PHOTOS = [
   {
@@ -78,9 +79,15 @@ export default function CustomOrderDrawer({
         'Warm Earthy Palette',
       ];
 
-  const handleSimulatedUpload = (e) => {
+  const handleSimulatedUpload = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Security: Validate file size (2MB max), genuine MIME and magic bytes
+      const validation = await validateUploadedFile(file, 'customer');
+      if (!validation.isValid) {
+        alert(validation.error || (isAr ? 'الملف المرفق غير صالح أمنياً' : 'File is not secure'));
+        return;
+      }
       const url = URL.createObjectURL(file);
       setSelectedPhoto(url);
       setCustomPhotoUploaded(true);

@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  CheckCircle as CheckCircleIcon,
-  CircleNotch as CircleNotchIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+  CheckCircle2 as CheckCircleIcon,
+  Loader2 as CircleNotchIcon,
+} from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   type ComponentPropsWithoutRef,
   createContext,

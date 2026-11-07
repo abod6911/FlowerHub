@@ -19,6 +19,11 @@ dist-ssr
 .env
 .env.*
 !.env.example
+*.pem
+*.key
+*.cert
+secrets/
+credentials.json
 
 # Temporary test scripts and scratch
 scratch/

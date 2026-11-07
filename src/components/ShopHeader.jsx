@@ -12,6 +12,8 @@ import {
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
 import { useStoreTheme } from '../context/StoreThemeContext';
+import { validateUploadedFile } from '../services/uploadSecurity';
+import { sanitizeUrl } from '../utils/sanitizer';
 
 // Dynamic Rotating Search Placeholders
 const SEARCH_PLACEHOLDERS_AR = [
@@ -74,12 +76,14 @@ function ShopHeader({
     ? 'ابحث عن باقة، فازة، أو مناسبة...'
     : 'Search bouquets, vases, occasions...';
 
-  const handleAvatarFileSelect = (e) => {
+  const handleAvatarFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert(isAr ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image size must be under 5MB');
+    // Security: Deep inspection of magic bytes, MIME whitelist, and size boundaries
+    const validation = await validateUploadedFile(file, 'store');
+    if (!validation.isValid) {
+      alert(validation.error || (isAr ? 'الملف المرفق غير صالح أمنياً' : 'File is not secure'));
       return;
     }
 
@@ -104,13 +108,20 @@ function ShopHeader({
 
   const handleSaveUrlAvatar = () => {
     if (!customUrlInput.trim()) return;
-    const url = customUrlInput.trim();
-    setCustomAvatar(url);
+    const rawUrl = customUrlInput.trim();
+    // Security: Block javascript:, data:, and insecure http schemes
+    const safeUrl = sanitizeUrl(rawUrl, '');
+    if (!safeUrl) {
+      alert(isAr ? 'الرابط غير آمن أو غير صالح. يُشترط استخدام رابط يبدأ بـ https://' : 'Insecure or invalid URL. Only HTTPS URLs are permitted.');
+      return;
+    }
+
+    setCustomAvatar(safeUrl);
     try {
-      localStorage.setItem('flowerhub_store_avatar', url);
+      localStorage.setItem('flowerhub_store_avatar', safeUrl);
     } catch {}
     if (onUpdateShopConfig) {
-      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url, logoUrl: url }));
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: safeUrl, logoUrl: safeUrl }));
     }
     setCustomUrlInput('');
     setIsAvatarModalOpen(false);

@@ -30,6 +30,8 @@ import {
   Phone,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
+import { validateUploadedFile } from '../services/uploadSecurity';
+import { sanitizeUrl, sanitizeText } from '../utils/sanitizer';
 import {
   THEME_TOKENS,
   HERO_STYLES,
@@ -169,13 +171,17 @@ export default function FloristAdminPanel({
     setTimeout(() => setDesignToast(''), 3500);
   };
 
-  const handleLogoUpload = (e) => {
+  const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert(isAr ? 'حجم الصورة يجب ألا يتجاوز 5 ميجابايت' : 'Image size must be under 5MB');
+
+    // Security: Validate file magic bytes, MIME whitelist, and 5MB maximum
+    const validation = await validateUploadedFile(file, 'store');
+    if (!validation.isValid) {
+      alert(validation.error || (isAr ? 'الملف المرفق غير صالح أمنياً' : 'File is not secure'));
       return;
     }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result;
@@ -195,12 +201,19 @@ export default function FloristAdminPanel({
   const handleSaveLogoUrl = (e) => {
     e.preventDefault();
     if (!logoUrlInput.trim()) return;
-    const url = logoUrlInput.trim();
+    const rawUrl = logoUrlInput.trim();
+    // Security: Block script schemes and insecure URLs
+    const safeUrl = sanitizeUrl(rawUrl, '');
+    if (!safeUrl) {
+      alert(isAr ? 'الرابط غير آمن أو غير صالح. يُشترط استخدام رابط يبدأ بـ https://' : 'Insecure or invalid URL. Only HTTPS URLs are permitted.');
+      return;
+    }
+
     try {
-      localStorage.setItem('flowerhub_store_avatar', url);
+      localStorage.setItem('flowerhub_store_avatar', safeUrl);
     } catch {}
     if (onUpdateShopConfig) {
-      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: url, logoUrl: url }));
+      onUpdateShopConfig((prev) => ({ ...prev, avatarUrl: safeUrl, logoUrl: safeUrl }));
     }
     setLogoUrlInput('');
     setLogoToast(isAr ? 'تم حفظ رابط شعار المتجر بنجاح!' : 'Store logo URL saved successfully!');
@@ -236,9 +249,17 @@ export default function FloristAdminPanel({
   const [addPhotoCategory, setAddPhotoCategory] = useState('all');
   const [productUrlInput, setProductUrlInput] = useState('');
 
-  const handleStoryPhotoUpload = (e) => {
+  const handleStoryPhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Security: Validate file size (5MB), genuine MIME and magic bytes
+    const validation = await validateUploadedFile(file, 'store');
+    if (!validation.isValid) {
+      alert(validation.error || (isAr ? 'الملف المرفق غير صالح أمنياً' : 'File is not secure'));
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result;
@@ -263,10 +284,17 @@ export default function FloristAdminPanel({
 
   const fileInputRef = useRef(null);
 
-  // File Upload Handler (FileReader)
-  const handlePhotoUpload = (e) => {
+  // File Upload Handler (FileReader + Magic Bytes Security Inspection)
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Security: Validate file size (5MB), genuine MIME and magic bytes
+    const validation = await validateUploadedFile(file, 'store');
+    if (!validation.isValid) {
+      alert(validation.error || (isAr ? 'الملف المرفق غير صالح أمنياً' : 'File is not secure'));
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -966,8 +994,13 @@ export default function FloristAdminPanel({
                   disabled={!productUrlInput.trim()}
                   onClick={() => {
                     if (productUrlInput.trim()) {
-                      setUploadedImagePreview(productUrlInput.trim());
-                      setNewImage(productUrlInput.trim());
+                      const safe = sanitizeUrl(productUrlInput.trim(), '');
+                      if (!safe) {
+                        alert(isAr ? 'الرابط غير صالح أمنياً (يجب أن يبدأ بـ https://)' : 'Insecure URL (must use https://)');
+                        return;
+                      }
+                      setUploadedImagePreview(safe);
+                      setNewImage(safe);
                       setProductUrlInput('');
                     }
                   }}
