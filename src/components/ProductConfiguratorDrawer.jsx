@@ -43,7 +43,7 @@ export default function ProductConfiguratorDrawer({
 
   // Block 2: Handover & Timing
   const [handoverType, setHandoverType] = useState('gift'); // 'gift' | 'delivery' | 'pickup'
-  const [timing, setTiming] = useState(isAr ? 'الآن / مستعجل (خلال ساعتين)' : 'Now / Urgent (within 2h)');
+  const [timing, setTiming] = useState(isAr ? '⚡ الآن (ساعتين)' : '⚡ Now (within 2h)');
   const [recipientName, setRecipientName] = useState('');
   const [recipientPhone, setRecipientPhone] = useState('');
 
@@ -148,28 +148,22 @@ export default function ProductConfiguratorDrawer({
     }
   };
 
-  // Handover timing presets
+  // Handover timing presets - concise, readable without truncation
   const timingOptions = [
     {
       id: 'now',
-      labelAr: '⚡ الآن / مستعجل (خلال ساعتين)',
-      labelEn: '⚡ Now / Urgent (within 2h)',
-      badgeAr: 'توصيل فوري',
-      badgeEn: 'Express',
+      labelAr: '⚡ الآن (ساعتين)',
+      labelEn: '⚡ Now (within 2h)',
     },
     {
       id: 'tonight',
-      labelAr: '🌙 مساء اليوم (٤ م - ١٠ م)',
-      labelEn: '🌙 Tonight (4 PM - 10 PM)',
-      badgeAr: 'الأكثر طلباً',
-      badgeEn: 'Popular',
+      labelAr: '🌙 مساء اليوم',
+      labelEn: '🌙 Tonight',
     },
     {
       id: 'tomorrow',
       labelAr: '☀️ غداً بتوقيت محدد',
       labelEn: '☀️ Tomorrow Scheduled',
-      badgeAr: 'حجز مسبق',
-      badgeEn: 'Scheduled',
     },
   ];
 
@@ -220,9 +214,6 @@ export default function ProductConfiguratorDrawer({
                 {product.price} {strings.sar}
               </span>
             </div>
-            <p className="text-[11px] mt-0.5 font-medium" style={{ color: 'var(--text-muted, #78716C)' }}>
-              {isAr ? 'تنسيق يدوي طازج وتغليف فاخر عند الطلب' : 'Fresh hand-crafted florals & bespoke packaging'}
-            </p>
           </div>
 
           <button
@@ -236,25 +227,22 @@ export default function ProductConfiguratorDrawer({
         </div>
 
         {/* Scrollable Content Body */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-4 space-y-3.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* ========================================================
               BLOCK 1: Boutique Product Preview Card
              ======================================================== */}
           <div
-            className="p-3.5 border flex gap-3.5 items-center transition-all duration-200 rounded-2xl relative overflow-hidden shadow-xs"
+            className="p-3 border flex gap-3 items-center transition-all duration-200 rounded-2xl relative overflow-hidden shadow-xs"
             style={{
               backgroundColor: 'var(--bg-canvas, #FAF8F5)',
               borderColor: 'var(--border-subtle, #E7E5E4)',
             }}
           >
-            {/* Soft Ambient Background Decoration */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-500/5 to-transparent rounded-full blur-xl pointer-events-none" />
-
             <div className="relative shrink-0">
               <img
                 src={product.image}
                 alt={isAr ? product.titleAr : product.titleEn}
-                className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl object-cover border shadow-xs"
+                className="w-16 h-16 sm:w-18 sm:h-18 rounded-xl object-cover border shadow-xs"
                 style={{ borderColor: 'var(--border-subtle, #E7E5E4)' }}
                 loading="eager"
                 decoding="async"
@@ -270,25 +258,17 @@ export default function ProductConfiguratorDrawer({
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span
-                  className="text-[10px] uppercase font-bold tracking-wider"
-                  style={{ color: 'var(--accent-gold, #D4AF37)' }}
-                >
-                  {isAr ? 'تنسيق حصري' : 'Atelier Exclusive'}
-                </span>
-              </div>
-              <h3 className="font-bold text-sm sm:text-base leading-snug truncate">
+              <span
+                className="text-[10px] uppercase font-bold tracking-wider block mb-0.5"
+                style={{ color: 'var(--accent-gold, #D4AF37)' }}
+              >
+                {isAr ? 'تنسيق حصري' : 'Atelier Exclusive'}
+              </span>
+              <h3 className="font-bold text-sm leading-snug truncate">
                 {isAr ? product.titleAr : product.titleEn}
               </h3>
-              <p
-                className="text-xs mt-0.5 line-clamp-1"
-                style={{ color: 'var(--text-muted, #78716C)' }}
-              >
-                {isAr ? product.descAr : product.descEn}
-              </p>
 
-              <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                 {product.stemCount && (
                   <span
                     className="text-[10px] px-2 py-0.5 rounded-md font-medium border flex items-center gap-1"
@@ -305,7 +285,7 @@ export default function ProductConfiguratorDrawer({
                 {product.isReadyNow && (
                   <span className="text-[10px] px-2 py-0.5 rounded-md font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{isAr ? 'جاهز للاستلام الفوري' : 'Ready for Instant Pickup'}</span>
+                    <span>{isAr ? 'جاهز للاستلام الفوري' : 'Ready for Pickup'}</span>
                   </span>
                 )}
               </div>
@@ -316,7 +296,7 @@ export default function ProductConfiguratorDrawer({
               BLOCK 2: Preparation Style (كيف ترغب بتجهيز الباقة؟)
              ======================================================== */}
           <div
-            className="p-4 border space-y-3 transition-colors rounded-2xl shadow-xs"
+            className="p-3.5 border space-y-2.5 transition-colors rounded-2xl shadow-xs"
             style={{
               backgroundColor: 'var(--bg-canvas, #FAF8F5)',
               borderColor: 'var(--border-subtle, #E7E5E4)',
@@ -340,15 +320,15 @@ export default function ProductConfiguratorDrawer({
               </span>
             </div>
 
-            {/* Two Distinctive Luxury Option Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {/* Fast 1-Tap Option Buttons without Small Filler Text */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {/* Option A: As Is */}
               <button
                 type="button"
                 onClick={() => setOrderStyle('as_is')}
-                className={`p-3 border text-start rounded-xl transition-all relative overflow-hidden flex flex-col justify-between ${
+                className={`py-2.5 px-3 border text-start rounded-xl transition-all relative flex items-center justify-between ${
                   orderStyle === 'as_is'
-                    ? 'ring-2 ring-emerald-900 dark:ring-emerald-400 shadow-sm'
+                    ? 'ring-2 ring-emerald-900 dark:ring-emerald-400 shadow-xs'
                     : 'hover:border-stone-400 opacity-90'
                 }`}
                 style={{
@@ -362,39 +342,32 @@ export default function ProductConfiguratorDrawer({
                       : 'var(--border-subtle, #E7E5E4)',
                 }}
               >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                        orderStyle === 'as_is'
-                          ? 'bg-emerald-900 text-white dark:bg-emerald-500'
-                          : 'border border-stone-300 text-transparent'
-                      }`}
-                    >
-                      <Check className="w-3 h-3 stroke-[3]" />
-                    </div>
-                    <span className="text-xs font-bold">
-                      {isAr ? 'نفس الصورة بالضبط' : 'Identical to Photo'}
-                    </span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 ${
+                      orderStyle === 'as_is'
+                        ? 'bg-emerald-900 text-white dark:bg-emerald-500'
+                        : 'border border-stone-300 text-transparent'
+                    }`}
+                  >
+                    <Check className="w-3 h-3 stroke-[3]" />
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
-                    {isAr ? 'الأسرع' : 'Fastest'}
+                  <span className="text-xs font-bold">
+                    {isAr ? 'نفس الصورة بالضبط' : 'Identical to Photo'}
                   </span>
                 </div>
-                <p className="text-[10px] leading-relaxed pe-1" style={{ color: 'var(--text-muted, #78716C)' }}>
-                  {isAr
-                    ? 'نفس درجات الورد والتغليف الموضحة بالصورة.'
-                    : 'Exact flowers, wrap and palette as displayed.'}
-                </p>
+                <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md">
+                  {isAr ? 'الأسرع' : 'Fastest'}
+                </span>
               </button>
 
               {/* Option B: Tweak / Customize */}
               <button
                 type="button"
                 onClick={() => setOrderStyle('tweak')}
-                className={`p-3 border text-start rounded-xl transition-all relative overflow-hidden flex flex-col justify-between ${
+                className={`py-2.5 px-3 border text-start rounded-xl transition-all relative flex items-center justify-between ${
                   orderStyle === 'tweak'
-                    ? 'ring-2 ring-emerald-900 dark:ring-emerald-400 shadow-sm'
+                    ? 'ring-2 ring-emerald-900 dark:ring-emerald-400 shadow-xs'
                     : 'hover:border-stone-400 opacity-90'
                 }`}
                 style={{
@@ -408,30 +381,23 @@ export default function ProductConfiguratorDrawer({
                       : 'var(--border-subtle, #E7E5E4)',
                 }}
               >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                        orderStyle === 'tweak'
-                          ? 'bg-emerald-900 text-white dark:bg-emerald-500'
-                          : 'border border-stone-300 text-transparent'
-                      }`}
-                    >
-                      <Check className="w-3 h-3 stroke-[3]" />
-                    </div>
-                    <span className="text-xs font-bold">
-                      {isAr ? 'تعديل الألوان والتغليف' : 'Tweak Colors & Wrap'}
-                    </span>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 ${
+                      orderStyle === 'tweak'
+                        ? 'bg-emerald-900 text-white dark:bg-emerald-500'
+                        : 'border border-stone-300 text-transparent'
+                    }`}
+                  >
+                    <Check className="w-3 h-3 stroke-[3]" />
                   </div>
-                  <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">
-                    {isAr ? 'مجاناً' : 'Free'}
+                  <span className="text-xs font-bold">
+                    {isAr ? 'تعديل الألوان والتغليف' : 'Tweak Colors & Wrap'}
                   </span>
                 </div>
-                <p className="text-[10px] leading-relaxed pe-1" style={{ color: 'var(--text-muted, #78716C)' }}>
-                  {isAr
-                    ? 'اختر ألوان الورد، ورق التغليف، أو أضف طلباً خاصاً.'
-                    : 'Select flower shades, packaging style or custom florist note.'}
-                </p>
+                <span className="text-[10px] font-bold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-md">
+                  {isAr ? 'مجاناً' : 'Free'}
+                </span>
               </button>
             </div>
 
@@ -552,8 +518,6 @@ export default function ProductConfiguratorDrawer({
                   icon: Gift,
                   titleAr: 'إرسال كهدية',
                   titleEn: 'Gift Order',
-                  descAr: 'مفاجأة أنيقة',
-                  descEn: 'Surprise',
                   tagAr: 'الأكثر طلباً',
                   tagEn: 'Top Choice',
                 },
@@ -562,8 +526,6 @@ export default function ProductConfiguratorDrawer({
                   icon: Truck,
                   titleAr: 'توصيل لموقعي',
                   titleEn: 'Deliver to Me',
-                  descAr: 'سيارة مبردة',
-                  descEn: 'Chilled Van',
                   tagAr: 'سريع',
                   tagEn: 'Fast',
                 },
@@ -572,8 +534,6 @@ export default function ProductConfiguratorDrawer({
                   icon: Store,
                   titleAr: 'استلام فرع',
                   titleEn: 'Store Pickup',
-                  descAr: 'حي الصحافة',
-                  descEn: 'Al Sahafa',
                   tagAr: 'مجاناً',
                   tagEn: 'Free',
                 },
@@ -585,7 +545,7 @@ export default function ProductConfiguratorDrawer({
                     key={item.id}
                     type="button"
                     onClick={() => setHandoverType(item.id)}
-                    className={`py-2.5 px-2 border rounded-xl flex flex-col items-center text-center transition-all relative ${
+                    className={`py-3 px-2 border rounded-xl flex flex-col items-center justify-center text-center transition-all relative ${
                       isSel
                         ? 'bg-emerald-950 text-white border-emerald-950 shadow-md ring-1 ring-emerald-950'
                         : 'bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 border-stone-200 hover:border-stone-300'
@@ -605,13 +565,6 @@ export default function ProductConfiguratorDrawer({
                     <Icon className={`w-4 h-4 mb-1 ${isSel ? 'text-amber-300' : 'text-stone-600'}`} />
                     <span className="text-xs font-bold leading-tight block">
                       {isAr ? item.titleAr : item.titleEn}
-                    </span>
-                    <span
-                      className={`text-[9px] mt-0.5 leading-tight ${
-                        isSel ? 'text-emerald-200' : 'text-stone-400'
-                      }`}
-                    >
-                      {isAr ? item.descAr : item.descEn}
                     </span>
                   </button>
                 );
@@ -664,7 +617,7 @@ export default function ProductConfiguratorDrawer({
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400 flex items-center gap-1">
                       <User className="w-3 h-3 text-stone-500" />
-                      <span>{isAr ? 'اسم المستلم الكريـم' : 'Recipient Name'}</span>
+                      <span>{isAr ? 'اسم المستلم' : 'Recipient Name'}</span>
                     </label>
                     <input
                       type="text"
@@ -675,11 +628,11 @@ export default function ProductConfiguratorDrawer({
                     />
                   </div>
 
-                  {/* Recipient Phone Field - Fixed RTL collision */}
+                  {/* Recipient Phone Field */}
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold text-stone-600 dark:text-stone-400 flex items-center gap-1">
                       <Phone className="w-3 h-3 text-stone-500" />
-                      <span>{isAr ? 'رقم جوال المستلم للتنسيق' : 'Recipient Phone Number'}</span>
+                      <span>{isAr ? 'رقم جوال المستلم' : 'Recipient Phone Number'}</span>
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute inset-y-0 start-0 flex items-center ps-2.5 pointer-events-none text-[11px] font-semibold text-stone-400">
@@ -698,12 +651,12 @@ export default function ProductConfiguratorDrawer({
                 </div>
 
                 {/* Privacy & Surprise Assurance Note */}
-                <div className="flex items-start gap-2 p-2 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px] leading-relaxed">
-                  <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
-                  <p>
+                <div className="flex items-center gap-1.5 p-2 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[10px]">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                  <p className="font-semibold">
                     {isAr
-                      ? '🔒 خصوصية تامة للمفاجأة: نتواصل مع المستلم بلباقة لتحديد الموقع المناسب دون حرق المفاجأة أو ذكر السعر نهائياً.'
-                      : '🔒 Total discretion: We coordinate delivery tactfully with the recipient without spoiling the surprise or revealing prices.'}
+                      ? '🔒 خصوصية تامة: نتواصل بلباقة دون ذكر السعر أو حرق المفاجأة.'
+                      : '🔒 Full discretion: We coordinate without revealing prices.'}
                   </p>
                 </div>
               </div>
@@ -711,28 +664,28 @@ export default function ProductConfiguratorDrawer({
 
             {handoverType === 'delivery' && (
               <div
-                className="p-3 rounded-xl border text-xs leading-relaxed animate-slide-up bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 flex items-center gap-2"
+                className="p-2.5 rounded-xl border text-xs animate-slide-up bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 flex items-center gap-2"
                 style={{ borderColor: 'var(--border-subtle, #E7E5E4)' }}
               >
                 <Truck className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span>
+                <span className="text-[11px] font-medium">
                   {isAr
-                    ? '📍 سيتم إرسال اللوكيشن فورياً في محادثة الواتساب لسرعة وصول المندوب.'
-                    : '📍 You can send your exact GPS location in the WhatsApp chat for rapid delivery.'}
+                    ? '📍 مشاركة الموقع تتم مباشرة في محادثة الواتساب.'
+                    : '📍 You can send your location directly in the WhatsApp chat.'}
                 </span>
               </div>
             )}
 
             {handoverType === 'pickup' && (
               <div
-                className="p-3 rounded-xl border text-xs leading-relaxed animate-slide-up bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 flex items-center gap-2"
+                className="p-2.5 rounded-xl border text-xs animate-slide-up bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 flex items-center gap-2"
                 style={{ borderColor: 'var(--border-subtle, #E7E5E4)' }}
               >
                 <Store className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span>
+                <span className="text-[11px] font-medium">
                   {isAr
-                    ? '🏪 استلام فوري ومجاني من فرعنا (الرياض • حي الصحافة) خلال الموعد المختار.'
-                    : '🏪 Free pickup from our Riyadh Atelier (Al Sahafa Dist.) within your selected window.'}
+                    ? '🏪 الاستلام متاح من فرعنا (الرياض • حي الصحافة).'
+                    : '🏪 Free pickup from our Riyadh Atelier (Al Sahafa Dist.).'}
                 </span>
               </div>
             )}
@@ -742,7 +695,7 @@ export default function ProductConfiguratorDrawer({
               BLOCK 4: Extras & Impulse Add-ons (إضافات سريعة للباقة)
              ======================================================== */}
           <div
-            className="p-4 border space-y-3.5 transition-colors rounded-2xl shadow-xs"
+            className="p-4 border space-y-3 transition-colors rounded-2xl shadow-xs"
             style={{
               backgroundColor: 'var(--bg-canvas, #FAF8F5)',
               borderColor: 'var(--border-subtle, #E7E5E4)',
@@ -784,16 +737,9 @@ export default function ProductConfiguratorDrawer({
                         >
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                         </button>
-                        <div>
-                          <span className="text-xs font-bold block">
-                            {isAr ? addon.nameAr : addon.nameEn}
-                          </span>
-                          {(addon.descAr || addon.descEn) && (
-                            <span className="text-[10px] text-stone-500 block leading-tight">
-                              {isAr ? addon.descAr : addon.descEn}
-                            </span>
-                          )}
-                        </div>
+                        <span className="text-xs font-bold block">
+                          {isAr ? addon.nameAr : addon.nameEn}
+                        </span>
                       </div>
 
                       <div className="text-end shrink-0">
@@ -952,12 +898,6 @@ export default function ProductConfiguratorDrawer({
                   >
                     "{cardMessage.trim()}"
                   </p>
-
-                  <div className="mt-2 text-[9px] text-amber-700/80 font-medium">
-                    {isAr
-                      ? 'دار الورد • يطبع الكرت بخط عربي رشيق ويوضع بمغلف شمعي فاخر'
-                      : 'Maison Des Fleurs • Hand-printed & sealed in wax envelope'}
-                  </div>
                 </div>
               )}
             </div>

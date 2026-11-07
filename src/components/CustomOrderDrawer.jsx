@@ -156,12 +156,6 @@ export default function CustomOrderDrawer({
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span>{strings.customDrawerTitle}</span>
             </h2>
-            <p
-              className="text-[11px]"
-              style={{ color: 'var(--text-muted, #78716C)' }}
-            >
-              {strings.customDrawerSub}
-            </p>
           </div>
           <button
             onClick={onClose}
