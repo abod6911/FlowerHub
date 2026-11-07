@@ -10,9 +10,28 @@ import {
   type Variants,
   AnimatePresence,
 } from "framer-motion";
+import {
+  EASINGS,
+  TIMINGS,
+  tactileButtonProps,
+  successPulseVariants,
+  listContainerVariants,
+  listItemVariants,
+  secondaryDetailVariants,
+  overlappingStatePresenceProps,
+} from "@/lib/motion-variants";
+import {
+  TactileButton,
+  SquashStretchSwitch,
+  ClipPathSegmentedTabs,
+  AnchoredDropdown,
+  MorphingIconButton,
+  ArcedFlyingBadge,
+  RubberBandDrawer,
+} from "./motion/MotionComponents";
 
 // ==========================================
-// 1. المكونات التفاعلية المدمجة (Fancy & Bubble Components)
+// 1. المكونات التفاعلية المدمجة (Fancy & Motion Physics Components)
 // ==========================================
 
 // --- أ. مكون الطفو الفيزيائي ثلاثي الأبعاد (Float Engine) ---
@@ -69,7 +88,7 @@ const Float: React.FC<FloatProps> = ({
   );
 };
 
-// --- ب. مكون النص المتنفس (Breathing Text) مع الحفاظ على ترابط الحروف العربية ---
+// --- ب. مكون النص المتنفس (Breathing Text) ---
 interface BreathingTextProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
   as?: ElementType;
@@ -91,7 +110,6 @@ const BreathingText: React.FC<BreathingTextProps> = ({
 }) => {
   const textContent = String(children || "");
   const hasArabic = /[\u0600-\u06FF]/.test(textContent);
-  // للحفاظ على ترابط الخط العربي الفاخر، يتم التقسيم على الكلمات وليس تفريق الأحرف
   const segments = hasArabic ? textContent.split(/(\s+)/) : textContent.split("");
 
   const letterVariants: Variants = {
@@ -184,36 +202,6 @@ const VariableFontHoverByRandomLetter: React.FC<VariableHoverProps> = ({
   );
 };
 
-// --- د. تأثير قطرات الندى والزجاج السائل (Soap Bubble Dew Drop Capsule) ---
-const SoapBubblePill: React.FC<{
-  children: React.ReactNode;
-  active?: boolean;
-  onClick?: () => void;
-  className?: string;
-}> = ({ children, active, onClick, className }) => {
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.04 }}
-      whileTap={{ scale: 0.96 }}
-      className={`relative px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 overflow-hidden backdrop-blur-md border ${
-        active
-          ? "bg-[#123524] text-white border-[#123524] shadow-md shadow-[#123524]/20"
-          : "bg-white/80 text-neutral-700 border-white/60 hover:bg-white shadow-sm"
-      } ${className || ""}`}
-      style={{
-        boxShadow: active
-          ? "0 4px 14px rgba(18, 53, 36, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.4)"
-          : "0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8)",
-      }}
-    >
-      <span className="relative z-10 flex items-center gap-1.5">{children}</span>
-      {/* وميض الزجاج وقوس انعكاس قطرة الماء */}
-      <span className="absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-white/40 via-transparent to-transparent rounded-full pointer-events-none" />
-    </motion.button>
-  );
-};
-
 // ==========================================
 // 2. بيانات المتجر والمنتجات
 // ==========================================
@@ -224,7 +212,7 @@ interface Product {
   originalPrice?: number;
   image: string;
   badge?: { text: string; color: string; icon: string };
-  isFavorite?: boolean;
+  category: string;
 }
 
 const PRODUCTS: Product[] = [
@@ -235,6 +223,7 @@ const PRODUCTS: Product[] = [
     originalPrice: 360,
     image: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80",
     badge: { text: "جاهز الآن", color: "bg-amber-500/15 text-amber-900 border-amber-200/60", icon: "🕒" },
+    category: "vases",
   },
   {
     id: "p2",
@@ -243,6 +232,7 @@ const PRODUCTS: Product[] = [
     originalPrice: 295,
     image: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80",
     badge: { text: "قطعة واحدة فقط", color: "bg-rose-500/15 text-rose-900 border-rose-200/60", icon: "✨" },
+    category: "bouquets",
   },
   {
     id: "p3",
@@ -251,13 +241,23 @@ const PRODUCTS: Product[] = [
     originalPrice: 310,
     image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80",
     badge: { text: "قابل للتخصيص", color: "bg-emerald-500/15 text-emerald-900 border-emerald-200/60", icon: "✏️" },
+    category: "boxes",
   },
   {
     id: "p4",
     name: "تنسيق قبة العشق الأبدية الملكية",
     price: 450,
     image: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?auto=format&fit=crop&w=600&q=80",
+    badge: { text: "فاخر وحصري", color: "bg-purple-500/15 text-purple-900 border-purple-200/60", icon: "👑" },
+    category: "vases",
   },
+];
+
+const CATEGORY_TABS = [
+  { id: "all", label: "جميع التنسيقات", icon: "🌸" },
+  { id: "bouquets", label: "باقات يد", icon: "💐" },
+  { id: "vases", label: "فازات زجاجية", icon: "🏺" },
+  { id: "boxes", label: "صواني وبوكسات", icon: "🎁" },
 ];
 
 const OCCASIONS = [
@@ -273,25 +273,81 @@ const OCCASIONS = [
 // 3. الصفحة الرئيسية للمتجر (Storefront Page)
 // ==========================================
 export default function FlowerStorefrontPage() {
-  const [selectedFilter, setSelectedFilter] = useState("جميع التنسيقات");
-  const [favorites, setFavorites] = useState<Record<string, boolean>>({});
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [favorites, setFavorites] = useState<Record<string, boolean>>({ p1: true });
   const [cartCount, setCartCount] = useState(1);
-  const [flyingToCart, setFlyingToCart] = useState<string | null>(null);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [isCustomDrawerOpen, setIsCustomDrawerOpen] = useState(false);
+  const [isExpressDelivery, setIsExpressDelivery] = useState(true);
+  const [addedItemName, setAddedItemName] = useState<string | null>(null);
+
+  // Flight Path State (Rule 7: Arced Motion Paths 32px arc offset)
+  const [flightState, setFlightState] = useState<{
+    isFlying: boolean;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+  }>({
+    isFlying: false,
+    startX: 0,
+    startY: 0,
+    endX: 0,
+    endY: 0,
+  });
+
+  const cartButtonRef = useRef<HTMLDivElement>(null);
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleAddToCart = (id: string) => {
-    setFlyingToCart(id);
-    setCartCount((prev) => prev + 1);
-    setTimeout(() => setFlyingToCart(null), 800);
+  const handleAddToCartWithArc = (product: Product, event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const cartRect = cartButtonRef.current?.getBoundingClientRect();
+
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+    const endX = cartRect ? cartRect.left + cartRect.width / 2 : window.innerWidth / 2;
+    const endY = cartRect ? cartRect.top + cartRect.height / 2 : window.innerHeight - 50;
+
+    // Trigger Rule 7 Arced flight
+    setFlightState({
+      isFlying: true,
+      startX,
+      startY,
+      endX,
+      endY,
+    });
+
+    setAddedItemName(product.name);
+    setTimeout(() => {
+      setFlightState((prev) => ({ ...prev, isFlying: false }));
+      setCartCount((prev) => prev + 1);
+    }, 650);
+
+    setTimeout(() => setAddedItemName(null), 2500);
   };
 
+  // Filter products based on active tab
+  const filteredProducts = PRODUCTS.filter((p) => {
+    if (selectedCategory === "all") return true;
+    return p.category === selectedCategory;
+  });
+
   return (
-    <div dir="rtl" className="min-h-screen bg-[#FDFBF7] text-neutral-900 font-sans pb-24 selection:bg-rose-100 selection:text-rose-900 w-full">
+    <div dir="rtl" className="min-h-screen bg-[#FDFBF7] text-neutral-900 font-sans pb-28 selection:bg-rose-100 selection:text-rose-900 w-full relative">
       
+      {/* Rule 7: Arced Flying Item (32px Curved Arc Trajectory) */}
+      <ArcedFlyingBadge
+        isFlying={flightState.isFlying}
+        startX={flightState.startX}
+        startY={flightState.startY}
+        endX={flightState.endX}
+        endY={flightState.endY}
+        content="🌸"
+      />
+
       {/* حاوية الجوال المتجاوبة */}
       <main className="max-w-md mx-auto min-h-screen bg-[#FAF8F5] shadow-2xl relative flex flex-col border-x border-neutral-200/70 overflow-hidden">
         
@@ -317,10 +373,23 @@ export default function FlowerStorefrontPage() {
               </BreathingText>
             </div>
 
-            {/* أيقونة شعار المتجر */}
-            <div className="w-11 h-11 rounded-2xl bg-[#7E1529] text-white flex items-center justify-center font-serif text-xl font-bold shadow-md shadow-rose-950/20">
-              M
-            </div>
+            {/* Rule 2, 10, 11, 12, 15: Anchored Luxury Dropdown Menu */}
+            <AnchoredDropdown
+              origin="top left"
+              trigger={
+                <motion.div
+                  {...tactileButtonProps} // Rule 4: tactile press scale: 0.97
+                  className="w-11 h-11 rounded-2xl bg-[#7E1529] text-amber-200 flex items-center justify-center font-serif text-xl font-bold shadow-md shadow-rose-950/20 border border-amber-400/20 cursor-pointer"
+                >
+                  M
+                </motion.div>
+              }
+              items={[
+                { id: "opt-1", label: "توصيل فوري خلال 30 دقيقة", icon: "⚡", badge: "متاح" },
+                { id: "opt-2", label: "طلب تنسيق باقة خاصة", icon: "🎨", onClick: () => setIsCustomDrawerOpen(true) },
+                { id: "opt-3", label: "عرض إيصال الطلب والفاتورة", icon: "📄", onClick: () => setIsReceiptModalOpen(true) },
+              ]}
+            />
           </div>
 
           {/* اسم المتجر التيبوغرافي الفاخر مع تضخيم الحروف عند التمرير */}
@@ -333,24 +402,28 @@ export default function FlowerStorefrontPage() {
                 className="hover:text-[#7E1529] transition-colors"
               />
             </h1>
-            <p className="text-xs text-neutral-500 mt-1">أزهار طبيعية فاخرة بالرياض</p>
+            <p className="text-xs text-neutral-500 mt-1">أزهار طبيعية فاخرة وتنسيقات الهدايا بالرياض</p>
             <div className="flex items-center justify-center gap-2 mt-1 text-[11px] text-neutral-400">
-              <span>⭐ 4.9</span>
+              <span>⭐ 4.9 (420+ تقييم)</span>
               <span>•</span>
-              <span>📍 توصيل لكافة أحياء الرياض</span>
+              <span>📍 التوصيل لكافة الأحياء</span>
             </div>
           </div>
 
-          {/* شريط البحث المباشر */}
-          <div className="mt-3.5 pt-2.5 border-t border-neutral-100">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="ابحث عن باقة، فازة، أو مناسبة..."
-                className="w-full pl-3 pr-8 py-2 text-xs rounded-full bg-[#F5F3EF] border border-transparent focus:border-rose-400 focus:bg-white focus:outline-none transition-all"
-              />
-              <span className="absolute right-3 top-2.5 text-xs text-neutral-400">🔍</span>
-            </div>
+          {/* Rule 5: Squash & Stretch Toggle Switch (12% horizontal knob stretch) */}
+          <div className="mt-3.5 pt-3 border-t border-neutral-100 flex items-center justify-between px-1">
+            <span className="text-[11px] font-semibold text-stone-600 flex items-center gap-1.5">
+              <span>⚡ التجهيز السريع الفوري:</span>
+              <span className={`text-[10px] font-bold ${isExpressDelivery ? 'text-emerald-700' : 'text-stone-400'}`}>
+                {isExpressDelivery ? 'مفعل (20 دقيقة)' : 'عادي'}
+              </span>
+            </span>
+
+            {/* Rule 5 Component */}
+            <SquashStretchSwitch
+              checked={isExpressDelivery}
+              onChange={setIsExpressDelivery}
+            />
           </div>
         </header>
 
@@ -364,7 +437,10 @@ export default function FlowerStorefrontPage() {
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pt-1">
             {OCCASIONS.map((item, idx) => (
               <Float key={idx} speed={0.35} amplitude={[2, 5, 3]} timeOffset={idx * 0.4} className="flex-shrink-0">
-                <button className="flex flex-col items-center gap-1.5 group">
+                <motion.button
+                  {...tactileButtonProps} // Rule 4: tactile button press scale: 0.97
+                  className="flex flex-col items-center gap-1.5 group cursor-pointer"
+                >
                   <div
                     className={`w-14 h-14 rounded-full flex items-center justify-center text-xl transition-all shadow-sm ${
                       item.active
@@ -377,24 +453,21 @@ export default function FlowerStorefrontPage() {
                   <span className={`text-[11px] ${item.active ? "font-bold text-[#123524]" : "text-neutral-600"}`}>
                     {item.label}
                   </span>
-                </button>
+                </motion.button>
               </Float>
             ))}
           </div>
         </section>
 
-        {/* 3. شريط فلاتر قطرات الندى (Soap Bubble Filter Pills) */}
+        {/* 3. Rule 17 & 20: Clip-Path & Mask Reveal Segmented Tabs with layoutId */}
         <section className="relative z-10 px-4 mt-3">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {["جميع التنسيقات", "باقات يد", "فازات زجاجية", "صواني وبوكسات"].map((filter) => (
-              <SoapBubblePill
-                key={filter}
-                active={selectedFilter === filter}
-                onClick={() => setSelectedFilter(filter)}
-              >
-                {filter}
-              </SoapBubblePill>
-            ))}
+          <div className="w-full overflow-x-auto no-scrollbar py-1">
+            <ClipPathSegmentedTabs
+              tabs={CATEGORY_TABS}
+              activeId={selectedCategory}
+              onChange={setSelectedCategory}
+              className="w-full justify-between"
+            />
           </div>
         </section>
 
@@ -409,120 +482,212 @@ export default function FlowerStorefrontPage() {
               />
               <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping" />
             </h2>
-            <p className="text-[11px] text-neutral-500">توصيل فوري لكافة الأحياء</p>
+            <p className="text-[11px] text-neutral-500">أزهار مبردة جاهزة للتوصيل الفوري</p>
           </div>
-          <span className="text-xs text-neutral-400 font-medium">{PRODUCTS.length} منتجات</span>
+          <span className="text-xs text-neutral-400 font-medium">{filteredProducts.length} باقات</span>
         </section>
 
-        {/* 5. شبكة كروت المنتجات الفاخرة (Product Grid) */}
-        <section className="relative z-10 px-4 mt-3 grid grid-cols-2 gap-3.5">
-          {PRODUCTS.map((product) => {
-            const isFav = favorites[product.id];
-            return (
-              <div
-                key={product.id}
-                className="group relative bg-white rounded-3xl p-2.5 border border-neutral-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-              >
-                {/* حاوية الصورة مع الشارات */}
-                <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-neutral-100">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
+        {/* 5. Rule 3: List Staggering (30ms) & Rule 1: Entrance ease-out Product Grid */}
+        <section className="relative z-10 px-4 mt-3">
+          <motion.div
+            variants={listContainerVariants} // Rule 3: staggerChildren: 0.03
+            initial="initial"
+            animate="animate"
+            key={selectedCategory}
+            className="grid grid-cols-2 gap-3.5"
+          >
+            {filteredProducts.map((product) => {
+              const isFav = Boolean(favorites[product.id]);
+              return (
+                <motion.div
+                  key={product.id}
+                  variants={listItemVariants} // Rule 1: ease-out deceleration
+                  whileHover={{ y: -3, transition: { duration: 0.2, ease: EASINGS.easeOut } }}
+                  className="group relative bg-white rounded-3xl p-2.5 border border-neutral-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                >
+                  {/* حاوية الصورة مع الشارات */}
+                  <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-neutral-100">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
 
-                  {/* شارة التمييز */}
-                  {product.badge && (
-                    <div className="absolute top-2 right-2 z-10">
-                      <div
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-semibold backdrop-blur-md border flex items-center gap-1 shadow-sm ${product.badge.color}`}
+                    {/* Rule 6: Secondary Detail Stagger (50ms delay trail after card settles) */}
+                    {product.badge && (
+                      <motion.div
+                        variants={secondaryDetailVariants}
+                        className="absolute top-2 right-2 z-10"
                       >
-                        <span>{product.badge.icon}</span>
-                        <span>{product.badge.text}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* زر المفضلة (Heart Action) */}
-                  <button
-                    onClick={() => toggleFavorite(product.id)}
-                    className="absolute top-2 left-2 z-10 w-7 h-7 rounded-full bg-white/80 backdrop-blur-md border border-white/60 flex items-center justify-center text-xs shadow-sm hover:scale-110 active:scale-90 transition-all"
-                  >
-                    {isFav ? "💖" : "🤍"}
-                  </button>
-                </div>
-
-                {/* تفاصيل المنتج وأزرار الشراء */}
-                <div className="mt-2.5 flex flex-col flex-1 justify-between">
-                  <h3 className="text-xs font-bold text-neutral-800 leading-snug line-clamp-2 min-h-[32px]">
-                    {product.name}
-                  </h3>
-
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-50">
-                    {/* السعر والخصم */}
-                    <div>
-                      <div className="text-sm font-extrabold text-[#123524]">
-                        {product.price}{" "}
-                        <span className="text-[10px] font-normal text-neutral-500">ر.س</span>
-                      </div>
-                      {product.originalPrice && (
-                        <div className="text-[10px] text-neutral-400 line-through">
-                          {product.originalPrice} ر.س
+                        <div
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-semibold backdrop-blur-md border flex items-center gap-1 shadow-sm ${product.badge.color}`}
+                        >
+                          <span>{product.badge.icon}</span>
+                          <span>{product.badge.text}</span>
                         </div>
-                      )}
-                    </div>
+                      </motion.div>
+                    )}
 
-                    {/* زر الإضافة للسلة التفاعلي مع تأثير التحول */}
-                    <motion.button
-                      whileTap={{ scale: 0.88 }}
-                      onClick={() => handleAddToCart(product.id)}
-                      className="w-8 h-8 rounded-full bg-[#123524] text-white flex items-center justify-center text-sm font-bold shadow-md shadow-[#123524]/20 hover:bg-[#1a4a33] transition-colors relative"
-                    >
-                      {flyingToCart === product.id ? "✓" : "+"}
-                    </motion.button>
+                    {/* Rule 18 & 16: Morphing Icon Button (scale + opacity + filter: blur(4px)) */}
+                    <div className="absolute top-2 left-2 z-10">
+                      <MorphingIconButton
+                        isActive={isFav}
+                        onClick={() => toggleFavorite(product.id)}
+                        activeIcon={<span className="text-xs">💖</span>}
+                        inactiveIcon={<span className="text-xs">🤍</span>}
+                        className="w-7 h-7 bg-white/85 backdrop-blur-md border border-white/60 shadow-xs"
+                      />
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-          })}
+
+                  {/* تفاصيل المنتج وأزرار الشراء */}
+                  <div className="mt-2.5 flex flex-col flex-1 justify-between">
+                    <h3 className="text-xs font-bold text-neutral-800 leading-snug line-clamp-2 min-h-[32px]">
+                      {product.name}
+                    </h3>
+
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-50">
+                      {/* السعر والخصم */}
+                      <div>
+                        <div className="text-sm font-extrabold text-[#123524]">
+                          {product.price}{" "}
+                          <span className="text-[10px] font-normal text-neutral-500">ر.س</span>
+                        </div>
+                        {product.originalPrice && (
+                          <div className="text-[10px] text-neutral-400 line-through">
+                            {product.originalPrice} ر.س
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Rule 4: Tactile Button Press (scale: 0.97) + Rule 8: Success Confirmation Pulse */}
+                      <TactileButton
+                        variant="primary"
+                        pulseOnSuccess={true}
+                        onClick={(e) => handleAddToCartWithArc(product, e)}
+                        className="w-8 h-8 !p-0 rounded-full text-xs font-bold"
+                      >
+                        +
+                      </TactileButton>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         </section>
 
         {/* 6. بنر الطلب المخصص السفلي */}
         <section className="relative z-10 mx-4 mt-6 p-4 rounded-3xl bg-gradient-to-br from-[#7E1529] to-[#540D1B] text-white shadow-xl shadow-rose-950/20">
-          <h3 className="text-sm font-bold">طلب مخصص</h3>
-          <p className="text-[11px] text-rose-200 mt-1">ننسق باقتك الفاخرة بإتقان حسب ميزانيتك وذوقك.</p>
-          <button className="mt-3 px-4 py-2 rounded-full bg-white text-[#7E1529] text-xs font-bold shadow-sm hover:bg-rose-50 transition-colors">
-            تنسيق مخصص ←
-          </button>
+          <div className="flex items-start justify-between">
+            <div>
+              <h3 className="text-sm font-bold">طلب تنسيق خاص ومخصص</h3>
+              <p className="text-[11px] text-rose-200 mt-1">ننسق باقتك الفاخرة بإتقان تام حسب ميزانيتك وذوقك الخاص.</p>
+            </div>
+            <span className="text-2xl">🎨</span>
+          </div>
+
+          {/* Rule 4: Tactile Button */}
+          <TactileButton
+            variant="secondary"
+            onClick={() => setIsCustomDrawerOpen(true)}
+            className="mt-3 !py-2 !px-4 text-xs font-bold text-[#7E1529] hover:bg-rose-50"
+          >
+            بدء التنسيق المخصص ←
+          </TactileButton>
         </section>
 
-        {/* شريط السلة العائم السفلي عند إضافة المنتجات */}
-        <AnimatePresence>
+        {/* شريط السلة العائم السفلي (Rule 1: ease-out Entrance, Rule 15: -20% Exit) */}
+        <AnimatePresence {...overlappingStatePresenceProps}>
           {cartCount > 0 && (
             <motion.div
+              ref={cartButtonRef}
               initial={{ y: 80, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 80, opacity: 0 }}
-              className="fixed bottom-4 inset-x-0 max-w-sm mx-auto px-4 z-50 pointer-events-auto"
+              animate={{
+                y: 0,
+                opacity: 1,
+                transition: { duration: 0.25, ease: EASINGS.easeOut }, // Rule 1
+              }}
+              exit={{
+                y: 80,
+                opacity: 0,
+                transition: { duration: 0.2, ease: EASINGS.easeIn }, // Rule 15: -20% exit
+              }}
+              className="fixed bottom-4 inset-x-0 max-w-sm mx-auto px-4 z-40 pointer-events-auto"
             >
               <div className="w-full py-3 px-4 rounded-2xl bg-[#123524] text-white flex items-center justify-between shadow-2xl shadow-emerald-950/40 border border-emerald-700/30">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-emerald-500 text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  {/* Rule 6: Secondary Detail Stagger Badge */}
+                  <motion.span
+                    key={cartCount}
+                    variants={successPulseVariants} // Rule 8: Pulse on item addition
+                    animate="pulse"
+                    className="w-6 h-6 rounded-full bg-emerald-500 text-neutral-900 text-xs font-bold flex items-center justify-center shadow-xs"
+                  >
                     {cartCount}
-                  </span>
-                  <span className="text-xs font-medium">سلة المشتريات جاهزة</span>
+                  </motion.span>
+                  <div>
+                    <span className="text-xs font-medium block">سلة المشتريات جاهزة</span>
+                    {addedItemName && (
+                      <span className="text-[10px] text-emerald-300 font-bold block truncate max-w-[140px] animate-fade-in">
+                        + تم إضافة: {addedItemName}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <button
+
+                <TactileButton
+                  variant="luxury"
                   onClick={() => setIsReceiptModalOpen(true)}
-                  className="text-xs font-bold text-emerald-300 hover:text-white transition-colors cursor-pointer active:scale-95 px-2 py-1 rounded-lg"
+                  className="text-xs font-bold !py-1.5 !px-3 rounded-xl"
                 >
-                  إتمام الطلب وطباعة الفاتورة ←
-                </button>
+                  إتمام الطلب وطباعة الإيصال ←
+                </TactileButton>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Rule 19 & 14 & 13: Rubber-Band Custom Order Drawer with dragElastic={0.18} */}
+        <RubberBandDrawer
+          isOpen={isCustomDrawerOpen}
+          onClose={() => setIsCustomDrawerOpen(false)}
+          title="تنسيق باقة مخصصة حسب الذوق والميزانية"
+        >
+          <div className="space-y-4 text-xs text-stone-700">
+            <p className="leading-relaxed">
+              اختر تفضيلاتك الخاصة ليقوم أمهر منسقي الأزهار بتجهيز باقة فريدة تليق بمناسبتك مع إرسال صورة فوتوغرافية لاعتمادها قبل انطلاق المندوب.
+            </p>
+
+            <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200/60 text-amber-900 flex items-center gap-2">
+              <span className="text-base">✨</span>
+              <span className="font-semibold">يتم التحقق من تفاصيل الطلب وتأكيد السعر المعتمد قبل التوصيل.</span>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="font-bold text-stone-900 block">الميزانية التقريبية المرغوبة:</label>
+              <div className="grid grid-cols-3 gap-2">
+                {["150 ر.س", "250 ر.س", "350+ ر.س"].map((budget, i) => (
+                  <button
+                    key={i}
+                    className="py-2 px-3 rounded-xl border border-stone-200 bg-white hover:border-[#123524] text-center font-bold text-xs cursor-pointer active:scale-95 transition-all"
+                  >
+                    {budget}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <TactileButton
+              variant="primary"
+              onClick={() => setIsCustomDrawerOpen(false)}
+              className="w-full mt-2"
+            >
+              تأكيد خيارات التنسيق والمتابعة
+            </TactileButton>
+          </div>
+        </RubberBandDrawer>
 
         {/* مودال الفاتورة التفاعلي مع طابعة الإيصالات الحرارية ReceiptPrinter */}
         <FloristOrderSlipModal
