@@ -256,6 +256,13 @@ export default function ProductConfiguratorDrawer({
                 alt={isAr ? product.titleAr : product.titleEn}
                 className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl object-cover border shadow-xs"
                 style={{ borderColor: 'var(--border-subtle, #E7E5E4)' }}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                }}
               />
               <span className="absolute bottom-1 right-1 bg-black/75 backdrop-blur-md text-[9px] text-white font-bold px-1.5 py-0.5 rounded-md">
                 {product.price} {strings.sar}

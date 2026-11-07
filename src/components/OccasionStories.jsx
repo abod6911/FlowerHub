@@ -192,9 +192,14 @@ function OccasionStories({
                       src={occ.image}
                       alt={isAr ? occ.nameAr : occ.nameEn}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading={idx < 3 ? 'eager' : 'lazy'}
+                      loading={idx < 5 ? 'eager' : 'lazy'}
                       decoding="async"
+                      fetchPriority={idx < 2 ? 'high' : 'auto'}
                       draggable={false}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                      }}
                     />
                     <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>

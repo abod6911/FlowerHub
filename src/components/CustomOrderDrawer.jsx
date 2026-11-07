@@ -366,6 +366,12 @@ export default function CustomOrderDrawer({
                       src={photo.url}
                       alt={isAr ? photo.titleAr : photo.title}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                      }}
                     />
                     {isSel && (
                       <div

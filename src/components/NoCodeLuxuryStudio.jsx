@@ -182,7 +182,15 @@ function StudioStorefrontLiveSimulation({ config }) {
                 className="w-11 h-11 rounded-full p-0.5 border-2 shadow-2xs overflow-hidden transition-transform active:scale-95"
                 style={{ borderColor: colors.primary }}
               >
-                <img src={occ.img} alt={occ.name} className="w-full h-full object-cover rounded-full" />
+                <img
+                  src={occ.img}
+                  alt={occ.name}
+                  className="w-full h-full object-cover rounded-full"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                  }}
+                />
               </div>
               <span className="text-[9px] font-bold truncate max-w-[50px]" style={{ color: colors.textMain }}>
                 {occ.name}

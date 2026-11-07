@@ -118,8 +118,13 @@ function CoolerSpecialsCarousel({
                       src={product.image}
                       alt={isAr ? product.titleAr : product.titleEn}
                       className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500 ease-out"
-                      loading="lazy"
+                      loading={index < 4 ? 'eager' : 'lazy'}
                       decoding="async"
+                      fetchPriority={index < 2 ? 'high' : 'auto'}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                      }}
                     />
                     <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
                     {badgeCfg && (
@@ -281,8 +286,13 @@ function CoolerSpecialsCarousel({
                     src={product.image}
                     alt={isAr ? product.titleAr : product.titleEn}
                     className="w-full h-full object-cover transition-transform duration-500"
-                    loading="lazy"
+                    loading={idx < 4 ? 'eager' : 'lazy'}
                     decoding="async"
+                    fetchPriority={idx === 0 ? 'high' : 'auto'}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                    }}
                   />
                   {badgeText && (
                     <div className="absolute top-2.5 end-2.5">
@@ -425,8 +435,13 @@ function CoolerSpecialsCarousel({
                       src={product.image}
                       alt={isAr ? product.titleAr : product.titleEn}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
+                      loading="eager"
                       decoding="async"
+                      fetchPriority="high"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                      }}
                     />
                     {badgeText && (
                       <div className="absolute top-2.5 end-2.5">
@@ -554,8 +569,13 @@ function CoolerSpecialsCarousel({
             src={currentItem.image}
             alt={isAr ? currentItem.titleAr : currentItem.titleEn}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.88]"
-            loading="lazy"
+            loading="eager"
             decoding="async"
+            fetchPriority="high"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = './images/products/royal-red-roses.jpg';
+            }}
           />
           {badgeText && (
             <div className="absolute top-3 start-3 z-10">

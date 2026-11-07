@@ -125,21 +125,17 @@ function ProductCard({
         }}
       >
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
-          {/* Skeleton Shimmer while loading */}
-          <div
-            className={`absolute inset-0 bg-stone-200/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
-              imgLoaded ? 'opacity-0' : 'opacity-100'
-            }`}
-          />
           <img
             src={product.image}
             alt={isAr ? product.titleAr : product.titleEn}
-            className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out ${
-              imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-            }`}
-            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+            loading={index < 4 ? 'eager' : 'lazy'}
             decoding="async"
-            onLoad={() => setImgLoaded(true)}
+            fetchPriority={index < 2 ? 'high' : 'auto'}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = './images/products/royal-red-roses.jpg';
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
@@ -207,23 +203,17 @@ function ProductCard({
     >
       {/* 4:5 Aspect Ratio Image with Strict Corner Separation */}
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
-        {/* Skeleton Shimmer while loading */}
-        <div
-          className={`absolute inset-0 bg-stone-200/50 dark:bg-stone-700/50 animate-shimmer transition-opacity duration-300 pointer-events-none ${
-            imgLoaded ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
-
         <img
           src={product.image}
           alt={isAr ? product.titleAr : product.titleEn}
-          className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ease-out ${
-            imgLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-          }`}
-          loading={index < 4 ? 'eager' : 'lazy'}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+          loading={index < 6 ? 'eager' : 'lazy'}
           decoding="async"
-          fetchPriority={index === 0 ? 'high' : 'auto'}
-          onLoad={() => setImgLoaded(true)}
+          fetchPriority={index < 2 ? 'high' : 'auto'}
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = './images/products/royal-red-roses.jpg';
+          }}
         />
 
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />

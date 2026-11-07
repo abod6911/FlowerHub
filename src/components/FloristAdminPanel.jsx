@@ -543,6 +543,10 @@ export default function FloristAdminPanel({
                     src={item.image}
                     alt={isAr ? item.titleAr : item.titleEn}
                     className="w-14 h-14 rounded-xl object-cover shrink-0 bg-stone-100"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <span className="text-[10px] font-semibold text-stone-400 block uppercase">
@@ -586,6 +590,10 @@ export default function FloristAdminPanel({
                           src={product.image}
                           alt={isAr ? product.titleAr : product.titleEn}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                          }}
                         />
                         {isSoldOut && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-[10px] font-bold text-white">
@@ -923,6 +931,10 @@ export default function FloristAdminPanel({
                           src={preset.url}
                           alt={preset.nameEn}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                          }}
                         />
                         {isSelected && (
                           <div className="absolute inset-0 bg-stone-950/40 flex items-center justify-center">
@@ -1343,6 +1355,10 @@ export default function FloristAdminPanel({
                               src={occ.image}
                               alt={occ.nameAr}
                               className="w-full h-full object-cover rounded-full"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                              }}
                             />
                           </div>
                           <span className={`text-[8px] font-bold truncate max-w-[42px] ${themeTokens.textMain}`}>
@@ -1368,9 +1384,13 @@ export default function FloristAdminPanel({
                     <div className={`p-2 rounded-xl border border-stone-200/60 dark:border-stone-700/60 flex items-center justify-between gap-2 shadow-2xs ${themeTokens.cardBg}`}>
                       <div className="flex items-center gap-2 min-w-0">
                         <img
-                          src={products[0]?.imageUrl || './images/products/royal-red-roses.jpg'}
+                          src={products[0]?.image || products[0]?.imageUrl || './images/products/royal-red-roses.jpg'}
                           alt="Product"
                           className="w-9 h-9 rounded-lg object-cover shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                          }}
                         />
                         <div className="min-w-0">
                           <span className={`text-[10px] font-bold truncate block ${themeTokens.textMain}`}>
@@ -1412,9 +1432,13 @@ export default function FloristAdminPanel({
                       >
                         <div className="aspect-[4/3] rounded-lg overflow-hidden mb-1.5 bg-stone-100">
                           <img
-                            src={prod.imageUrl}
+                            src={prod.image || prod.imageUrl || './images/products/royal-red-roses.jpg'}
                             alt={prod.titleAr}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                            }}
                           />
                         </div>
                         <h5 className={`text-[9px] font-bold truncate ${themeTokens.textMain}`}>
@@ -2294,7 +2318,15 @@ export default function FloristAdminPanel({
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className="relative w-9 h-9 rounded-full overflow-hidden border border-stone-200 shrink-0 bg-stone-100">
-                        <img src={occ.image} alt={occ.nameAr} className="w-full h-full object-cover" />
+                        <img
+                          src={occ.image}
+                          alt={occ.nameAr}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                          }}
+                        />
                         {!isVisible && (
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
                             <EyeOff className="w-3.5 h-3.5" />

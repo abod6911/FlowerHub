@@ -276,6 +276,12 @@ export default function CartDrawer({
                       src={item.image}
                       alt={isAr ? item.titleAr : item.titleEn}
                       className="w-18 h-22 rounded-xl object-cover shrink-0 border border-stone-200 dark:border-stone-700 bg-stone-100"
+                      loading="eager"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                      }}
                     />
 
                     {/* Details */}
