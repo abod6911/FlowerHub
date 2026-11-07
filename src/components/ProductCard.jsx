@@ -273,17 +273,17 @@ function ProductCard({
           <div className="flex flex-col items-start leading-none min-w-0">
             {product.originalPrice && (
               <span className="text-[10px] text-stone-400 line-through mb-0.5">
-                {isAr ? toArabicDigits(product.originalPrice) : product.originalPrice}
+                {product.originalPrice}
               </span>
             )}
-            <div className="flex items-baseline gap-0.5">
+            <div className="flex items-baseline gap-1">
               <span
                 className="text-sm font-extrabold text-[var(--accent-primary,#123524)] dark:text-emerald-400 tracking-tight"
                 style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
               >
-                {isAr ? toArabicDigits(product.price) : product.price}
+                {product.price}
               </span>
-              <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">
+              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400">
                 {strings.sar}
               </span>
             </div>

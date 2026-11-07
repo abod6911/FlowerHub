@@ -22,10 +22,10 @@ function StickyFilterBar({
   const isAr = lang === 'ar';
 
   const budgetOptions = [
-    { id: 'all', label: strings.budgetAll || 'الكل' },
-    { id: 'under_150', label: strings.budgetUnder150 || 'أقل من ١٥٠ ر.س' },
-    { id: '150_250', label: strings.budget150to250 || '١٥٠ - ٢٥٠ ر.س' },
-    { id: 'over_250', label: strings.budgetOver250 || '+٢٥٠ ر.س' },
+    { id: 'all', label: isAr ? 'جميع الأسعار' : 'All Prices' },
+    { id: 'under_150', label: isAr ? 'أقل من 150 ر.س' : '< 150 SAR' },
+    { id: '150_250', label: isAr ? '150 - 250 ر.س' : '150 - 250 SAR' },
+    { id: 'over_250', label: isAr ? '+250 ر.س فاخر' : '250+ SAR Luxury' },
   ];
 
   return (
@@ -65,7 +65,7 @@ function StickyFilterBar({
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>
               {isAr
-                ? `${toArabicDigits(itemsCount)} باقة`
+                ? `${itemsCount} باقة`
                 : `${itemsCount} items`}
             </span>
           </span>

@@ -148,14 +148,14 @@ function CoolerSpecialsCarousel({
                           className="text-sm sm:text-base font-extrabold text-[var(--accent-primary,#123524)] dark:text-emerald-400 tracking-tight"
                           style={{ fontFamily: "'Readex Pro', 'Cairo', 'Alexandria', sans-serif" }}
                         >
-                          {isAr ? toArabicDigits(product.price) : product.price}
+                          {product.price}
                         </span>
-                        <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400">
+                        <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400">
                           {strings.sar}
                         </span>
                         {product.originalPrice && (
                           <span className="text-[10px] line-through text-stone-400 ms-1">
-                            {isAr ? toArabicDigits(product.originalPrice) : product.originalPrice}
+                            {product.originalPrice}
                           </span>
                         )}
                       </div>

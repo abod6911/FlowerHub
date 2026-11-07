@@ -16,8 +16,301 @@ import {
   Sliders,
   Layers,
   Zap,
+  Search,
+  MapPin,
+  Clock,
+  Plus,
+  Heart,
 } from 'lucide-react';
 import { useStudioStore } from '../context/StudioThemeContext';
+
+function StudioStorefrontLiveSimulation({ config }) {
+  const colors = config?.colors || {
+    primary: '#7E1529',
+    secondary: '#BE123C',
+    canvasBg: '#FAF8F5',
+    cardSurface: '#FFFFFF',
+    textMain: '#1C1917',
+    textMuted: '#78716C',
+    priceColor: '#7E1529',
+  };
+
+  const headerFont =
+    config?.typography?.headerFont === 'Cairo'
+      ? "'Cairo', sans-serif"
+      : config?.typography?.headerFont === 'Readex Pro'
+      ? "'Readex Pro', sans-serif"
+      : config?.typography?.headerFont === 'Aref Ruqaa'
+      ? "'Aref Ruqaa', serif"
+      : config?.typography?.headerFont === 'Playfair'
+      ? "'Playfair Display', serif"
+      : "'Amiri', serif";
+
+  const catalogFont =
+    config?.typography?.catalogFont === 'Amiri'
+      ? "'Amiri', serif"
+      : config?.typography?.catalogFont === 'Cairo'
+      ? "'Cairo', sans-serif"
+      : "'Readex Pro', sans-serif";
+
+  const cardRadius = config?.cardBorderRadius ?? 20;
+
+  const sampleProducts = [
+    {
+      id: 'p1',
+      title: 'بوكيه الروز الملكي',
+      price: 245,
+      tag: 'الأكثر طلباً',
+      image: './images/products/royal-red-roses.jpg',
+    },
+    {
+      id: 'p2',
+      title: 'فازة كازابلانكا وأوركيد',
+      price: 360,
+      tag: 'تنسيق فاخر',
+      image: './images/products/casablanca-orchid-vase.jpg',
+    },
+    {
+      id: 'p3',
+      title: 'هيدرنجيا وروز باستيل',
+      price: 280,
+      tag: 'جاهز اليوم',
+      image: './images/products/blush-hydrangea-vase.jpg',
+    },
+    {
+      id: 'p4',
+      title: 'بوكس أكريليك الاحتفالات',
+      price: 420,
+      tag: 'إهداء خاص',
+      image: './images/products/acrylic-box-celebration.jpg',
+    },
+  ];
+
+  const [activeItemAdded, setActiveItemAdded] = useState(null);
+
+  const handleAdd = (id) => {
+    setActiveItemAdded(id);
+    setTimeout(() => setActiveItemAdded(null), 1200);
+  };
+
+  return (
+    <div
+      className="p-3 sm:p-4 space-y-3 select-none text-start transition-all duration-300"
+      style={{
+        backgroundColor: colors.canvasBg,
+        color: colors.textMain,
+        fontFamily: catalogFont,
+      }}
+    >
+      {/* 1. Header Card */}
+      <div
+        className="p-3.5 rounded-2xl border border-stone-200/70 shadow-xs space-y-2.5 transition-all duration-300"
+        style={{ backgroundColor: colors.cardSurface }}
+      >
+        <div className="flex items-center justify-between gap-2">
+          {/* Rating */}
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-800 border border-amber-300/40 flex items-center gap-1 shadow-2xs">
+            <span className="text-amber-500">★</span> 4.9
+          </span>
+
+          {/* Status Pill */}
+          <span
+            className="text-[9px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs text-white"
+            style={{ backgroundColor: colors.primary }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="truncate max-w-[130px]">{config?.statusText || 'مفتوح • تجهيز فوري ٢٠ د'}</span>
+          </span>
+
+          {/* Logo / Monogram Seal */}
+          <div
+            className="w-8 h-8 rounded-xl overflow-hidden text-amber-300 flex items-center justify-center font-serif text-xs font-bold shadow-xs border border-amber-400/40 shrink-0"
+            style={{ backgroundColor: colors.primary }}
+          >
+            {config?.avatarUrl ? (
+              <img src={config.avatarUrl} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <span>{config?.avatarText || 'د.و'}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Store Title & Tagline */}
+        <div className="text-center pt-0.5">
+          <h2
+            className="font-black text-lg leading-tight"
+            style={{ fontFamily: headerFont, color: colors.textMain }}
+          >
+            {config?.storeName || 'دار الورد للمناسبات'}
+          </h2>
+          <p
+            className="text-[11px] mt-0.5 truncate"
+            style={{ color: colors.textMuted }}
+          >
+            {config?.storeSubtitle || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب'}
+          </p>
+          <div className="inline-flex items-center gap-1 text-[9px] font-medium text-stone-500 mt-1 px-2 py-0.5 rounded-full bg-stone-100/80">
+            <MapPin className="w-2.5 h-2.5 text-stone-400" />
+            <span>{config?.locationLabel || 'الرياض • التوصيل لكافة الأحياء'}</span>
+          </div>
+        </div>
+
+        {/* Search Mockup */}
+        <div className="pt-0.5">
+          <div className="w-full py-1.5 px-2.5 rounded-xl bg-stone-50 border border-stone-200 text-[10px] text-stone-400 flex items-center justify-between">
+            <span>ابحث عن باقة، فازة، أو مناسبة...</span>
+            <Search className="w-3 h-3 text-stone-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Occasion Circles Reel */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-[11px] font-bold">
+          <span style={{ color: colors.textMain }}>المناسبات</span>
+          <span className="text-[9px] text-stone-400">تصفح سريع</span>
+        </div>
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          {[
+            { id: 'specials', name: 'جاهز اليوم', img: './images/occasions/occasion-ready-today.jpg' },
+            { id: 'grad', name: 'تخرج', img: './images/occasions/occasion-graduation.jpg' },
+            { id: 'romance', name: 'حب ورومانسية', img: './images/occasions/occasion-romance.jpg' },
+            { id: 'newborn', name: 'مواليد', img: './images/occasions/occasion-newborn.jpg' },
+          ].map((occ) => (
+            <div key={occ.id} className="flex flex-col items-center gap-1 shrink-0">
+              <div
+                className="w-11 h-11 rounded-full p-0.5 border-2 shadow-2xs overflow-hidden transition-transform active:scale-95"
+                style={{ borderColor: colors.primary }}
+              >
+                <img src={occ.img} alt={occ.name} className="w-full h-full object-cover rounded-full" />
+              </div>
+              <span className="text-[9px] font-bold truncate max-w-[50px]" style={{ color: colors.textMain }}>
+                {occ.name}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Daily Specials Card */}
+      <div
+        className="p-2.5 rounded-2xl border border-stone-200/70 shadow-xs flex items-center justify-between gap-2.5 transition-all"
+        style={{ backgroundColor: colors.cardSurface }}
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <img
+            src="./images/products/royal-red-roses.jpg"
+            alt="Royal Roses"
+            className="w-12 h-12 rounded-xl object-cover shrink-0 bg-stone-100"
+          />
+          <div className="min-w-0">
+            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200/60 inline-block mb-0.5">
+              جاهز بالثلاجة ❄️
+            </span>
+            <h4 className="text-xs font-bold truncate" style={{ color: colors.textMain }}>
+              بوكيه الروز الملكي
+            </h4>
+            <span className="text-xs font-black" style={{ color: colors.priceColor }}>
+              245 ر.س
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="px-3 py-1.5 rounded-full text-white font-bold text-[10px] shadow-xs active:scale-95 shrink-0"
+          style={{ backgroundColor: colors.primary }}
+        >
+          حجز فوري
+        </button>
+      </div>
+
+      {/* 4. Bespoke Custom Bouquet Banner */}
+      <div className="p-2.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950 text-white flex items-center justify-between shadow-xs">
+        <div>
+          <span className="text-xs font-bold block">🎨 صمم باقتك الخاصة حسب ذوقك</span>
+          <span className="text-[10px] text-stone-300 block">ننسقها بعناية حسب ميزانيتك</span>
+        </div>
+        <span className="px-2.5 py-1 rounded-full bg-amber-400 text-stone-950 font-bold text-[10px] shrink-0 shadow-xs">
+          طلب خاص
+        </span>
+      </div>
+
+      {/* 5. Product Grid (2 columns) */}
+      <div className="space-y-1.5 pt-1">
+        <div className="flex items-center justify-between text-[11px] font-bold">
+          <span style={{ color: colors.textMain }}>جميع التنسيقات الفاخرة</span>
+          <span className="text-[9px] text-stone-400">4 باقات مختارة</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          {sampleProducts.map((p) => {
+            const isAdded = activeItemAdded === p.id;
+            return (
+              <div
+                key={p.id}
+                className="border border-stone-200/70 p-2 flex flex-col justify-between transition-all group overflow-hidden shadow-xs"
+                style={{
+                  backgroundColor: colors.cardSurface,
+                  borderRadius: `${cardRadius}px`,
+                }}
+              >
+                <div>
+                  <div className="aspect-[4/5] rounded-xl overflow-hidden mb-2 bg-stone-100 relative">
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <span className="absolute top-1.5 right-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-white/95 text-stone-900 shadow-2xs">
+                      {p.tag}
+                    </span>
+                  </div>
+
+                  <h4
+                    className="text-xs font-bold truncate leading-snug"
+                    style={{ color: colors.textMain }}
+                  >
+                    {p.title}
+                  </h4>
+                  <span className="text-[10px] text-stone-400 block mt-0.5">توصيل ساعتين • مبرد</span>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 mt-1 border-t border-stone-100">
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-xs font-black" style={{ color: colors.priceColor }}>
+                      {p.price}
+                    </span>
+                    <span className="text-[9px] text-stone-500 font-medium">ر.س</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(p.id)}
+                    className="px-2.5 py-1 rounded-full text-white font-bold text-[10px] transition-all active:scale-90 shadow-2xs flex items-center gap-1"
+                    style={{ backgroundColor: isAdded ? '#059669' : colors.primary }}
+                  >
+                    {isAdded ? (
+                      <>
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        <span>أُضيف</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-2.5 h-2.5 stroke-[3]" />
+                        <span>أضف</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function NoCodeLuxuryStudio({
   isOpen,
@@ -174,25 +467,33 @@ export default function NoCodeLuxuryStudio({
         {/* MAIN BODY: SPLIT VIEWPORT & CONTROLS SIDEBAR             */}
         {/* ======================================================== */}
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          {/* LEFT: IPHONE 16 VIEWPORT SIMULATION (Interactive 60fps) */}
-          <div className="hidden lg:flex flex-1 bg-stone-200/70 p-6 items-center justify-center overflow-hidden relative">
-            <div className="absolute top-4 left-6 flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-semibold text-stone-700 shadow-xs border border-white/60">
-              <Smartphone className="w-3.5 h-3.5 text-stone-500" />
-              <span>معاينة آيفون ١٦ التفاعلية (مباشر 60fps)</span>
+          {/* IPHONE 16 VIEWPORT SIMULATION (Interactive 60fps) */}
+          <div className="hidden lg:flex flex-1 bg-stone-100/80 p-6 items-center justify-center overflow-hidden relative select-none">
+            {/* Centered Top Badge */}
+            <div className="absolute top-3 inset-x-0 mx-auto w-fit z-20 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-stone-700 shadow-sm border border-stone-200/60">
+              <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
+              <span>معاينة المتجر الحية المباشرة (تفاعلي 60fps)</span>
             </div>
 
-            {/* iPhone 16 Viewport Specification: w-[380px] h-[780px] rounded-[44px] border-[8px] border-neutral-900 shadow-2xl overflow-y-auto */}
-            <div className="w-[380px] h-[780px] rounded-[44px] border-[8px] border-neutral-900 shadow-2xl overflow-hidden flex flex-col relative bg-white">
+            {/* iPhone 16 Viewport Specification */}
+            <div className="w-[380px] h-[760px] rounded-[44px] border-[8px] border-neutral-900 shadow-2xl overflow-hidden flex flex-col relative bg-stone-900 ring-1 ring-stone-800">
               {/* Dynamic Island Pill */}
               <div className="h-7 w-full bg-neutral-900 flex justify-center items-center shrink-0">
                 <div className="w-28 h-4 bg-black rounded-full flex items-center justify-end px-2">
-                  <div className="w-2 h-2 rounded-full bg-neutral-800" />
+                  <div className="w-2 h-2 rounded-full bg-emerald-500/80 animate-pulse" />
                 </div>
               </div>
 
               {/* Scrollable Storefront Preview Content */}
-              <div className="flex-1 overflow-y-auto no-scrollbar relative" style={{ backgroundColor: 'var(--bg-canvas, #FAF8F5)' }}>
-                {renderPreviewContent && renderPreviewContent()}
+              <div
+                className="flex-1 overflow-y-auto no-scrollbar relative transition-colors duration-300"
+                style={{ backgroundColor: config?.colors?.canvasBg || '#FAF8F5' }}
+              >
+                {renderPreviewContent ? (
+                  renderPreviewContent()
+                ) : (
+                  <StudioStorefrontLiveSimulation config={config} />
+                )}
               </div>
             </div>
           </div>

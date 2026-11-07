@@ -297,8 +297,8 @@ function ShopHeader({
 
           {/* Center Brand Identity */}
           <div className="w-full py-4 relative z-10 flex flex-col items-center justify-center text-center">
-            <span className="text-[10px] tracking-widest uppercase font-serif text-amber-300 font-bold px-2.5 py-0.5 rounded-full bg-amber-400/20 backdrop-blur-md border border-amber-400/40 mb-1.5">
-              ⚜ MAISON DES FLEURS • دار الورد ⚜
+            <span className="text-[10px] tracking-widest font-serif text-amber-300 font-bold px-3 py-0.5 rounded-full bg-amber-400/15 backdrop-blur-md border border-amber-400/30 mb-1.5">
+              {isAr ? 'بوتيك أزهار وهدايا فاخرة' : 'Luxury Floral Boutique'}
             </span>
             <h1 className="text-2xl sm:text-4xl font-serif font-black text-amber-50 drop-shadow-md leading-tight">
               {shopName}
