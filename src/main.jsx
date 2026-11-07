@@ -27,6 +27,10 @@ class ErrorBoundary extends Component {
     }
   };
 
+  handleSoftRetry = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   render() {
     if (this.state.hasError) {
       return (
@@ -56,21 +60,48 @@ class ErrorBoundary extends Component {
             <p style={{ fontSize: '13px', color: '#78716C', marginBottom: '20px' }}>
               يمكنك استعادة ضبط المصنع ومسح الإعدادات المؤقتة لتشغيل المتجر مباشرة.
             </p>
-            <button
-              onClick={this.handleReset}
-              style={{
-                backgroundColor: '#022C22',
-                color: '#ffffff',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '9999px',
-                fontWeight: 'bold',
-                fontSize: '13px',
-                cursor: 'pointer'
-              }}
-            >
-              إعادة ضبط وتشغيل المتجر
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                onClick={this.handleReset}
+                style={{
+                  backgroundColor: '#022C22',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '12px 24px',
+                  borderRadius: '9999px',
+                  fontWeight: 'bold',
+                  fontSize: '13px',
+                  cursor: 'pointer'
+                }}
+              >
+                إعادة ضبط وتشغيل المتجر
+              </button>
+              <button
+                onClick={this.handleSoftRetry}
+                style={{
+                  backgroundColor: '#F5F5F4',
+                  color: '#44403C',
+                  border: '1px solid #E7E5E4',
+                  padding: '10px 20px',
+                  borderRadius: '9999px',
+                  fontWeight: '600',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                محاولة المتابعة
+              </button>
+            </div>
+            {this.state.error && (
+              <details style={{ marginTop: '16px', textAlign: 'left', fontSize: '11px', color: '#991B1B' }}>
+                <summary style={{ cursor: 'pointer', textAlign: 'center', color: '#A8A29E', fontSize: '11px' }}>
+                  تفاصيل الخطأ التقني
+                </summary>
+                <pre style={{ marginTop: '8px', padding: '8px', background: '#FEF2F2', borderRadius: '8px', overflow: 'auto', maxHeight: '100px', whiteSpace: 'pre-wrap' }}>
+                  {String(this.state.error?.message || this.state.error)}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
       );

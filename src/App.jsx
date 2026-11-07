@@ -27,6 +27,25 @@ const FlowerStorefrontPage = React.lazy(() => import('./components/FlowerStorefr
 const NoCodeLuxuryStudio = React.lazy(() => import('./components/NoCodeLuxuryStudio'));
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
 
+class SafeErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error, info) {
+    console.warn('SafeErrorBoundary caught component error:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || null;
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
   // Language & RTL State
   const [lang, setLang] = useState('ar');
@@ -827,12 +846,14 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       </React.Suspense>
 
       {/* Live No-Code Luxury Design Studio Drawer */}
-      <React.Suspense fallback={null}>
-        <NoCodeLuxuryStudio
-          isOpen={isDesignStudioOpen}
-          onClose={() => setIsDesignStudioOpen(false)}
-        />
-      </React.Suspense>
+      <SafeErrorBoundary fallback={null}>
+        <React.Suspense fallback={null}>
+          <NoCodeLuxuryStudio
+            isOpen={isDesignStudioOpen}
+            onClose={() => setIsDesignStudioOpen(false)}
+          />
+        </React.Suspense>
+      </SafeErrorBoundary>
 
       {/* Toast Notification */}
       {toastMessage && (

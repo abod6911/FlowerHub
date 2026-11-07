@@ -107,17 +107,19 @@ export const loadStoredStudioConfig = () => {
       ...parsed,
       colors: {
         ...DEFAULT_STUDIO_CONFIG.colors,
-        ...(parsed.colors || {}),
+        ...(parsed?.colors || {}),
       },
       typography: {
         ...DEFAULT_STUDIO_CONFIG.typography,
-        ...(parsed.typography || {}),
+        ...(parsed?.typography || {}),
       },
       typeGarden: {
         ...DEFAULT_TYPE_GARDEN_CONFIG,
-        ...(parsed.typeGarden || {}),
+        ...(parsed?.typeGarden || {}),
       },
-      sections: parsed.sections && parsed.sections.length > 0 ? parsed.sections : DEFAULT_STUDIO_CONFIG.sections,
+      sections: Array.isArray(parsed?.sections) && parsed.sections.length > 0
+        ? parsed.sections
+        : DEFAULT_STUDIO_CONFIG.sections,
       hasUnsavedChanges: false,
     };
   } catch {
@@ -133,10 +135,29 @@ export function StudioThemeProvider({ children }) {
   // Cross-tab and window event listener
   useEffect(() => {
     const handleSync = (e) => {
-      if (e?.detail) {
-        setConfig((prev) => ({ ...prev, ...e.detail }));
-      } else {
-        setConfig(loadStoredStudioConfig());
+      try {
+        if (e?.detail) {
+          const detail = e.detail;
+          setConfig((prev) => ({
+            ...prev,
+            ...detail,
+            colors: {
+              ...(prev?.colors || DEFAULT_STUDIO_CONFIG.colors),
+              ...(detail.colors || {}),
+            },
+            typography: {
+              ...(prev?.typography || DEFAULT_STUDIO_CONFIG.typography),
+              ...(detail.typography || {}),
+            },
+            sections: Array.isArray(detail.sections) && detail.sections.length > 0
+              ? detail.sections
+              : (prev?.sections || DEFAULT_STUDIO_CONFIG.sections),
+          }));
+        } else {
+          setConfig(loadStoredStudioConfig());
+        }
+      } catch (err) {
+        console.warn('Error in handleSync event listener:', err);
       }
     };
     window.addEventListener(STUDIO_SYNC_EVENT, handleSync);
@@ -151,30 +172,29 @@ export function StudioThemeProvider({ children }) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
-    const { colors, typography, cardBorderRadius } = config;
+    const { colors, typography, cardBorderRadius } = config || {};
 
-    if (colors) {
-      root.style.setProperty('--accent-primary', colors.primary);
-      root.style.setProperty('--accent-gold', colors.secondary);
-      root.style.setProperty('--bg-canvas', colors.canvasBg);
-      root.style.setProperty('--surface-card', colors.cardSurface);
-      root.style.setProperty('--text-main', colors.textMain);
-      root.style.setProperty('--text-muted', colors.textMuted);
-      root.style.setProperty('--color-price', colors.priceColor || colors.primary);
-      root.style.setProperty('--pill-inactive-bg', colors.sandPill || '#F5F5F4');
-      root.style.setProperty('--border-subtle', colors.borderSubtle || '#E7E5E4');
-    }
+    const safeColors = colors || DEFAULT_STUDIO_CONFIG.colors;
+    root.style.setProperty('--accent-primary', safeColors.primary || '#7E1529');
+    root.style.setProperty('--accent-gold', safeColors.secondary || '#BE123C');
+    root.style.setProperty('--bg-canvas', safeColors.canvasBg || '#FAF8F5');
+    root.style.setProperty('--surface-card', safeColors.cardSurface || '#FFFFFF');
+    root.style.setProperty('--text-main', safeColors.textMain || '#1C1917');
+    root.style.setProperty('--text-muted', safeColors.textMuted || '#78716C');
+    root.style.setProperty('--color-price', safeColors.priceColor || safeColors.primary || '#7E1529');
+    root.style.setProperty('--pill-inactive-bg', safeColors.sandPill || '#F5F5F4');
+    root.style.setProperty('--border-subtle', safeColors.borderSubtle || '#E7E5E4');
 
-    if (typography) {
-      root.style.setProperty('--font-header', `'${typography.headerFont}', serif`);
-      root.style.setProperty('--font-catalog', `'${typography.catalogFont}', 'Cairo', sans-serif`);
-      root.style.setProperty('--base-font-size', `${typography.baseFontSize}px`);
-      root.style.setProperty('--heading-scale', `${typography.headingScale}`);
-      root.style.setProperty('--body-line-height', `${typography.lineHeight}`);
-    }
+    const safeTypo = typography || DEFAULT_STUDIO_CONFIG.typography;
+    root.style.setProperty('--font-header', `'${safeTypo.headerFont || 'Amiri'}', serif`);
+    root.style.setProperty('--font-catalog', `'${safeTypo.catalogFont || 'Cairo'}', 'Cairo', sans-serif`);
+    root.style.setProperty('--base-font-size', `${safeTypo.baseFontSize || 15}px`);
+    root.style.setProperty('--heading-scale', `${safeTypo.headingScale || 1.15}`);
+    root.style.setProperty('--body-line-height', `${safeTypo.lineHeight || 1.45}`);
 
-    root.style.setProperty('--radius-card', `${cardBorderRadius}px`);
-    root.style.setProperty('--radius-unit', `${cardBorderRadius}px`);
+    const safeRadius = cardBorderRadius ?? 22;
+    root.style.setProperty('--radius-card', `${safeRadius}px`);
+    root.style.setProperty('--radius-unit', `${safeRadius}px`);
   }, [config]);
 
   // Update one or more fields in the store
@@ -213,18 +233,22 @@ export function StudioThemeProvider({ children }) {
 
   // Sections manager
   const toggleSection = useCallback((sectionId) => {
-    setConfig((prev) => ({
-      ...prev,
-      hasUnsavedChanges: true,
-      sections: prev.sections.map((sec) =>
-        sec.id === sectionId ? { ...sec, visible: !sec.visible } : sec
-      ),
-    }));
+    setConfig((prev) => {
+      const currentSections = Array.isArray(prev?.sections) ? prev.sections : DEFAULT_STUDIO_CONFIG.sections;
+      return {
+        ...prev,
+        hasUnsavedChanges: true,
+        sections: currentSections.map((sec) =>
+          sec.id === sectionId ? { ...sec, visible: !sec.visible } : sec
+        ),
+      };
+    });
   }, []);
 
   const moveSection = useCallback((index, direction) => {
     setConfig((prev) => {
-      const items = [...prev.sections];
+      const currentSections = Array.isArray(prev?.sections) ? prev.sections : DEFAULT_STUDIO_CONFIG.sections;
+      const items = [...currentSections];
       const targetIndex = direction === 'up' ? index - 1 : index + 1;
       if (targetIndex < 0 || targetIndex >= items.length) return prev;
       const temp = items[index];
@@ -241,28 +265,72 @@ export function StudioThemeProvider({ children }) {
   // Publish changes to localStorage and broadcast event
   const publishConfig = useCallback(() => {
     try {
-      localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(config));
-      // Backwards sync with botanical brand config
-      saveBotanicalBrandConfig({
-        text: config.storeName,
-        fontFamily: config.typography?.headerFont || 'Amiri',
-        paletteId: config.botanicalPalette || 'royalBurgundy',
-        motionMode: config.botanicalMotion || 'gust',
-        density: config.botanicalDensity || 'balanced',
-        seed: config.botanicalSeed || 48271,
-        scale: 1.0,
-        bloomSize: config.bloomSize || 52,
-        stemThickness: config.stemThickness || 1.8,
-        safeZoneOffset: config.safeZoneOffset || 0,
-        animationSpeed: config.animationSpeed || 1.0,
-        swayIntensity: config.swayIntensity || 4,
-        botanicalEnabled: config.botanicalEnabled !== false,
-      });
+      const safeConfig = {
+        ...DEFAULT_STUDIO_CONFIG,
+        ...config,
+        colors: {
+          ...DEFAULT_STUDIO_CONFIG.colors,
+          ...(config?.colors || {}),
+        },
+        typography: {
+          ...DEFAULT_STUDIO_CONFIG.typography,
+          ...(config?.typography || {}),
+        },
+        sections: Array.isArray(config?.sections) && config.sections.length > 0
+          ? config.sections
+          : DEFAULT_STUDIO_CONFIG.sections,
+        hasUnsavedChanges: false,
+      };
 
-      setConfig((prev) => ({ ...prev, hasUnsavedChanges: false }));
+      // 1. Persist studio configuration
+      localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify(safeConfig));
 
+      // 2. Cross-sync with flowerhub_shop_config so Florist Admin & Customer Storefront reflect changes
+      try {
+        const rawShop = localStorage.getItem('flowerhub_shop_config');
+        const shop = rawShop ? JSON.parse(rawShop) : {};
+        localStorage.setItem(
+          'flowerhub_shop_config',
+          JSON.stringify({
+            ...shop,
+            shopNameAr: safeConfig.storeName || shop.shopNameAr,
+            taglineAr: safeConfig.storeSubtitle || shop.taglineAr,
+            phone: safeConfig.phone || shop.phone,
+            locationLabel: safeConfig.locationLabel || shop.locationLabel,
+          })
+        );
+      } catch (e) {
+        console.warn('Sync to flowerhub_shop_config failed:', e);
+      }
+
+      // 3. Backwards sync with botanical brand config
+      try {
+        saveBotanicalBrandConfig({
+          text: safeConfig.storeName || DEFAULT_STUDIO_CONFIG.storeName,
+          fontFamily: safeConfig.typography?.headerFont || 'Amiri',
+          paletteId: safeConfig.botanicalPalette || 'royalBurgundy',
+          motionMode: safeConfig.botanicalMotion || 'gust',
+          density: safeConfig.botanicalDensity || 'balanced',
+          seed: safeConfig.botanicalSeed || 48271,
+          scale: 1.0,
+          bloomSize: safeConfig.bloomSize || 52,
+          stemThickness: safeConfig.stemThickness || 1.8,
+          safeZoneOffset: safeConfig.safeZoneOffset || 0,
+          animationSpeed: safeConfig.animationSpeed || 1.0,
+          swayIntensity: safeConfig.swayIntensity || 4,
+          botanicalEnabled: safeConfig.botanicalEnabled !== false,
+          updatedAt: Date.now(),
+        });
+      } catch (err) {
+        console.warn('saveBotanicalBrandConfig failed:', err);
+      }
+
+      // 4. Update local state
+      setConfig(safeConfig);
+
+      // 5. Broadcast synchronized event
       window.dispatchEvent(
-        new CustomEvent(STUDIO_SYNC_EVENT, { detail: config })
+        new CustomEvent(STUDIO_SYNC_EVENT, { detail: safeConfig })
       );
       return true;
     } catch (err) {

@@ -25,14 +25,14 @@ import {
 import { useStudioStore } from '../context/StudioThemeContext';
 
 function StudioStorefrontLiveSimulation({ config }) {
-  const colors = config?.colors || {
-    primary: '#7E1529',
-    secondary: '#BE123C',
-    canvasBg: '#FAF8F5',
-    cardSurface: '#FFFFFF',
-    textMain: '#1C1917',
-    textMuted: '#78716C',
-    priceColor: '#7E1529',
+  const colors = {
+    primary: config?.colors?.primary || '#7E1529',
+    secondary: config?.colors?.secondary || '#BE123C',
+    canvasBg: config?.colors?.canvasBg || '#FAF8F5',
+    cardSurface: config?.colors?.cardSurface || '#FFFFFF',
+    textMain: config?.colors?.textMain || '#1C1917',
+    textMuted: config?.colors?.textMuted || '#78716C',
+    priceColor: config?.colors?.priceColor || config?.colors?.primary || '#7E1529',
   };
 
   const headerFont =
@@ -344,9 +344,16 @@ export default function NoCodeLuxuryStudio({
   };
 
   const handlePublish = () => {
-    const ok = publishConfig();
-    if (ok) {
-      showToast('✨ تم نشر وتثبيت التعديلات على المتجر بنجاح!');
+    try {
+      const ok = publishConfig();
+      if (ok) {
+        showToast('✨ تم نشر وتثبيت كافة التعديلات على المتجر بنجاح!');
+      } else {
+        showToast('تعذر حفظ التعديلات في الذاكرة');
+      }
+    } catch (err) {
+      console.error('Failed to handle publish:', err);
+      showToast('حدث خطأ أثناء نشر التعديلات');
     }
   };
 
