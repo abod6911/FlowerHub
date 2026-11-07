@@ -402,121 +402,136 @@ export default function FloristAdminPanel({
   return (
     <div className="w-full max-w-6xl mx-auto bg-[#FAF9F6] min-h-screen text-stone-900 flex flex-col pb-28 transition-all">
       {/* 1. Florist Admin Top Live Status Bar */}
-      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80 px-4 py-3 shadow-xs">
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h1 className="text-sm font-bold text-stone-900 tracking-tight">
-              {isAr ? 'لوحة تحكم المنسق المباشرة' : 'Florist Live Studio'}
-            </h1>
+      {/* 1. Atelier Header & Boutique Status Control */}
+      <div className="sticky top-0 z-30 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-stone-200/80 px-4 sm:px-6 py-3.5 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Atelier Brand Title & Active Ticket */}
+          <div className="flex items-center justify-between sm:justify-start gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-stone-900 text-amber-300 font-serif font-bold text-xs flex items-center justify-center border border-amber-400/20 shadow-xs">
+                د.و
+              </div>
+              <div>
+                <h1 className="text-sm sm:text-base font-bold font-serif text-stone-900 tracking-tight flex items-center gap-1.5">
+                  <span>{isAr ? 'استوديو إدارة المتجر والمنسق' : 'Florist Management Studio'}</span>
+                </h1>
+                <span className="text-[10px] text-stone-400 block font-sans">
+                  {isAr ? 'إدارة حية للمعروض، الطلبات، والتدفق المالي' : 'Live catalog, order flows & financials'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onOpenOrderSlip}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-stone-50 text-stone-800 text-[11px] font-semibold border border-stone-200/90 shadow-2xs hover:shadow-xs transition-all active:scale-95 cursor-pointer"
+              title={isAr ? 'عرض تذكرة الطلب المباشرة' : 'View live order slip'}
+            >
+              <FileText className="w-3.5 h-3.5 text-stone-600" />
+              <span className="font-mono font-bold text-stone-900">#8492</span>
+              <span className="text-stone-400">|</span>
+              <span className="text-emerald-700 font-bold">{isAr ? 'تذكرة نشطة' : 'Active Slip'}</span>
+            </button>
           </div>
 
-          <button
-            onClick={onOpenOrderSlip}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-900 text-white text-[11px] font-medium shadow-xs hover:bg-stone-800 transition-all active:scale-95"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            <span>{isAr ? 'تذكرة #8492' : 'Slip #8492'}</span>
-          </button>
-        </div>
+          {/* 1-Tap Boutique Readiness Switcher (Quiet Luxury Segmented Control) */}
+          <div className="flex items-center p-1 bg-stone-100/80 rounded-2xl border border-stone-200/70 text-xs font-medium self-stretch sm:self-auto">
+            <button
+              onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'open_20m' })}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
+                shopConfig.status === 'open_20m'
+                  ? 'bg-white text-stone-900 shadow-xs font-bold border border-stone-200/60'
+                  : 'text-stone-500 hover:text-stone-900'
+              }`}
+            >
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span>{isAr ? 'مستعد للطلبات • ٢٠ د' : 'Open • 20m'}</span>
+            </button>
 
-        {/* 1-Tap Live Shop Status Segmented Control */}
-        <div className="grid grid-cols-3 gap-1.5 p-1 bg-stone-100 rounded-xl border border-stone-200/60 text-xs font-semibold">
-          <button
-            onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'open_20m' })}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer ${
-              shopConfig.status === 'open_20m'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-200" />
-            </span>
-            <span>{isAr ? 'مفتوح • ٢٠ د' : 'Open • 20m'}</span>
-          </button>
+            <button
+              onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' })}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
+                shopConfig.status === 'busy_60m'
+                  ? 'bg-white text-amber-900 shadow-xs font-bold border border-amber-200/60'
+                  : 'text-stone-500 hover:text-stone-900'
+              }`}
+            >
+              <Clock className="w-3 h-3 text-amber-600" />
+              <span>{isAr ? 'مشغول • ٦٠ د' : 'Busy • 60m'}</span>
+            </button>
 
-          <button
-            onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' })}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer ${
-              shopConfig.status === 'busy_60m'
-                ? 'bg-amber-600 text-white shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <Clock className="w-3 h-3 text-amber-200" />
-            <span>{isAr ? 'مشغول • ٦٠ د' : 'Busy • 60m'}</span>
-          </button>
-
-          <button
-            onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'closed' })}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition-all duration-200 active:scale-95 cursor-pointer ${
-              shopConfig.status === 'closed'
-                ? 'bg-stone-800 text-white shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
-            <span>{isAr ? 'مغلق مؤقتاً' : 'Closed'}</span>
-          </button>
+            <button
+              onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'closed' })}
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
+                shopConfig.status === 'closed'
+                  ? 'bg-stone-900 text-stone-200 shadow-xs font-bold'
+                  : 'text-stone-500 hover:text-stone-900'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
+              <span>{isAr ? 'مغلق مؤقتاً' : 'Closed'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* 2. Admin Navigation Tabs */}
-      <div className="px-4 pt-3 pb-1">
-        <div className="flex items-center gap-1.5 border-b border-stone-200 pb-2 overflow-x-auto no-scrollbar">
+      {/* 2. Bespoke Luxury Navigation Tabs */}
+      <div className="px-4 sm:px-6 pt-3 pb-2 border-b border-stone-200/70 bg-[#FAF9F6]">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 bg-stone-100/70 rounded-2xl border border-stone-200/60">
           <button
             onClick={() => setActiveTab('menu')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'menu'
-                ? 'bg-stone-900 text-white shadow-xs'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                ? 'bg-stone-900 text-white shadow-xs font-bold'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
             }`}
           >
-            <Package className="w-3.5 h-3.5" />
+            <Package className="w-3.5 h-3.5 text-stone-400" />
             <span>{isAr ? 'إدارة المعروض والجاهز' : 'Menu & Ready Today'}</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-stone-700 text-stone-200">
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${activeTab === 'menu' ? 'bg-stone-800 text-amber-300' : 'bg-stone-200 text-stone-700'}`}>
               {products.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'add'
-                ? 'bg-stone-900 text-white shadow-xs'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                ? 'bg-stone-900 text-white shadow-xs font-bold'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
             }`}
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>{isAr ? 'إضافة باقة (١٥ ث)' : '+ Quick Add'}</span>
+            <Plus className="w-3.5 h-3.5 text-amber-400" />
+            <span>{isAr ? 'إضافة باقة سريعة' : '+ Quick Add'}</span>
           </button>
 
           <button
             onClick={() => setActiveTab('sales')}
-            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'sales'
-                ? 'bg-emerald-900 text-emerald-100 shadow-xs'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                ? 'bg-stone-900 text-amber-300 shadow-xs font-bold'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             <span>{isAr ? 'المبيعات والأرباح' : 'Sales & Profits'}</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-800 text-emerald-200 font-mono">
-              Live
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400" />
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab('design')}
-            className={`flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'design'
-                ? 'bg-stone-900 text-white shadow-xs'
-                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                ? 'bg-stone-900 text-white shadow-xs font-bold'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5" />
+            <Sliders className="w-3.5 h-3.5 text-amber-400" />
             <span>{isAr ? 'المظهر والحركة' : 'Design & Motion'}</span>
           </button>
         </div>

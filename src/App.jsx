@@ -696,6 +696,14 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
     </div>
   );
 
+  const handleAdminLogout = () => {
+    try {
+      sessionStorage.removeItem('flowerhub_florist_session');
+    } catch {}
+    setActiveView('storefront');
+    showToast(isAr ? 'تم تسجيل الخروج بنجاح من جلسة المنسق' : 'Logged out from florist session');
+  };
+
   return (
     <div
       className={`min-h-screen bg-[#F6F5F2] dark:bg-[#0A0A0B] flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white transition-colors duration-300 w-full overflow-x-hidden`}
@@ -706,6 +714,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         setActiveView={setActiveView}
         lang={lang}
         setLang={setLang}
+        onLogout={handleAdminLogout}
       />
 
       {/* 2. Main View Canvas */}

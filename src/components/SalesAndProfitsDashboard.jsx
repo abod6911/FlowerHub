@@ -72,11 +72,11 @@ function AnimatedNumber({ value, duration = 950, formatter }) {
 /**
  * Ultra-Lightweight Interactive SVG Sparkline with Dynamic Self-Drawing Motion & Glowing End Dot
  */
-function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad', height = 36 }) {
+function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad', height = 30 }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   const [isDrawn, setIsDrawn] = useState(false);
-  const width = 120;
-  const padding = 4;
+  const width = 110;
+  const padding = 3;
 
   useEffect(() => {
     setIsDrawn(false);
@@ -123,19 +123,16 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
     >
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-24 sm:w-28 h-8 sm:h-9 overflow-visible"
+        className="w-20 sm:w-24 h-6 sm:h-7 overflow-visible"
       >
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.45" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.16" />
             <stop offset="100%" stopColor={color} stopOpacity="0.0" />
           </linearGradient>
-          <filter id={`glow-${gradientId}`} x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor={color} floodOpacity="0.4" />
-          </filter>
         </defs>
 
-        {/* Gradient fill underneath curve */}
+        {/* Delicate Gradient fill underneath curve */}
         <path
           d={areaD}
           fill={`url(#${gradientId})`}
@@ -143,59 +140,30 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
           style={{ opacity: isDrawn ? 1 : 0 }}
         />
 
-        {/* Smooth trend curve with animated self-drawing stroke */}
+        {/* Whisper-thin trend line with natural drawing motion */}
         <path
           d={pathD}
           fill="none"
           stroke={color}
-          strokeWidth="2.5"
+          strokeWidth="1.75"
           strokeLinecap="round"
           strokeLinejoin="round"
-          filter={`url(#glow-${gradientId})`}
           style={{
             strokeDasharray: 300,
             strokeDashoffset: isDrawn ? 0 : 300,
-            transition: 'stroke-dashoffset 1.1s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         />
 
-        {/* Live Pulse Dot at the last coordinate point */}
+        {/* Discreet terminal dot */}
         {isDrawn && lastPoint && (
-          <g>
-            <circle
-              cx={lastPoint.x}
-              cy={lastPoint.y}
-              r="4.5"
-              fill={color}
-              opacity="0.4"
-              className="animate-ping origin-center"
-            />
-            <circle
-              cx={lastPoint.x}
-              cy={lastPoint.y}
-              r="2.5"
-              fill="#FFFFFF"
-              stroke={color}
-              strokeWidth="2"
-            />
-          </g>
-        )}
-
-        {/* Interactive hover points */}
-        {points.map((pt, idx) => (
           <circle
-            key={idx}
-            cx={pt.x}
-            cy={pt.y}
-            r={hoveredIdx === idx ? 4.5 : 2}
-            className="transition-all cursor-pointer"
-            fill={hoveredIdx === idx ? '#fff' : color}
-            stroke={color}
-            strokeWidth={hoveredIdx === idx ? 2.5 : 1}
-            onMouseEnter={() => setHoveredIdx(idx)}
-            onTouchStart={() => setHoveredIdx(idx)}
+            cx={lastPoint.x}
+            cy={lastPoint.y}
+            r="2"
+            fill={color}
           />
-        ))}
+        )}
       </svg>
 
       {hoveredIdx !== null && (
@@ -488,7 +456,7 @@ export default function SalesAndProfitsDashboard({
       {/* ===================================================================== */}
       {/* 1. Header & Minimalist Control Hub */}
       {/* ===================================================================== */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
         {/* Title & Live Status Indicator */}
         <div>
           <div className="flex items-center gap-2.5">
@@ -497,13 +465,13 @@ export default function SalesAndProfitsDashboard({
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
             </span>
             <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
-              {isAr ? 'التقرير المالي الذكي • المبيعات والأرباح' : 'Executive Financial Flow'}
+              {isAr ? 'المبيعات وصافي الأرباح' : 'Sales & Profit Flow'}
             </h2>
           </div>
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-xs text-stone-500 mt-0.5">
             {isAr
-              ? 'متابعة حية للإيرادات، هوامش الربح الصافية، والتدفقات النقدية اللحظية للمنسق'
-              : 'Real-time revenue, margins, and operational cash flow for boutique coordinators'}
+              ? 'متابعة حية للإيرادات، تكاليف المواد، وهامش الربح الصافي للمنسق'
+              : 'Real-time overview of boutique revenues, material costs & coordinator net margins'}
           </p>
         </div>
 
@@ -517,7 +485,7 @@ export default function SalesAndProfitsDashboard({
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder={isAr ? 'بحث سريع عن عملية أو عميل...' : 'Search transactions...'}
+              placeholder={isAr ? 'بحث برقم الطلب، العميل، أو الباقة...' : 'Search orders, clients, bouquets...'}
               className="w-full ps-8.5 pe-12 py-2 rounded-2xl bg-white border border-stone-200/90 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 shadow-2xs transition-all"
             />
             {searchQuery ? (
@@ -538,10 +506,10 @@ export default function SalesAndProfitsDashboard({
           <button
             onClick={handleExportCSV}
             title={isAr ? 'تصدير كملف Excel (CSV)' : 'Export CSV'}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200/90 shadow-2xs text-xs font-semibold active:scale-95 transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200/90 shadow-2xs text-xs font-semibold active:scale-95 transition-all cursor-pointer shrink-0"
           >
             <Download className="w-3.5 h-3.5 text-stone-600" />
-            <span className="hidden sm:inline">{isAr ? 'تصدير' : 'Export'}</span>
+            <span className="hidden sm:inline">{isAr ? 'تصدير التقرير' : 'Export'}</span>
           </button>
         </div>
       </div>
@@ -553,19 +521,19 @@ export default function SalesAndProfitsDashboard({
         {/* Time Segmented Control */}
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           {[
+            { id: 'month', labelAr: 'هذا الشهر', labelEn: 'This Month' },
             { id: 'today', labelAr: 'اليوم', labelEn: 'Today' },
             { id: '7days', labelAr: 'آخر 7 أيام', labelEn: '7 Days' },
-            { id: 'month', labelAr: 'هذا الشهر', labelEn: 'Month' },
             { id: 'all', labelAr: 'كل الأوقات', labelEn: 'All Time' },
             { id: 'custom', labelAr: 'مخصص 📅', labelEn: 'Custom 📅' },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleDateFilterChange(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
                 dateFilter === tab.id
-                  ? 'bg-white text-stone-900 shadow-xs font-bold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
+                  ? 'bg-stone-900 text-white shadow-xs font-bold'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
               }`}
             >
               {isAr ? tab.labelAr : tab.labelEn}
@@ -584,9 +552,9 @@ export default function SalesAndProfitsDashboard({
             <button
               key={st.id}
               onClick={() => handleStatusFilterChange(st.id)}
-              className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-xl text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-95 ${
                 statusFilter === st.id
-                  ? 'bg-stone-900 text-white shadow-2xs'
+                  ? 'bg-white text-stone-900 shadow-xs border border-stone-200/70 font-bold'
                   : 'text-stone-500 hover:text-stone-800'
               }`}
             >
@@ -626,67 +594,66 @@ export default function SalesAndProfitsDashboard({
       {/* 3. Main Data Container with Shimmer Transition */}
       {/* ===================================================================== */}
       <div className={`space-y-6 transition-all duration-200 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-        {/* Modern KPI Cards with Interactive Sparklines, Dynamic Counters & Hover Physics */}
+        {/* Bespoke Luxury Atelier Metric Cards (Editorial Quiet Luxury) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* KPI 1: Total Revenue */}
           <div
-            className="bg-gradient-to-br from-white via-stone-50/40 to-emerald-50/15 rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer"
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.05s' }}
           >
             {/* Top Micro Accent Line */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-stone-800 via-emerald-800 to-stone-900 opacity-60 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute top-0 inset-x-0 h-1 bg-stone-800 opacity-60 group-hover:opacity-100 transition-opacity" />
 
             <div>
-              <div className="flex items-center justify-between text-stone-500 mb-1.5">
+              <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'إجمالي المبيعات' : 'Total Revenue'}</span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs group-hover:scale-105 transition-transform">
+                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs">
                   <ArrowUpRight className="w-3 h-3 text-emerald-600" />
                   +14.2%
                 </span>
               </div>
-              <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
                 <AnimatedNumber value={kpis.totalRevenue} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
-            <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-              <span className="text-[10px] font-medium text-stone-400">{isAr ? 'منحنى الإيراد' : 'Trend'}</span>
+            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400">{isAr ? 'مقارنة بالشهر السابق' : 'vs last month'}</span>
               <Sparkline
                 data={[240, 310, 275, 420, 380, 490, 525, 990]}
-                color="#065F46"
+                color="#292524"
                 gradientId="grad-revenue"
               />
             </div>
           </div>
 
-          {/* KPI 2: PRIMARY METRIC - Net Profit (With Subtle Emerald Accent Glow & Pulse) */}
+          {/* KPI 2: PRIMARY HERO METRIC - Net Profit */}
           <div
-            className="bg-gradient-to-br from-white via-emerald-50/30 to-teal-50/40 rounded-3xl p-4 sm:p-5 border border-emerald-500/50 shadow-[0_8px_30px_-6px_rgba(16,185,129,0.2)] hover:shadow-[0_20px_45px_-6px_rgba(16,185,129,0.3)] hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer ring-1 ring-emerald-500/20"
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.12s' }}
           >
-            {/* Animated Glow Indicator Bar */}
-            <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 animate-pulse" />
+            {/* Top Micro Accent Line in Forest Emerald */}
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity" />
 
             <div>
-              <div className="flex items-center justify-between text-stone-600 mb-1.5">
-                <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-600 group-hover:rotate-12 transition-transform duration-300" />
+              <div className="flex items-center justify-between text-stone-600 mb-2">
+                <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                   <span>{isAr ? 'صافي الأرباح' : 'Net Profit'}</span>
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-100/90 px-2 py-0.5 rounded-full border border-emerald-300/60 shadow-2xs group-hover:scale-105 transition-transform">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping" />
-                  <span>+18.5%</span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                  <span>هامش {kpis.overallMargin.toFixed(1)}%</span>
                 </span>
               </div>
-              <div className="text-lg sm:text-2xl font-bold font-serif text-emerald-950 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-emerald-950 tracking-tight">
                 <AnimatedNumber value={kpis.netProfit} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
-            <div className="mt-3 flex items-end justify-between pt-2 border-t border-emerald-100/70">
-              <span className="text-[10px] font-bold text-emerald-800 font-mono flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-                <span>{isAr ? `هامش: ${kpis.overallMargin.toFixed(1)}%` : `Margin: ${kpis.overallMargin.toFixed(1)}%`}</span>
+            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400 font-sans">
+                {isAr ? 'صافي دخل المنسق' : 'Coordinator take-home'}
               </span>
               <Sparkline
                 data={[135, 177, 156, 225, 278, 253, 350, 535]}
@@ -698,27 +665,27 @@ export default function SalesAndProfitsDashboard({
 
           {/* KPI 3: Successful Orders */}
           <div
-            className="bg-gradient-to-br from-white via-amber-50/20 to-orange-50/15 rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer"
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.19s' }}
           >
-            {/* Top Micro Accent Line */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-amber-400 to-orange-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+            {/* Top Micro Accent Line in Warm Amber */}
+            <div className="absolute top-0 inset-x-0 h-1 bg-amber-500 opacity-60 group-hover:opacity-100 transition-opacity" />
 
             <div>
-              <div className="flex items-center justify-between text-stone-500 mb-1.5">
+              <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
-                <span className="text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
-                  98% تسليم
+                <span className="text-[10px] font-medium text-stone-600 bg-stone-100 border border-stone-200/60 px-2 py-0.5 rounded-full font-mono">
+                  100% تسليم
                 </span>
               </div>
-              <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
                 <AnimatedNumber value={kpis.totalOrdersCount} />{' '}
-                <span className="text-xs font-normal text-stone-500">{isAr ? 'طلب' : 'orders'}</span>
+                <span className="text-xs font-normal text-stone-500">{isAr ? 'طلبات' : 'orders'}</span>
               </div>
             </div>
 
-            <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-              <span className="text-[10px] font-medium text-stone-400">{isAr ? 'معدل الطلب' : 'Velocity'}</span>
+            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400">{isAr ? 'مكتملة ومُسلّمة' : 'All delivered'}</span>
               <Sparkline
                 data={[1, 2, 1, 3, 2, 2, 4, 5]}
                 color="#D97706"
@@ -729,29 +696,29 @@ export default function SalesAndProfitsDashboard({
 
           {/* KPI 4: Average Order Value (AOV) */}
           <div
-            className="bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/15 rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.98] animate-card-entrance cursor-pointer"
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
             style={{ animationDelay: '0.26s' }}
           >
             {/* Top Micro Accent Line */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute top-0 inset-x-0 h-1 bg-stone-600 opacity-60 group-hover:opacity-100 transition-opacity" />
 
             <div>
-              <div className="flex items-center justify-between text-stone-500 mb-1.5">
+              <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
-                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200/60 px-2 py-0.5 rounded-full font-mono group-hover:scale-105 transition-transform">
+                <span className="text-[10px] font-medium text-stone-600 bg-stone-100 border border-stone-200/60 px-2 py-0.5 rounded-full font-mono">
                   AOV سلة
                 </span>
               </div>
-              <div className="text-lg sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
                 <AnimatedNumber value={kpis.aov} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
-            <div className="mt-3 flex items-end justify-between pt-2 border-t border-stone-100">
-              <span className="text-[10px] font-medium text-stone-400">{isAr ? 'قيمة السلة' : 'Basket'}</span>
+            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
+              <span className="text-[10px] text-stone-400">{isAr ? 'متوسط السلة الواحدة' : 'Per bouquet'}</span>
               <Sparkline
                 data={[210, 245, 320, 275, 360, 450, 490, 356]}
-                color="#6366F1"
+                color="#57534E"
                 gradientId="grad-aov"
               />
             </div>
@@ -762,48 +729,48 @@ export default function SalesAndProfitsDashboard({
         {/* 4. Interactive Hero Analytics Chart Section */}
         {/* ===================================================================== */}
         <div
-          className="bg-white rounded-3xl border border-stone-200/90 shadow-xs hover:shadow-md transition-all duration-300 p-4 sm:p-6 space-y-4 animate-card-entrance"
+          className="bg-white rounded-3xl border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-md transition-all duration-300 p-4 sm:p-6 space-y-4 animate-card-entrance"
           style={{ animationDelay: '0.32s' }}
         >
           {/* Chart Header Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-stone-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
             <div>
-              <h3 className="font-bold text-sm text-stone-900 flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-emerald-600 animate-pulse" />
-                <span>{isAr ? 'المنحنى البياني للإيرادات وصافي الأرباح' : 'Financial Flow & Profit Velocity'}</span>
+              <h3 className="font-bold text-sm font-serif text-stone-900 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+                <span>{isAr ? 'حركة الإيرادات وصافي الربح' : 'Revenue & Net Profit Velocity'}</span>
               </h3>
-              <p className="text-[11px] text-stone-400 mt-0.5">
-                {isAr ? 'حرك المؤشر أو المس النقاط لاستعراض هوامش الربح لكل فترة' : 'Hover or tap nodes to inspect granular margins'}
+              <p className="text-[11px] text-stone-400 mt-0.5 font-sans">
+                {isAr ? 'مقارنة المبيعات الصافية وتوزيع الأرباح حسب الفترة' : 'Compare sales volume and profit margins over time'}
               </p>
             </div>
 
             {/* Chart Granularity & Curve Toggles */}
             <div className="flex items-center gap-2 flex-wrap">
               {/* Metric Curves Toggle */}
-              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-[11px] font-semibold">
+              <div className="flex items-center gap-1 bg-stone-100/80 p-1 rounded-xl text-[11px] font-semibold border border-stone-200/60">
                 <button
                   onClick={() => setShowRevenueArea(!showRevenueArea)}
-                  className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 active:scale-95 ${
-                    showRevenueArea ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-400'
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                    showRevenueArea ? 'bg-white text-stone-900 shadow-2xs font-bold' : 'text-stone-400'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-stone-700" />
+                  <span className="w-2 h-2 rounded-full bg-stone-800" />
                   <span>{isAr ? 'المبيعات' : 'Revenue'}</span>
                 </button>
 
                 <button
                   onClick={() => setShowProfitArea(!showProfitArea)}
-                  className={`px-2 py-0.5 rounded-lg transition-all cursor-pointer flex items-center gap-1 active:scale-95 ${
-                    showProfitArea ? 'bg-emerald-900 text-white shadow-2xs' : 'text-stone-400'
+                  className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
+                    showProfitArea ? 'bg-white text-emerald-950 shadow-2xs font-bold' : 'text-stone-400'
                   }`}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
                   <span>{isAr ? 'صافي الربح' : 'Net Profit'}</span>
                 </button>
               </div>
 
               {/* Grain Toggle */}
-              <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl text-[11px] font-semibold">
+              <div className="flex items-center gap-1 bg-stone-100/80 p-1 rounded-xl text-[11px] font-semibold border border-stone-200/60">
                 {[
                   { id: 'daily', labelAr: 'يومي', labelEn: 'Daily' },
                   { id: 'hourly', labelAr: 'ساعي', labelEn: 'Hourly' },
@@ -812,7 +779,7 @@ export default function SalesAndProfitsDashboard({
                   <button
                     key={g.id}
                     onClick={() => setChartGranularity(g.id)}
-                    className={`px-2.5 py-0.5 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                    className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer active:scale-95 ${
                       chartGranularity === g.id
                         ? 'bg-stone-900 text-white shadow-2xs font-bold'
                         : 'text-stone-500 hover:text-stone-800'
@@ -836,20 +803,20 @@ export default function SalesAndProfitsDashboard({
                 <defs>
                   {/* Revenue Curve Liquid Multi-Stop Gradient */}
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1C1917" stopOpacity={0.28} />
-                    <stop offset="65%" stopColor="#292524" stopOpacity={0.06} />
+                    <stop offset="0%" stopColor="#1C1917" stopOpacity={0.16} />
+                    <stop offset="70%" stopColor="#292524" stopOpacity={0.03} />
                     <stop offset="100%" stopColor="#44403C" stopOpacity={0.0} />
                   </linearGradient>
 
                   {/* Profit Curve Vibrant Emerald Gradient */}
                   <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10B981" stopOpacity={0.5} />
-                    <stop offset="45%" stopColor="#059669" stopOpacity={0.18} />
+                    <stop offset="0%" stopColor="#059669" stopOpacity={0.28} />
+                    <stop offset="60%" stopColor="#059669" stopOpacity={0.06} />
                     <stop offset="100%" stopColor="#047857" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E7E5E4" opacity={0.6} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F4" opacity={0.8} />
 
                 <XAxis
                   dataKey="period"
@@ -873,12 +840,12 @@ export default function SalesAndProfitsDashboard({
                     type="monotone"
                     dataKey="revenue"
                     stroke="#1C1917"
-                    strokeWidth={3}
+                    strokeWidth={2.5}
                     fillOpacity={1}
                     fill="url(#revenueGradient)"
-                    activeDot={{ r: 6.5, fill: '#1C1917', stroke: '#fff', strokeWidth: 2.5 }}
+                    activeDot={{ r: 5.5, fill: '#1C1917', stroke: '#fff', strokeWidth: 2 }}
                     isAnimationActive={true}
-                    animationDuration={1350}
+                    animationDuration={1200}
                     animationEasing="cubic-bezier(0.16, 1, 0.3, 1)"
                   />
                 )}
@@ -889,19 +856,19 @@ export default function SalesAndProfitsDashboard({
                     type="monotone"
                     dataKey="profit"
                     stroke="#059669"
-                    strokeWidth={3.5}
+                    strokeWidth={2.5}
                     fillOpacity={1}
                     fill="url(#profitGradient)"
-                    activeDot={{ r: 7, fill: '#059669', stroke: '#fff', strokeWidth: 2.5 }}
+                    activeDot={{ r: 6, fill: '#059669', stroke: '#fff', strokeWidth: 2 }}
                     isAnimationActive={true}
-                    animationDuration={1450}
+                    animationDuration={1300}
                     animationEasing="cubic-bezier(0.16, 1, 0.3, 1)"
                   />
                 )}
-            </AreaChart>
-          </ResponsiveContainer>
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
 
       {/* ===================================================================== */}
       {/* 5. Streamlined 4-Column Ledger & Mobile Cards */}

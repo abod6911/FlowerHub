@@ -13,7 +13,7 @@ const SEED_HASH = 'f5a2358c58901db71a57d9680337e0640e363ebab3853abefc210587134a2
 const AUTH_STORAGE_KEY = 'flowerhub_florist_session';
 const PASS_HASH_KEY = 'flowerhub_admin_phash';
 
-export default function AdminAuthGuard({ children, lang = 'ar', onClose }) {
+export default function AdminAuthGuard({ children, lang = 'ar', onClose, showTopBar = false }) {
   const isAr = lang === 'ar';
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,25 +151,27 @@ export default function AdminAuthGuard({ children, lang = 'ar', onClose }) {
   if (isAuthenticated) {
     return (
       <div className="relative w-full">
-        {/* Floating Top Security Bar with Session Status and Logout */}
-        <div className="bg-stone-950 text-stone-300 px-4 py-2 text-xs flex items-center justify-between border-b border-stone-800 select-none">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold text-stone-200">
-              {isAr ? 'جلسة منسق موثقة (RBAC: Admin)' : 'Authenticated Florist Session'}
-            </span>
-            <span className="text-[10px] text-stone-500 font-mono hidden sm:inline">| صالحة لمدة 15 دقيقة</span>
-          </div>
+        {/* Floating Top Security Bar with Session Status and Logout (Only when showTopBar is true) */}
+        {showTopBar && (
+          <div className="bg-stone-950 text-stone-300 px-4 py-2 text-xs flex items-center justify-between border-b border-stone-800 select-none">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-bold text-stone-200">
+                {isAr ? 'جلسة منسق موثقة (RBAC: Admin)' : 'Authenticated Florist Session'}
+              </span>
+              <span className="text-[10px] text-stone-500 font-mono hidden sm:inline">| صالحة لمدة 15 دقيقة</span>
+            </div>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800 hover:bg-stone-700 text-amber-300 text-xs font-bold transition-all active:scale-95"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>{isAr ? 'تسجيل الخروج' : 'Logout'}</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800 hover:bg-stone-700 text-amber-300 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{isAr ? 'تسجيل الخروج' : 'Logout'}</span>
+            </button>
+          </div>
+        )}
         {children}
       </div>
     );
