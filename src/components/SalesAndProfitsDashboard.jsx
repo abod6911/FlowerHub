@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrendingUp,
   Download,
@@ -33,21 +34,29 @@ import {
 } from '../data/mockSalesData';
 
 /**
- * Smooth 60fps Exponential Ease-Out Animated Counter Component
+ * High-Precision 60fps Exponential Ease-Out Animated Counter Component
+ * Interpolates smoothly from previous numeric state on filter toggles
  */
-function AnimatedNumber({ value, duration = 950, formatter }) {
-  const [displayVal, setDisplayVal] = useState(0);
+function AnimatedNumber({ value, duration = 400, formatter }) {
+  const [displayVal, setDisplayVal] = useState(() => Number(value) || 0);
+  const prevValRef = useRef(Number(value) || 0);
 
   useEffect(() => {
     let startTimestamp = null;
-    const startVal = 0;
+    const startVal = prevValRef.current;
     const endVal = Number(value) || 0;
+    prevValRef.current = endVal;
+
+    if (startVal === endVal) {
+      setDisplayVal(endVal);
+      return;
+    }
 
     const step = (timestamp) => {
       if (!startTimestamp) startTimestamp = timestamp;
       const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      // Fluid easeOutCubic curve
-      const ease = 1 - Math.pow(1 - progress, 3);
+      // Fluid easeOutExpo curve: 1 - 2^(-10 * progress)
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
       const current = startVal + (endVal - startVal) * ease;
       setDisplayVal(current);
       if (progress < 1) {
@@ -476,27 +485,29 @@ export default function SalesAndProfitsDashboard({
         </div>
 
         {/* Quick Search & Secondary Action Icons */}
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          {/* Streamlined Search Bar with Keyboard Hint */}
-          <div className="relative flex-1 md:w-72">
-            <Search className="w-3.5 h-3.5 text-stone-400 absolute inset-inline-start-3 top-1/2 -translate-y-1/2" />
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          {/* Streamlined Search Bar with Bulletproof Positioning */}
+          <div className="relative flex-1 sm:w-80">
+            <Search className="w-3.5 h-3.5 text-stone-400 absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none" />
             <input
               ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder={isAr ? 'بحث برقم الطلب، العميل، أو الباقة...' : 'Search orders, clients, bouquets...'}
-              className="w-full ps-8.5 pe-12 py-2 rounded-2xl bg-white border border-stone-200/90 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 shadow-2xs transition-all"
+              className="w-full py-2.5 rounded-2xl bg-white border border-stone-200/90 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 shadow-2xs transition-all rtl:pr-10 rtl:pl-14 ltr:pl-10 ltr:pr-14"
             />
             {searchQuery ? (
               <button
+                type="button"
                 onClick={() => handleSearchChange('')}
-                className="absolute inset-inline-end-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 cursor-pointer"
+                className="absolute top-1/2 -translate-y-1/2 rtl:left-3.5 ltr:right-3.5 text-stone-400 hover:text-stone-700 cursor-pointer p-0.5 rounded-full hover:bg-stone-100 transition-colors"
+                title={isAr ? 'مسح البحث' : 'Clear search'}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             ) : (
-              <span className="absolute inset-inline-end-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-stone-400 border border-stone-200 px-1.5 py-0.5 rounded-md bg-stone-50 select-none hidden sm:inline">
+              <span className="absolute top-1/2 -translate-y-1/2 rtl:left-3.5 ltr:right-3.5 text-[10px] font-mono text-stone-400 border border-stone-200/80 px-1.5 py-0.5 rounded-md bg-stone-50 select-none hidden sm:inline pointer-events-none">
                 ⌘K
               </span>
             )}
@@ -504,9 +515,10 @@ export default function SalesAndProfitsDashboard({
 
           {/* Export Action Button */}
           <button
+            type="button"
             onClick={handleExportCSV}
             title={isAr ? 'تصدير كملف Excel (CSV)' : 'Export CSV'}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-white hover:bg-stone-50 text-stone-700 border border-stone-200/90 shadow-2xs text-xs font-semibold active:scale-95 transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200/90 shadow-2xs hover:shadow-xs text-xs font-semibold active:scale-95 transition-all cursor-pointer shrink-0"
           >
             <Download className="w-3.5 h-3.5 text-stone-600" />
             <span className="hidden sm:inline">{isAr ? 'تصدير التقرير' : 'Export'}</span>
@@ -515,7 +527,7 @@ export default function SalesAndProfitsDashboard({
       </div>
 
       {/* ===================================================================== */}
-      {/* 2. Sleek Segmented Time & Status Filter Pills */}
+      {/* 2. Sleek Segmented Time & Status Filter Pills with Fluid Morphing */}
       {/* ===================================================================== */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-100/70 p-1.5 rounded-2xl border border-stone-200/80">
         {/* Time Segmented Control */}
@@ -530,13 +542,20 @@ export default function SalesAndProfitsDashboard({
             <button
               key={tab.id}
               onClick={() => handleDateFilterChange(tab.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
+              className={`relative px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors duration-200 cursor-pointer active:scale-95 ${
                 dateFilter === tab.id
-                  ? 'bg-stone-900 text-white shadow-xs font-bold'
+                  ? 'text-white font-bold'
                   : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
               }`}
             >
-              {isAr ? tab.labelAr : tab.labelEn}
+              {dateFilter === tab.id && (
+                <motion.div
+                  layoutId="activeDateFilterPill"
+                  className="absolute inset-0 bg-stone-900 rounded-xl shadow-xs"
+                  transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
+                />
+              )}
+              <span className="relative z-10">{isAr ? tab.labelAr : tab.labelEn}</span>
             </button>
           ))}
         </div>
@@ -552,13 +571,20 @@ export default function SalesAndProfitsDashboard({
             <button
               key={st.id}
               onClick={() => handleStatusFilterChange(st.id)}
-              className={`px-3 py-1 rounded-xl text-[11px] font-semibold transition-all duration-200 cursor-pointer active:scale-95 ${
+              className={`relative px-3 py-1 rounded-xl text-[11px] font-semibold transition-colors duration-200 cursor-pointer active:scale-95 ${
                 statusFilter === st.id
-                  ? 'bg-white text-stone-900 shadow-xs border border-stone-200/70 font-bold'
+                  ? 'text-stone-900 font-bold'
                   : 'text-stone-500 hover:text-stone-800'
               }`}
             >
-              {isAr ? st.labelAr : st.labelEn}
+              {statusFilter === st.id && (
+                <motion.div
+                  layoutId="activeStatusFilterChip"
+                  className="absolute inset-0 bg-white rounded-xl shadow-xs border border-stone-200/80"
+                  transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
+                />
+              )}
+              <span className="relative z-10">{isAr ? st.labelAr : st.labelEn}</span>
             </button>
           ))}
         </div>
@@ -591,15 +617,19 @@ export default function SalesAndProfitsDashboard({
       )}
 
       {/* ===================================================================== */}
-      {/* 3. Main Data Container with Shimmer Transition */}
+      {/* 3. Main Data Container with Silky Staggered Entrance & Hover Physics */}
       {/* ===================================================================== */}
-      <div className={`space-y-6 transition-all duration-200 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`space-y-6 transition-opacity duration-200 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
         {/* Bespoke Luxury Atelier Metric Cards (Editorial Quiet Luxury) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* KPI 1: Total Revenue */}
-          <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
-            style={{ animationDelay: '0.05s' }}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           >
             {/* Top Micro Accent Line */}
             <div className="absolute top-0 inset-x-0 h-1 bg-stone-800 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -612,7 +642,7 @@ export default function SalesAndProfitsDashboard({
                   +14.2%
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight text-start">
                 <AnimatedNumber value={kpis.totalRevenue} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
@@ -625,12 +655,16 @@ export default function SalesAndProfitsDashboard({
                 gradientId="grad-revenue"
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* KPI 2: PRIMARY HERO METRIC - Net Profit */}
-          <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
-            style={{ animationDelay: '0.12s' }}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           >
             {/* Top Micro Accent Line in Forest Emerald */}
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity" />
@@ -646,7 +680,7 @@ export default function SalesAndProfitsDashboard({
                   <span>هامش {kpis.overallMargin.toFixed(1)}%</span>
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-emerald-950 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-emerald-950 tracking-tight text-start">
                 <AnimatedNumber value={kpis.netProfit} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
@@ -661,12 +695,16 @@ export default function SalesAndProfitsDashboard({
                 gradientId="grad-profit"
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* KPI 3: Successful Orders */}
-          <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
-            style={{ animationDelay: '0.19s' }}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           >
             {/* Top Micro Accent Line in Warm Amber */}
             <div className="absolute top-0 inset-x-0 h-1 bg-amber-500 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -674,11 +712,11 @@ export default function SalesAndProfitsDashboard({
             <div>
               <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
-                <span className="text-[10px] font-medium text-stone-600 bg-stone-100 border border-stone-200/60 px-2 py-0.5 rounded-full font-mono">
+                <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full font-mono">
                   100% تسليم
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight text-start">
                 <AnimatedNumber value={kpis.totalOrdersCount} />{' '}
                 <span className="text-xs font-normal text-stone-500">{isAr ? 'طلبات' : 'orders'}</span>
               </div>
@@ -692,12 +730,16 @@ export default function SalesAndProfitsDashboard({
                 gradientId="grad-orders"
               />
             </div>
-          </div>
+          </motion.div>
 
           {/* KPI 4: Average Order Value (AOV) */}
-          <div
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group active:scale-[0.99] animate-card-entrance cursor-pointer"
-            style={{ animationDelay: '0.26s' }}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
+            whileTap={{ scale: 0.98 }}
+            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
           >
             {/* Top Micro Accent Line */}
             <div className="absolute top-0 inset-x-0 h-1 bg-stone-600 opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -706,23 +748,23 @@ export default function SalesAndProfitsDashboard({
               <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
                 <span className="text-[10px] font-medium text-stone-600 bg-stone-100 border border-stone-200/60 px-2 py-0.5 rounded-full font-mono">
-                  AOV سلة
+                  متوسط السلة
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight">
+              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight text-start">
                 <AnimatedNumber value={kpis.aov} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
             <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'متوسط السلة الواحدة' : 'Per bouquet'}</span>
+              <span className="text-[10px] text-stone-400">{isAr ? 'متوسط قيمة الباقة' : 'Average bouquet'}</span>
               <Sparkline
                 data={[210, 245, 320, 275, 360, 450, 490, 356]}
                 color="#57534E"
                 gradientId="grad-aov"
               />
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* ===================================================================== */}
@@ -779,26 +821,33 @@ export default function SalesAndProfitsDashboard({
                   <button
                     key={g.id}
                     onClick={() => setChartGranularity(g.id)}
-                    className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer active:scale-95 ${
+                    className={`relative px-3 py-1 rounded-lg transition-colors duration-200 cursor-pointer active:scale-95 ${
                       chartGranularity === g.id
-                        ? 'bg-stone-900 text-white shadow-2xs font-bold'
+                        ? 'text-white font-bold'
                         : 'text-stone-500 hover:text-stone-800'
                     }`}
                   >
-                    {isAr ? g.labelAr : g.labelEn}
+                    {chartGranularity === g.id && (
+                      <motion.div
+                        layoutId="activeChartGrain"
+                        className="absolute inset-0 bg-stone-900 rounded-lg shadow-2xs"
+                        transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
+                      />
+                    )}
+                    <span className="relative z-10">{isAr ? g.labelAr : g.labelEn}</span>
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* Responsive Area Chart Viewport */}
-          <div className="w-full h-64 sm:h-72 pt-2" dir="ltr">
+          {/* Responsive Area Chart Viewport with Zero-Clipping Margins */}
+          <div className="w-full h-72 sm:h-80 pt-2 pb-2" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 key={`chart-${chartGranularity}-${dateFilter}-${showRevenueArea ? 'rev' : 'no'}-${showProfitArea ? 'prof' : 'no'}`}
                 data={chartData}
-                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                margin={{ top: 16, right: 20, left: -10, bottom: 30 }}
               >
                 <defs>
                   {/* Revenue Curve Liquid Multi-Stop Gradient */}
@@ -823,6 +872,7 @@ export default function SalesAndProfitsDashboard({
                   tick={{ fontSize: 11, fill: '#78716C', fontFamily: 'sans-serif' }}
                   tickLine={false}
                   axisLine={{ stroke: '#E7E5E4' }}
+                  dy={10}
                 />
 
                 <YAxis
