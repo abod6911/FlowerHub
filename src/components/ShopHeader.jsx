@@ -380,69 +380,68 @@ function ShopHeader({
       ) : (
         /* STYLE 3: SIGNATURE QLUB COMPACT BOUTIQUE CARD (DEFAULT) */
         <div
-          className="relative p-4 sm:p-6 shadow-[0_12px_36px_-6px_rgba(212,175,55,0.08),0_4px_18px_-2px_rgba(0,0,0,0.04)] flex flex-col gap-3 sm:gap-4 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-amber-200/80 dark:border-stone-800 bg-gradient-to-b from-[#FDFAF6] via-white to-[#FDF8F3] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 backdrop-blur-xl group"
+          className="relative p-4 sm:p-5 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-3 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-stone-200/80 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl group"
         >
-          {/* 1. TOP ROW: Store Seal | Calm Status Indicator | Contact & Rating */}
+          {/* 1. TOP ROW: Store Seal on Right | Contact & Rating on Left (Spacious 2-corner balance) */}
           <div className="flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center">
-              {renderAvatarButton('w-11 h-11')}
-            </div>
-
-            {/* Center: Live Status Badge Capsule */}
-            <div className="flex items-center justify-center px-1">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold border ${statusColorClasses}`}>
-                <span className={`inline-flex rounded-full h-2 w-2 ${radarDotClasses}`} />
-                <span className="tracking-normal whitespace-nowrap text-[11px] font-bold">
-                  {statusText}
+            <div className="flex items-center gap-2">
+              {renderAvatarButton('w-10 h-10')}
+              <div className="flex flex-col text-start">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-stone-400">
+                  {isAr ? 'بوتيك أزهار فاخر' : 'Luxury Atelier'}
                 </span>
-              </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                  <span className={`inline-flex rounded-full h-1.5 w-1.5 ${radarDotClasses}`} />
+                  <span>{statusText}</span>
+                </span>
+              </div>
             </div>
 
-            {/* Left: Quick WhatsApp Contact & Rating Badge */}
-            <div className="flex items-center justify-end gap-2">
+            {/* Left: Quick WhatsApp Contact & Verified Rating */}
+            <div className="flex items-center justify-end gap-1.5">
               <a
                 href={`https://wa.me/${phone}`}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={isAr ? 'واتساب' : 'WhatsApp'}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/25 transition-all duration-200 active:scale-95 shadow-2xs"
-                title={isAr ? 'واتساب مباشر' : 'Direct WhatsApp'}
+                aria-label={isAr ? 'واتساب مباشر' : 'WhatsApp'}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/20 transition-all duration-200 active:scale-95 shadow-2xs"
+                title={isAr ? 'تواصل مع المنسق' : 'Chat with Florist'}
               >
                 <MessageCircle className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
+                <span className="text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
               </a>
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 shadow-2xs whitespace-nowrap">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200/70 dark:border-stone-700 shadow-2xs whitespace-nowrap">
                 <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
-                <span className="font-extrabold text-xs tracking-tight">4.9 ★</span>
+                <span className="font-extrabold text-[11px] tracking-tight">4.9</span>
               </span>
             </div>
           </div>
 
           {/* 2. MAISON BRAND IDENTITY */}
-          <div className="w-full pt-1 pb-1 px-2 relative z-10 flex flex-col items-center justify-center text-center">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight select-text text-stone-900 dark:text-stone-50 font-serif leading-tight">
+          <div className="w-full pt-1 pb-0.5 px-1 relative z-10 flex flex-col items-center justify-center text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight select-text text-stone-900 dark:text-stone-50 font-serif leading-tight">
               {shopName}
             </h1>
 
-            {/* Single Clean Tagline & Location Line */}
+            {/* Clean Tagline & Location Line */}
             <div className="flex items-center justify-center gap-2 text-xs text-stone-500 dark:text-stone-400 mt-1 flex-wrap font-medium">
               <span>{shopTagline}</span>
-              <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+              <span className="inline-block w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-600 shrink-0" />
               <a
                 href={locationUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 hover:underline font-semibold"
+                className="inline-flex items-center gap-1 text-stone-600 dark:text-stone-300 hover:text-emerald-700 font-semibold"
               >
-                <MapPin className="w-3 h-3 shrink-0" />
+                <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
                 <span>{locationLabel}</span>
               </a>
             </div>
           </div>
 
           {/* 3. SEARCH CAPSULE */}
-          <div className="w-full pt-1 relative z-10">
+          <div className="w-full pt-0.5 relative z-10">
             {renderSearchCapsule()}
           </div>
         </div>

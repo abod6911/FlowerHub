@@ -79,34 +79,20 @@ function ProductCard({
     }
   };
 
-  // Determine badge config with strict check to prevent empty badges
+  // Determine badge config with strict restraint (no badge clutter on every single card)
   const getBadgeConfig = () => {
     if (product.badge && typeof product.badge === 'string' && product.badge.trim() !== '') {
       return {
         text: product.badge.trim(),
         icon: null,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-sm font-bold',
+        className: 'bg-white/90 dark:bg-stone-900/90 text-stone-900 dark:text-stone-100 border border-stone-200/80 dark:border-stone-700 shadow-2xs font-bold',
       };
     }
     if (product.isOneTimeSpecial) {
       return {
-        text: strings.oneTimeBadge || 'قطعة واحدة فقط',
+        text: isAr ? 'قطعة واحدة فقط' : '1 Piece Only',
         icon: null,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-sm font-bold',
-      };
-    }
-    if (product.isReadyNow) {
-      return {
-        text: strings.readyNowBadge || 'جاهز الآن',
-        icon: <Clock className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-sm font-bold',
-      };
-    }
-    if (product.type === 'editable' || product.allowCustomColors || product.allowCustomText) {
-      return {
-        text: strings.customizableBadge || 'قابل للتخصيص',
-        icon: <SlidersHorizontal className="w-2.5 h-2.5 text-stone-600 dark:text-stone-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 border border-stone-200/90 dark:border-stone-700 shadow-sm font-bold',
+        className: 'bg-stone-900/90 text-white backdrop-blur-md shadow-2xs font-bold border border-white/20',
       };
     }
     return null;
@@ -248,17 +234,17 @@ function ProductCard({
       </div>
 
       {/* Card Content & Unified Responsive Footer */}
-      <div className="flex flex-col justify-between flex-1 p-2.5 gap-1.5">
+      <div className="flex flex-col justify-between flex-1 p-3 pt-2.5 pb-3 gap-2">
         {/* Title: Exactly 2 lines max with uniform height */}
         <h3
-          className="line-clamp-2 min-h-[2.2rem] text-xs font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200"
+          className="line-clamp-2 min-h-[2.4rem] text-xs sm:text-sm font-bold leading-snug text-stone-900 dark:text-stone-100 transition-colors duration-200"
           style={{ fontFamily: "var(--font-catalog, 'Readex Pro', 'Cairo', sans-serif)" }}
         >
           {isAr ? product.titleAr : product.titleEn}
         </h3>
 
         {/* Unified Bottom Bar: Prices on Right, + Add Button on Left (Zero Wrap on Mobile) */}
-        <div className="flex items-center justify-between pt-1.5 mt-auto border-t border-stone-100 dark:border-stone-800 gap-1">
+        <div className="flex items-center justify-between pt-2 mt-auto border-t border-stone-100 dark:border-stone-800 gap-1">
           {/* Right Side: Consistent Price Row */}
           <div className="flex flex-col items-start leading-none min-w-0">
             {product.originalPrice && (

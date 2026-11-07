@@ -167,19 +167,19 @@ function OccasionStories({
               onClick={() => handleStoryClick(occ.id)}
               className="flex flex-col items-center gap-1.5 shrink-0 focus:outline-none transition-transform active:scale-92 group relative snap-start"
             >
-              {/* Outer Luxury Concentric Ring */}
+              {/* Outer Luxury Circle */}
               <div
-                className={`relative w-[64px] h-[64px] rounded-full p-[2.5px] transition-all duration-300 ${
+                className={`relative w-[60px] h-[60px] rounded-full p-[2px] transition-all duration-300 ${
                   isSelected
-                    ? 'scale-105 shadow-[0_6px_20px_-3px_rgba(212,175,55,0.4)] ring-2 ring-amber-400/80'
-                    : 'hover:scale-102 opacity-95 hover:opacity-100 shadow-xs'
+                    ? 'ring-2 ring-stone-900 dark:ring-amber-400 scale-105 shadow-sm'
+                    : 'opacity-90 hover:opacity-100 hover:scale-102'
                 }`}
                 style={{
                   background: isSelected
-                    ? 'linear-gradient(135deg, var(--accent-gold, #D4AF37), var(--accent-primary, #022C22), var(--accent-gold, #D4AF37))'
+                    ? 'var(--accent-primary, #022C22)'
                     : isSpecials
-                    ? 'linear-gradient(135deg, #10B981, #059669, #34D399)'
-                    : 'linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(200, 200, 200, 0.25), rgba(2, 44, 34, 0.2))',
+                    ? '#059669'
+                    : '#E7E5E4',
                 }}
               >
                 <div
@@ -191,7 +191,7 @@ function OccasionStories({
                     <img
                       src={occ.image}
                       alt={isAr ? occ.nameAr : occ.nameEn}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading={idx < 5 ? 'eager' : 'lazy'}
                       decoding="async"
                       fetchPriority={idx < 2 ? 'high' : 'auto'}
@@ -201,27 +201,21 @@ function OccasionStories({
                         e.currentTarget.src = './images/products/royal-red-roses.jpg';
                       }}
                     />
-                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 </div>
 
-                {/* Status Badges: Specials flame OR Selected checkmark (Zero random index numbering) */}
-                {isSpecials ? (
-                  <div className="absolute -top-1 -right-1 z-10 px-1.5 py-0.5 rounded-full bg-emerald-600 text-[8px] font-bold text-white flex items-center gap-0.5 shadow-sm ring-2 ring-white dark:ring-stone-900">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping" />
-                    <Flame className="w-2.5 h-2.5 text-amber-300" />
+                {/* Subtle Clean Badge for Specials */}
+                {isSpecials && (
+                  <div className="absolute -top-1 -right-1 z-10 px-1.5 py-0.2 rounded-full bg-emerald-700 text-[8px] font-bold text-white shadow-2xs ring-1 ring-white">
+                    <span>{isAr ? 'جاهز' : 'Now'}</span>
                   </div>
-                ) : isSelected ? (
-                  <div className="absolute -top-1 -right-1 z-10 w-4 h-4 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-stone-900">
-                    <Check className="w-2.5 h-2.5 stroke-[3]" />
-                  </div>
-                ) : null}
+                )}
               </div>
 
               {/* Story Title Label */}
               <span
-                className={`text-xs whitespace-nowrap text-center transition-colors duration-200 ${
-                  isSelected ? 'font-extrabold text-amber-700 dark:text-amber-400' : 'font-semibold text-stone-700 dark:text-stone-300'
+                className={`text-[11px] whitespace-nowrap text-center transition-colors duration-200 ${
+                  isSelected ? 'font-bold text-stone-950 dark:text-stone-50' : 'font-medium text-stone-600 dark:text-stone-400'
                 }`}
               >
                 {isAr ? occ.nameAr : occ.nameEn}

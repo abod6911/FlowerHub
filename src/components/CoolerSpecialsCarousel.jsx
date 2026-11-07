@@ -46,19 +46,19 @@ function CoolerSpecialsCarousel({
   };
 
   const getBadgeConfig = (product) => {
-    if (product.isOneTimeSpecial) {
+    if (product.isOneTimeSpecial || product.coolerStock === 1) {
       return {
-        text: strings.oneTimeBadge || 'قطعة واحدة فقط',
+        text: isAr ? 'قطعة واحدة فقط' : '1 Piece Only',
         icon: null,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-rose-700 dark:text-rose-300 border border-rose-200/90 dark:border-rose-900/50 shadow-sm font-bold',
+        className: 'bg-stone-900/90 text-white backdrop-blur-md shadow-2xs font-bold border border-white/20',
       };
     }
-    if (product.isReadyNow) {
-      return {
-        text: strings.readyNowBadge || 'جاهز الآن',
-        icon: <Clock className="w-2.5 h-2.5 text-emerald-600 dark:text-emerald-400 shrink-0" />,
-        className: 'bg-white/95 dark:bg-stone-900/95 text-emerald-800 dark:text-emerald-300 border border-emerald-200/90 dark:border-emerald-900/50 shadow-sm font-bold',
-      };
+    return null;
+  };
+
+  const getBadgeText = (product) => {
+    if (product?.isOneTimeSpecial || product?.coolerStock === 1) {
+      return isAr ? 'قطعة واحدة فقط' : '1 Piece Only';
     }
     return null;
   };
@@ -71,22 +71,16 @@ function CoolerSpecialsCarousel({
 
     return (
       <section className="py-2 px-3.5 sm:px-4 w-full overflow-hidden transition-colors duration-300 select-none">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 px-0.5">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            <div>
-              <h2
-                className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-100 font-serif"
-              >
-                {isAr ? 'جاهز للاستلام والتوصيل اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
-              </h2>
-              <p
-                className="text-[11px] text-stone-500 dark:text-stone-400"
-              >
-                {strings.coolerSubtitle}
-              </p>
-            </div>
+            <h2 className="text-sm font-bold tracking-tight text-stone-900 dark:text-stone-100 font-serif">
+              {isAr ? 'جاهز للاستلام والتوصيل اليوم' : (strings.coolerTitle || 'Ready for Pickup Today')}
+            </h2>
           </div>
+          <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+            {isAr ? 'توصيل فوري ⚡' : 'Express Delivery'}
+          </span>
         </div>
 
         <div
