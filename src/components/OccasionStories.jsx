@@ -56,13 +56,14 @@ function OccasionStories({
   return (
     <section className="py-2.5 px-4 w-full transition-colors duration-300 select-none">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-2 px-0.5">
+      <div className="flex items-center justify-between mb-2.5 px-0.5">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-3.5 rounded-full bg-gradient-to-b from-amber-400 to-amber-600 shadow-xs" />
+          <div className="w-1.5 h-4 rounded-full bg-gradient-to-b from-amber-300 via-amber-500 to-amber-600 shadow-[0_2px_6px_rgba(212,175,55,0.4)]" />
           <h2
-            className={`text-sm sm:text-base font-bold tracking-tight ${themeTokens.textMain} transition-colors duration-300`}
+            className={`text-sm sm:text-base font-serif font-black tracking-tight ${themeTokens.textMain} transition-colors duration-300 flex items-center gap-1.5`}
           >
-            {strings.occasionsTitle}
+            <span>{strings.occasionsTitle}</span>
+            <span className="text-[11px] font-sans text-amber-600 dark:text-amber-400">✨</span>
           </h2>
         </div>
 

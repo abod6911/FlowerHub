@@ -187,39 +187,46 @@ function ShopHeader({
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
 
-  // Render Refined Boutique Seal / Logo
-  const renderAvatarButton = (sizeClass = 'w-11 h-11') => (
+  // Render Refined Boutique Royal Seal / Medallion Logo
+  const renderAvatarButton = (sizeClass = 'w-12 h-12') => (
     <button
       type="button"
       onClick={() => setIsAvatarModalOpen(true)}
-      className={`relative ${sizeClass} rounded-2xl flex items-center justify-center font-serif text-sm font-bold text-stone-100 shadow-sm border border-stone-200/60 dark:border-stone-700 bg-stone-900 dark:bg-stone-850 cursor-pointer select-none group/avatar hover:opacity-90 active:scale-95 transition-all overflow-hidden shrink-0`}
-      title={isAr ? 'شعار وهوية المتجر (انقر للتعديل)' : 'Store logo (click to edit)'}
+      className={`relative ${sizeClass} rounded-[18px] p-0.5 flex items-center justify-center shadow-[0_4px_16px_rgba(2,44,34,0.18)] border border-amber-400/40 ring-1 ring-amber-400/20 bg-gradient-to-br from-stone-950 via-[#022C22] to-stone-900 cursor-pointer select-none group/avatar hover:scale-105 active:scale-95 transition-all duration-300 shrink-0`}
+      title={isAr ? 'شعار وهوية المتجر الملكية (انقر للتعديل)' : 'Store royal hallmark (click to edit)'}
     >
-      {/* Avatar Image or Clean Monogram */}
-      {avatarUrl ? (
-        <img
-          src={avatarUrl}
-          alt={shopName}
-          className="w-full h-full object-cover rounded-2xl"
-          loading="eager"
-          decoding="async"
-        />
-      ) : (
-        <span className="tracking-widest font-serif text-stone-100 font-bold">{avatarText}</span>
-      )}
+      {/* Outer Golden Hallmark Ring */}
+      <div className="w-full h-full rounded-[15px] flex items-center justify-center overflow-hidden relative bg-gradient-to-br from-stone-900/95 via-[#03261E]/95 to-stone-950">
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={shopName}
+            className="w-full h-full object-cover rounded-[15px]"
+            loading="eager"
+            decoding="async"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center leading-none">
+            <span className="text-[8px] text-amber-400/90 font-mono tracking-tighter mb-0.5">✦</span>
+            <span className="font-serif font-black tracking-wider text-sm bg-gradient-to-b from-amber-100 via-amber-200 to-amber-400 bg-clip-text text-transparent drop-shadow-xs">
+              {avatarText}
+            </span>
+          </div>
+        )}
 
-      {/* Subtle Camera Overlay on Hover */}
-      <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white z-10">
-        <Camera className="w-3.5 h-3.5 text-stone-200" />
+        {/* Subtle Camera Overlay on Hover */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-amber-200 z-10 backdrop-blur-2xs">
+          <Camera className="w-4 h-4 text-amber-300 drop-shadow-xs" />
+        </div>
       </div>
     </button>
   );
 
-  // Render Clean Luxury Search Pill
+  // Render High-Fashion Luxury Search Capsule
   const renderSearchCapsule = () => (
     <div className="relative w-full">
-      <div className="relative w-full flex items-center bg-stone-100/80 dark:bg-stone-850 rounded-2xl border border-stone-200/80 dark:border-stone-700/80 px-3.5 py-2 transition-all duration-200 focus-within:border-stone-800 dark:focus-within:border-stone-300 focus-within:bg-white dark:focus-within:bg-stone-900 focus-within:shadow-xs">
-        <Search className="w-4 h-4 text-stone-400 shrink-0 ms-0.5" />
+      <div className="relative w-full flex items-center bg-stone-50/90 dark:bg-stone-900/90 rounded-[20px] border border-stone-200/90 dark:border-stone-700/80 px-4 py-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] transition-all duration-300 focus-within:border-amber-500/70 dark:focus-within:border-amber-400/60 focus-within:bg-white dark:focus-within:bg-stone-900 focus-within:ring-3 focus-within:ring-amber-500/10 focus-within:shadow-[0_4px_20px_-4px_rgba(212,175,55,0.12)]">
+        <Search className="w-4 h-4 text-amber-600/80 dark:text-amber-400/80 shrink-0 ms-0.5 transition-colors" />
 
         <input
           type="text"
@@ -227,18 +234,22 @@ function ShopHeader({
           onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
           placeholder={currentPlaceholder}
           aria-label={isAr ? 'ابحث عن باقة، فازة، أو مناسبة...' : 'Search bouquets, vases, occasions...'}
-          className="w-full py-1 px-2.5 bg-transparent text-stone-900 dark:text-stone-100 placeholder-stone-400 text-xs font-medium focus:outline-none"
+          className="w-full py-0.5 px-3 bg-transparent text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 text-xs font-medium focus:outline-none"
         />
 
-        {searchQuery && (
+        {searchQuery ? (
           <button
             type="button"
             onClick={() => onSearchChange && onSearchChange('')}
-            className="w-6 h-6 rounded-full bg-stone-200/70 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-600 dark:text-stone-300 flex items-center justify-center transition-all cursor-pointer active:scale-90 shrink-0"
+            className="w-6 h-6 rounded-full bg-stone-200/80 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 text-stone-700 dark:text-stone-300 flex items-center justify-center transition-all cursor-pointer active:scale-90 shrink-0"
             aria-label="Clear search"
           >
-            <X className="w-3 h-3 stroke-[2.5]" />
+            <X className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
+        ) : (
+          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-stone-200/60 dark:bg-stone-800 text-stone-500 dark:text-stone-400 shrink-0 select-none hidden sm:inline-block">
+            {isAr ? 'بحث سريع' : 'Search'}
+          </span>
         )}
       </div>
     </div>
@@ -389,64 +400,86 @@ function ShopHeader({
           </div>
         </div>
       ) : (
-        /* STYLE 3: SIGNATURE QLUB COMPACT BOUTIQUE CARD (DEFAULT) */
+        /* STYLE 3: SIGNATURE ULTRA-LUXURY ATELIER CARD (DEFAULT) */
         <div
-          className="relative p-4 sm:p-5 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-3 transition-all duration-300 overflow-hidden rounded-[22px] sm:rounded-[26px] border border-stone-200/80 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl group"
+          className="relative p-5 sm:p-6 shadow-[0_20px_50px_-10px_rgba(28,25,23,0.08),0_2px_8px_rgba(0,0,0,0.03)] flex flex-col gap-4 transition-all duration-300 overflow-hidden rounded-[28px] sm:rounded-[32px] border border-stone-200/90 dark:border-stone-800 bg-gradient-to-b from-white via-[#FCFBF9] to-[#F7F5F0] dark:from-[#18181B] dark:via-[#141416] dark:to-[#0F0F11] backdrop-blur-2xl group"
         >
-          {/* 1. TOP ROW: Store Seal on Right | Contact & Rating on Left (Spacious 2-corner balance) */}
-          <div className="flex items-center justify-between w-full relative z-10">
-            <div className="flex items-center gap-2">
-              {renderAvatarButton('w-10 h-10')}
-              <div className="flex flex-col text-start">
-                <span className="text-[10px] uppercase tracking-wider font-semibold text-stone-400">
-                  {isAr ? 'بوتيك أزهار فاخر' : 'Luxury Atelier'}
+          {/* Subtle Top Gold Hairline & Ambient Lighting */}
+          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent pointer-events-none" />
+          <div className="absolute top-0 inset-x-0 h-28 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.08),transparent_70%)] pointer-events-none" />
+
+          {/* 1. TOP ROW: Store Crest & Status on Right | Concierge WhatsApp & Rating on Left */}
+          <div className="flex items-center justify-between w-full relative z-10 gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              {renderAvatarButton('w-12 h-12')}
+              <div className="flex flex-col text-start min-w-0">
+                <span className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                  <span>بوتيك أزهار فاخر</span>
+                  <span className="text-[8px] text-amber-500">•</span>
+                  <span className="text-[9px] font-mono tracking-tight text-stone-400 dark:text-stone-500">ATELIER</span>
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
-                  <span className={`inline-flex rounded-full h-1.5 w-1.5 ${radarDotClasses}`} />
-                  <span>{statusText}</span>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 mt-0.5 truncate">
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                  </span>
+                  <span className="truncate">{statusText}</span>
                 </span>
               </div>
             </div>
 
-            {/* Left: Quick WhatsApp Contact & Verified Rating */}
-            <div className="flex items-center justify-end gap-1.5">
+            {/* Left Actions: Concierge WhatsApp & Rating */}
+            <div className="flex items-center justify-end gap-2 shrink-0">
               <a
                 href={`https://wa.me/${phone}`}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={isAr ? 'واتساب مباشر' : 'WhatsApp'}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500 text-emerald-800 dark:text-emerald-300 hover:text-white border border-emerald-500/20 transition-all duration-200 active:scale-95 shadow-2xs"
-                title={isAr ? 'تواصل مع المنسق' : 'Chat with Florist'}
+                aria-label={isAr ? 'واتساب المنسق' : 'WhatsApp Concierge'}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-950 via-[#022C22] to-emerald-950 hover:from-emerald-900 hover:to-[#044133] text-emerald-100 hover:text-white border border-emerald-600/40 transition-all duration-200 active:scale-95 shadow-[0_2px_10px_rgba(2,44,34,0.2)]"
+                title={isAr ? 'تواصل فوري مع منسق الزهور' : 'Private Florist Concierge'}
               >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400/20" />
+                <span className="text-[11px] tracking-wide">{isAr ? 'واتساب' : 'WhatsApp'}</span>
               </a>
 
-              <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200/70 dark:border-stone-700 shadow-2xs whitespace-nowrap">
-                <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
-                <span className="font-extrabold text-[11px] tracking-tight">4.9</span>
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-amber-500/10 via-amber-400/15 to-amber-500/10 text-amber-950 dark:text-amber-200 border border-amber-400/35 shadow-2xs whitespace-nowrap">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0 drop-shadow-[0_1px_2px_rgba(212,175,55,0.3)]" />
+                <span className="font-black text-[12px] tracking-tight">4.9</span>
               </span>
             </div>
           </div>
 
-          {/* 2. MAISON BRAND IDENTITY */}
-          <div className="w-full pt-1 pb-0.5 px-1 relative z-10 flex flex-col items-center justify-center text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight select-text text-stone-900 dark:text-stone-50 font-serif leading-tight">
+          {/* 2. MAISON BRAND IDENTITY: HIGH-FASHION CENTERPIECE */}
+          <div className="w-full py-1 relative z-10 flex flex-col items-center justify-center text-center">
+            {/* Elegant Ornamental Hallmark */}
+            <div className="flex items-center justify-center gap-2 mb-1 opacity-70">
+              <span className="h-px w-6 bg-gradient-to-r from-transparent to-amber-400/60" />
+              <span className="text-[9px] text-amber-600 dark:text-amber-400 font-mono tracking-widest">✦ MAISON DE FLEURS ✦</span>
+              <span className="h-px w-6 bg-gradient-to-l from-transparent to-amber-400/60" />
+            </div>
+
+            {/* Majestic Title */}
+            <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight select-text text-stone-900 dark:text-stone-50 leading-tight">
               {shopName}
             </h1>
 
-            {/* Clean Tagline & Location Line */}
-            <div className="flex items-center justify-center gap-2 text-xs text-stone-500 dark:text-stone-400 mt-1 flex-wrap font-medium">
-              <span>{shopTagline}</span>
-              <span className="inline-block w-1 h-1 rounded-full bg-stone-300 dark:bg-stone-600 shrink-0" />
+            {/* Subtitle / Tagline */}
+            <p className="text-xs text-stone-600 dark:text-stone-300 mt-1.5 font-medium max-w-sm leading-relaxed">
+              {shopTagline}
+            </p>
+
+            {/* Location & Chilled Delivery Pill */}
+            <div className="mt-2.5 flex items-center justify-center">
               <a
                 href={locationUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-stone-600 dark:text-stone-300 hover:text-emerald-700 font-semibold"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100/90 dark:bg-stone-850 border border-stone-200/80 dark:border-stone-700/80 hover:border-amber-500/40 text-[11px] font-semibold text-stone-700 dark:text-stone-300 transition-all shadow-2xs group/loc"
               >
-                <MapPin className="w-3 h-3 shrink-0 text-stone-400" />
+                <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover/loc:scale-110 transition-transform" />
                 <span>{locationLabel}</span>
+                <span className="text-stone-300 dark:text-stone-600">•</span>
+                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">توصيل مبرد خاص ❄️</span>
               </a>
             </div>
           </div>
