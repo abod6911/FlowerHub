@@ -30,6 +30,11 @@ import AmbientRosePetals from './components/AmbientRosePetals';
 import { verifyAndRecalculateOrder } from './services/priceVerificationService';
 import { checkRateLimit, recordAttempt } from './services/rateLimiter';
 import { sanitizeText } from './utils/sanitizer';
+import {
+  createOrderSlipFromSingleItem,
+  createOrderSlipFromBag,
+  createOrderSlipFromCustomOrder,
+} from './utils/orderSlipHelper';
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
 
 class SafeErrorBoundary extends React.Component {
@@ -118,8 +123,23 @@ export default function App() {
   // View Mode: 'storefront' | 'admin' | 'split' | 'orderslip'
   const [activeView, setActiveView] = useState('storefront');
 
-  // Order Slip Modal State (for overlay access from WhatsApp or Admin)
+  // Order Slip Modal State & Active Order Data (for dynamic invoice presentation)
   const [isOrderSlipModalOpen, setIsOrderSlipModalOpen] = useState(false);
+  const [activeOrderSlipData, setActiveOrderSlipData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('flowerhub_last_order');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const handleOpenOrderSlip = (orderData = null) => {
+    if (orderData) {
+      setActiveOrderSlipData(orderData);
+    }
+    setIsOrderSlipModalOpen(true);
+  };
 
   // Filter States - Occasion (Circle Stories) & Format/Budget (StickyFilterBar)
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -313,6 +333,14 @@ export default function App() {
       } : configuredItem.handover,
     };
 
+    const slipData = createOrderSlipFromSingleItem(sanitizedItem, lang);
+    setActiveOrderSlipData(slipData);
+    try {
+      localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
+    } catch (e) {
+      console.warn('Could not cache last order', e);
+    }
+
     setIsProductDrawerOpen(false);
     recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
@@ -320,7 +348,7 @@ export default function App() {
       items: [sanitizedItem],
       handover: sanitizedItem.handover,
       trustPhoto: configuredItem.trustPhoto,
-      orderId: '8492',
+      orderId: slipData.orderId,
     });
     setWhatsAppTicketText(text);
     fireConfetti();
@@ -364,15 +392,23 @@ export default function App() {
       };
     });
 
+    const handover = sanitizedItems[0]?.handover || { type: 'gift' };
+    const slipData = createOrderSlipFromBag(sanitizedItems, handover, lang);
+    setActiveOrderSlipData(slipData);
+    try {
+      localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
+    } catch (e) {
+      console.warn('Could not cache last order', e);
+    }
+
     setIsCartDrawerOpen(false);
     recordAttempt('checkout_order');
-    const handover = sanitizedItems[0]?.handover || { type: 'gift' };
     const text = generateWhatsAppMessage({
       lang,
       items: sanitizedItems,
       handover,
       trustPhoto: true,
-      orderId: '8492',
+      orderId: slipData.orderId,
     });
     setWhatsAppTicketText(text);
     fireConfetti();
@@ -406,6 +442,14 @@ export default function App() {
       giftCardMessage: handoverData.giftCardMessage ? sanitizeText(handoverData.giftCardMessage) : '',
     } : handoverData;
 
+    const slipData = createOrderSlipFromCustomOrder(sanitizedCustomOrder, sanitizedHandover, lang);
+    setActiveOrderSlipData(slipData);
+    try {
+      localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
+    } catch (e) {
+      console.warn('Could not cache last order', e);
+    }
+
     setIsCustomDrawerOpen(false);
     recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
@@ -413,7 +457,7 @@ export default function App() {
       customOrder: sanitizedCustomOrder,
       handover: sanitizedHandover,
       trustPhoto: true,
-      orderId: '8492',
+      orderId: slipData.orderId,
     });
     setWhatsAppTicketText(text);
     fireConfetti();
@@ -760,7 +804,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onMoveToPastWork={handleMoveToPastWork}
                 pastWorks={pastWorks}
                 lang={lang}
-                onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+                onOpenOrderSlip={handleOpenOrderSlip}
                 themeTokens={themeTokens}
                 formats={formats}
                 onAddFormat={handleAddFormat}
@@ -790,7 +834,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onMoveToPastWork={handleMoveToPastWork}
                 pastWorks={pastWorks}
                 lang={lang}
-                onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+                onOpenOrderSlip={handleOpenOrderSlip}
                 themeTokens={themeTokens}
                 formats={formats}
                 onAddFormat={handleAddFormat}
@@ -833,7 +877,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   onMoveToPastWork={handleMoveToPastWork}
                   pastWorks={pastWorks}
                   lang={lang}
-                  onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+                  onOpenOrderSlip={handleOpenOrderSlip}
                   themeTokens={themeTokens}
                   formats={formats}
                   onAddFormat={handleAddFormat}
@@ -898,6 +942,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               isOpen={true}
               isModal={false}
               lang={lang}
+              shopConfig={shopConfig}
+              orderData={activeOrderSlipData}
             />
           </div>
         </React.Suspense>
@@ -949,7 +995,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           onClose={() => setIsWhatsAppModalOpen(false)}
           messageText={whatsAppTicketText}
           lang={lang}
-          onOpenOrderSlip={() => setIsOrderSlipModalOpen(true)}
+          onOpenOrderSlip={handleOpenOrderSlip}
+          orderData={activeOrderSlipData}
         />
       </React.Suspense>
 
@@ -960,6 +1007,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           onClose={() => setIsOrderSlipModalOpen(false)}
           isModal={true}
           lang={lang}
+          shopConfig={shopConfig}
+          orderData={activeOrderSlipData}
         />
       </React.Suspense>
 

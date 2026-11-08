@@ -230,6 +230,7 @@ export default function FloristOrderSlipModal({
         bouquet: { ...defaultOrderData.bouquet, ...(propOrderData.bouquet || {}) },
         greetingCard: { ...defaultOrderData.greetingCard, ...(propOrderData.greetingCard || {}) },
         addons: propOrderData.addons || defaultOrderData.addons,
+        items: propOrderData.items || (propOrderData.bouquet ? [propOrderData.bouquet] : defaultOrderData.items || []),
       }
     : defaultOrderData;
 
@@ -241,7 +242,8 @@ export default function FloristOrderSlipModal({
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard?.writeText('https://flowerhub.sa/o/8492');
+    const rawId = String(orderData?.orderId || '8492').replace(/[^0-9]/g, '') || '8492';
+    navigator.clipboard?.writeText(`https://flowerhub.sa/o/${rawId}`);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -455,24 +457,64 @@ export default function FloristOrderSlipModal({
                     </div>
                   </div>
 
-                  {/* Bouquet Recipe & Prep Details */}
-                  <div className="border-b border-dashed border-black pb-2.5 text-xs space-y-1.5 font-sans text-stone-900">
-                    <div className="flex justify-between font-bold text-xs text-black">
-                      <span>1x {isAr ? orderData.bouquet.titleAr : orderData.bouquet.titleEn}</span>
-                      <span>{orderData.bouquet.price} {strings.sar}</span>
-                    </div>
-                    <div className="text-[11px] ps-2 text-stone-800 font-medium">
-                      • {orderData.bouquet.recipe}
-                    </div>
-                    <div className="text-[11px] ps-2 font-bold text-black">
-                      • {isAr ? 'التغليف المطلوب:' : 'Wrap:'} {orderData.bouquet.wrapTweak}
-                    </div>
-                    <div className="text-[11px] ps-2 font-bold text-black">
-                      • {isAr ? 'طباعة شريط الساتان:' : 'Ribbon Text:'} «{orderData.bouquet.ribbonText}»
-                    </div>
+                  {/* Bouquet / Items Recipe & Prep Details */}
+                  <div className="border-b border-dashed border-black pb-2.5 text-xs space-y-2 font-sans text-stone-900">
+                    {orderData.items && orderData.items.length > 0 ? (
+                      orderData.items.map((item, idx) => (
+                        <div key={idx} className="space-y-1 pb-1.5 border-b border-dashed border-stone-300 last:border-b-0 last:pb-0">
+                          <div className="flex justify-between font-bold text-xs text-black">
+                            <span>{item.quantity || 1}x {isAr ? (item.titleAr || item.nameAr) : (item.titleEn || item.nameEn || item.titleAr)}</span>
+                            <span>{Number(item.price || item.totalPrice || 0) * (item.quantity || 1)} {strings.sar}</span>
+                          </div>
+                          {item.recipe && (
+                            <div className="text-[11px] ps-2 text-stone-800 font-medium">
+                              • {item.recipe}
+                            </div>
+                          )}
+                          {item.wrapTweak && (
+                            <div className="text-[11px] ps-2 font-bold text-black">
+                              • {isAr ? 'التغليف المطلوب:' : 'Wrap:'} {item.wrapTweak}
+                            </div>
+                          )}
+                          {item.ribbonText && (
+                            <div className="text-[11px] ps-2 font-bold text-black">
+                              • {isAr ? 'طباعة شريط الساتان:' : 'Ribbon Text:'} «{item.ribbonText}»
+                            </div>
+                          )}
+                          {item.addons && item.addons.map((a, i) => (
+                            <div key={i} className="flex justify-between text-[11px] ps-2 pt-0.5 text-stone-900">
+                              <span>+ {isAr ? (a.nameAr || a.name) : (a.nameEn || a.name)}</span>
+                              <span className="font-bold text-black">{a.price} {strings.sar}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="flex justify-between font-bold text-xs text-black">
+                          <span>1x {isAr ? orderData.bouquet?.titleAr : orderData.bouquet?.titleEn}</span>
+                          <span>{orderData.bouquet?.price} {strings.sar}</span>
+                        </div>
+                        {orderData.bouquet?.recipe && (
+                          <div className="text-[11px] ps-2 text-stone-800 font-medium">
+                            • {orderData.bouquet.recipe}
+                          </div>
+                        )}
+                        {orderData.bouquet?.wrapTweak && (
+                          <div className="text-[11px] ps-2 font-bold text-black">
+                            • {isAr ? 'التغليف المطلوب:' : 'Wrap:'} {orderData.bouquet.wrapTweak}
+                          </div>
+                        )}
+                        {orderData.bouquet?.ribbonText && (
+                          <div className="text-[11px] ps-2 font-bold text-black">
+                            • {isAr ? 'طباعة شريط الساتان:' : 'Ribbon Text:'} «{orderData.bouquet.ribbonText}»
+                          </div>
+                        )}
+                      </>
+                    )}
 
-                    {/* Add-ons */}
-                    {orderData.addons.map((a, i) => (
+                    {/* Root Add-ons if not already in items */}
+                    {(!orderData.items || orderData.items.length === 0) && orderData.addons && orderData.addons.map((a, i) => (
                       <div key={i} className="flex justify-between text-[11px] ps-2 pt-0.5 text-stone-900">
                         <span>+ {isAr ? a.nameAr : a.nameEn}</span>
                         <span className="font-bold text-black">{a.price} {strings.sar}</span>

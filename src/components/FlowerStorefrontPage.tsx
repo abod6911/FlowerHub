@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useMemo, ElementType } from "react";
 import FloristOrderSlipModal from "./FloristOrderSlipModal";
+import { createOrderSlipFromSingleItem } from "../utils/orderSlipHelper";
 import {
   motion,
   useAnimationFrame,
@@ -280,6 +281,7 @@ export default function FlowerStorefrontPage() {
   const [isCustomDrawerOpen, setIsCustomDrawerOpen] = useState(false);
   const [isExpressDelivery, setIsExpressDelivery] = useState(true);
   const [addedItemName, setAddedItemName] = useState<string | null>(null);
+  const [lastAddedProduct, setLastAddedProduct] = useState<Product | null>(null);
 
   // Flight Path State (Rule 7: Arced Motion Paths 32px arc offset)
   const [flightState, setFlightState] = useState<{
@@ -321,6 +323,7 @@ export default function FlowerStorefrontPage() {
     });
 
     setAddedItemName(product.name);
+    setLastAddedProduct(product);
     setTimeout(() => {
       setFlightState((prev) => ({ ...prev, isFlying: false }));
       setCartCount((prev) => prev + 1);
@@ -693,6 +696,20 @@ export default function FlowerStorefrontPage() {
         <FloristOrderSlipModal
           isOpen={isReceiptModalOpen}
           onClose={() => setIsReceiptModalOpen(false)}
+          orderData={lastAddedProduct ? createOrderSlipFromSingleItem({
+            id: lastAddedProduct.id,
+            nameAr: lastAddedProduct.name,
+            price: lastAddedProduct.price,
+            stemCount: lastAddedProduct.stemCount,
+            flowerType: lastAddedProduct.flowerType,
+            image: lastAddedProduct.image,
+            handover: {
+              customerName: "عميل دار الورد",
+              recipientName: "مستلم الباقة",
+              type: "gift",
+              deliveryDistrict: "الرياض",
+            }
+          }, "ar") : null}
         />
 
       </main>

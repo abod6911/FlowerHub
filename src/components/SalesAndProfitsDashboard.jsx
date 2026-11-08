@@ -32,6 +32,7 @@ import {
   ANALYTICS_TIMELINES,
   formatCurrency,
 } from '../data/mockSalesData';
+import { createOrderSlipFromTransaction } from '../utils/orderSlipHelper';
 
 /**
  * High-Precision 60fps Exponential Ease-Out Animated Counter Component
@@ -1392,8 +1393,9 @@ export default function SalesAndProfitsDashboard({
               {onOpenOrderSlip && (
                 <button
                   onClick={() => {
+                    const slip = createOrderSlipFromTransaction(selectedTx, lang);
                     setSelectedTx(null);
-                    onOpenOrderSlip();
+                    onOpenOrderSlip(slip);
                   }}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold shadow-xs cursor-pointer"
                 >

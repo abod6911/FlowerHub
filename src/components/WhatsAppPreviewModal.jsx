@@ -17,6 +17,7 @@ export default function WhatsAppPreviewModal({
   messageText,
   lang,
   onOpenOrderSlip,
+  orderData = null,
 }) {
   const [copied, setCopied] = useState(false);
   const [showReply, setShowReply] = useState(false);
@@ -190,15 +191,15 @@ export default function WhatsAppPreviewModal({
               type="button"
               onClick={() => {
                 onClose();
-                onOpenOrderSlip();
+                onOpenOrderSlip(orderData);
               }}
               className="w-full py-2.5 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200 font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95"
             >
               <FileText className="w-4 h-4 text-stone-600 dark:text-stone-300" />
               <span>
                 {isAr
-                  ? 'عرض تذكرة العمل وبطاقة الإهداء #FLW-8492'
-                  : 'View Florist Slip & Printable Card #FLW-8492'}
+                  ? `عرض تذكرة العمل وبطاقة الإهداء #${orderData?.orderId || 'الطلب'}`
+                  : `View Florist Slip & Printable Card #${orderData?.orderId || 'Order'}`}
               </span>
             </button>
           )}
