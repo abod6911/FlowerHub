@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
   Plus,
@@ -28,6 +29,9 @@ import {
   Battery,
   MapPin,
   Phone,
+  Lock,
+  Layers,
+  Play,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import { validateUploadedFile } from '../services/uploadSecurity';
@@ -2109,20 +2113,27 @@ export default function FloristAdminPanel({
             </div>
           </div>
 
-          {/* 3. Shop Header Layout (3 Layouts) */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-              <Layout className="w-3.5 h-3.5 text-stone-700" />
-              <span>{isAr ? 'تنسيق ترويسة المتجر (Hero):' : 'Shop Header Layout:'}</span>
-            </label>
+          {/* 3. Shop Header Layout (Bespoke Interactive Visual Cards) */}
+          <div className="space-y-2.5 pt-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+                <Layout className="w-3.5 h-3.5 text-amber-600" />
+                <span>{isAr ? 'تنسيق ترويسة المتجر (Hero Layout):' : 'Shop Header Layout:'}</span>
+              </label>
+              <span className="text-[10px] text-stone-400 font-sans">
+                {isAr ? 'اختر النمط البصري لهيدر متجرك' : 'Select storefront header aesthetic'}
+              </span>
+            </div>
 
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               {HERO_STYLES.map((hero) => {
                 const isActive = shopConfig.heroStyle === hero.id;
                 return (
-                  <button
+                  <motion.button
                     key={hero.id}
                     type="button"
+                    whileHover={{ y: -3, transition: { duration: 0.18 } }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       onUpdateShopConfig({
                         ...shopConfig,
@@ -2134,37 +2145,84 @@ export default function FloristAdminPanel({
                           : `📐 Header layout "${hero.name}" applied live!`
                       );
                     }}
-                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                    className={`relative p-3.5 rounded-2xl border text-start transition-all cursor-pointer flex flex-col justify-between overflow-hidden group select-none ${
                       isActive
-                        ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        ? 'bg-gradient-to-br from-stone-950 via-[#181514] to-stone-950 text-white border-amber-400/50 shadow-md ring-1 ring-amber-400/25'
+                        : 'bg-white hover:bg-[#FCFBF8] text-stone-800 border-stone-200/90 shadow-2xs hover:shadow-xs'
                     }`}
                   >
-                    <div className="text-xs font-bold">
-                      {isAr ? hero.nameAr : hero.name}
+                    {/* Visual Schematic Header Miniature */}
+                    <div className={`w-full h-13 rounded-xl mb-3 p-1.5 flex flex-col justify-between border transition-all ${
+                      isActive ? 'bg-stone-900/90 border-amber-400/20' : 'bg-stone-50 border-stone-200/70 group-hover:bg-amber-50/20'
+                    }`}>
+                      {hero.id === 'qlub' && (
+                        <div className="w-full h-full flex flex-col justify-between p-0.5">
+                          <div className="flex items-center justify-between">
+                            <div className={`w-4 h-4 rounded-md ${isActive ? 'bg-amber-400' : 'bg-stone-400'}`} />
+                            <div className="flex gap-1">
+                              <div className={`w-5 h-2 rounded-full ${isActive ? 'bg-emerald-400' : 'bg-emerald-300'}`} />
+                              <div className={`w-4 h-2 rounded-full ${isActive ? 'bg-amber-400' : 'bg-amber-300'}`} />
+                            </div>
+                          </div>
+                          <div className={`w-3/5 mx-auto h-2 rounded-sm ${isActive ? 'bg-white' : 'bg-stone-700'}`} />
+                          <div className={`w-full h-1.5 rounded-full ${isActive ? 'bg-stone-700' : 'bg-stone-200'}`} />
+                        </div>
+                      )}
+                      {hero.id === 'editorial' && (
+                        <div className="w-full h-full rounded-lg bg-gradient-to-b from-stone-700 via-stone-800 to-stone-950 flex flex-col justify-between p-1">
+                          <div className="w-3.5 h-3.5 rounded-full bg-amber-400/80" />
+                          <div className="w-3/4 mx-auto h-2 rounded-sm bg-amber-100" />
+                          <div className="w-4/5 mx-auto h-1 rounded-full bg-stone-400/60" />
+                        </div>
+                      )}
+                      {hero.id === 'minimal' && (
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-1.5">
+                          <div className={`w-5 h-5 rounded-full ${isActive ? 'bg-amber-400' : 'bg-stone-400'}`} />
+                          <div className={`w-2/3 h-2 rounded-sm ${isActive ? 'bg-white' : 'bg-stone-700'}`} />
+                        </div>
+                      )}
                     </div>
-                  </button>
+
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <span className="text-xs font-bold font-serif">{isAr ? hero.nameAr : hero.name}</span>
+                        {isActive && (
+                          <span className="w-4 h-4 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-xs">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[10px] leading-relaxed ${isActive ? 'text-stone-300' : 'text-stone-500'}`}>
+                        {isAr ? hero.descriptionAr : hero.description}
+                      </p>
+                    </div>
+                  </motion.button>
                 );
               })}
             </div>
           </div>
 
-          {/* 4. Specials Showcase Animation Style (4 Switchable Modes) */}
-          <div className="space-y-2">
+          {/* 4. Specials Showcase Animation Style (Executive Motion Cards) */}
+          <div className="space-y-2.5 pt-2">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>{isAr ? 'نمط حركة "جاهز للاستلام اليوم":' : '"Ready Today" Motion Style:'}</span>
+                <span>{isAr ? 'نمط حركة "جاهز للاستلام اليوم" (Motion Style):' : '"Ready Today" Motion Style:'}</span>
               </label>
+              <span className="text-[10px] text-stone-400 font-sans">
+                {isAr ? 'حركة تفاعلية فائقة النعومة' : '60fps fluid showcase physics'}
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {SPECIALS_STYLES.map((style) => {
                 const isActive = shopConfig.specialsStyle === style.id;
                 return (
-                  <button
+                  <motion.button
                     key={style.id}
                     type="button"
+                    whileHover={{ y: -2, transition: { duration: 0.18 } }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       onUpdateShopConfig({
                         ...shopConfig,
@@ -2176,53 +2234,74 @@ export default function FloristAdminPanel({
                           : `⚡ Specials motion "${style.name}" applied live!`
                       );
                     }}
-                    className={`p-3 rounded-xl border text-start transition-all ${
+                    className={`relative p-3.5 rounded-2xl border text-start transition-all cursor-pointer flex items-start gap-3 overflow-hidden select-none ${
                       isActive
-                        ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
-                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-300'
+                        ? 'bg-gradient-to-br from-stone-950 via-[#181514] to-stone-950 text-white border-amber-400/50 shadow-md ring-1 ring-amber-400/25'
+                        : 'bg-white hover:bg-[#FCFBF8] text-stone-800 border-stone-200/90 shadow-2xs hover:shadow-xs'
                     }`}
                   >
-                    <div className="text-xs font-bold">
-                      {isAr ? style.nameAr : style.name}
+                    {/* Dynamic Style Icon Medallion */}
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border transition-all ${
+                      isActive
+                        ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 border-amber-300 shadow-xs'
+                        : 'bg-stone-100 text-stone-600 border-stone-200'
+                    }`}>
+                      {style.id === 'marquee' && <Play className={`w-4 h-4 fill-current ${isActive ? 'animate-pulse' : ''}`} />}
+                      {style.id === 'coverflow' && <Layers className="w-4 h-4" />}
+                      {style.id === 'spotlight' && <Sparkles className="w-4 h-4" />}
+                      {style.id === 'editorial_deck' && <Layout className="w-4 h-4" />}
                     </div>
-                    <div
-                      className={`text-[10px] mt-0.5 ${
-                        isActive ? 'text-stone-300' : 'text-stone-400'
-                      }`}
-                    >
-                      {style.id === 'marquee' && (isAr ? 'انسيابي مستمر' : 'Smooth glide')}
-                      {style.id === 'coverflow' && (isAr ? 'تركيز ثلاثي الأبعاد' : '3D Snap focus')}
-                      {style.id === 'spotlight' && (isAr ? 'منصة فاخرة متباينة' : 'Contrasting stage')}
-                      {style.id === 'editorial_deck' && (isAr ? 'بطاقة عريضة مقسومة' : 'Full split card')}
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold font-serif">{isAr ? style.nameAr : style.name}</span>
+                        {isActive && (
+                          <span className="text-[10px] font-mono font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/40">
+                            {isAr ? 'مُفعّل' : 'Active'}
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-[11px] mt-0.5 ${isActive ? 'text-stone-300' : 'text-stone-500'}`}>
+                        {style.id === 'marquee' && (isAr ? 'حركة انسيابية متصلة مستمرة بتدفق هادئ' : 'Smooth infinite gliding loop')}
+                        {style.id === 'coverflow' && (isAr ? 'تركيز ثلاثي الأبعاد بتأثير عمق سينمائي' : '3D depth snapping with focus')}
+                        {style.id === 'spotlight' && (isAr ? 'منصة عرض متباينة تبرز كل قطعة بفخامة' : 'High-contrast staged spotlight')}
+                        {style.id === 'editorial_deck' && (isAr ? 'بطاقة عريضة بتنسيق مجلات الأزياء' : 'Full-bleed luxury magazine split card')}
+                      </p>
                     </div>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
           </div>
 
-          {/* 5. Occasion Stories Manager (Floward & Instagram Style) */}
-          <div className="space-y-3 pt-2 border-t border-stone-200">
-            <div className="flex items-center justify-between">
+          {/* 5. Occasion Stories Manager (Ultra-Luxury Stories Studio) */}
+          <div className="space-y-3.5 pt-3 border-t border-stone-200/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
               <div>
-                <label className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{isAr ? 'إدارة قصص المناسبات (Stories Manager):' : 'Occasion Stories Manager:'}</span>
-                </label>
-                <p className="text-[11px] text-stone-500 mt-0.5">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs sm:text-sm font-bold font-serif text-stone-900 flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{isAr ? 'إدارة قصص المناسبات والتصنيفات (Stories Manager):' : 'Occasion Stories Manager:'}</span>
+                  </label>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-300/70 shadow-2xs font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{occasions.filter((o) => o.isVisible !== false).length} {isAr ? 'معروضة' : 'active'}</span>
+                  </span>
+                </div>
+                <p className="text-[11px] text-stone-500 mt-0.5 font-sans">
                   {isAr
-                    ? 'التحكم في الدوائر التفاعلية أعلى المتجر، إخفاء/إظهار، وإضافة قصص جديدة'
+                    ? 'التحكم التفاعلي بالدوائر العلوية، إخفاء/إظهار، وإضافة قصص مخصصة'
                     : 'Manage interactive top circles, toggle visibility, and add new stories'}
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 {onResetOccasions && (
                   <button
                     type="button"
                     onClick={onResetOccasions}
                     title={isAr ? 'استعادة الافتراضي' : 'Reset to Default'}
-                    className="p-1.5 rounded-xl border border-stone-200 bg-white text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-all text-xs"
+                    className="p-2 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-600 hover:text-stone-900 transition-all text-xs cursor-pointer shadow-2xs active:scale-95"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
                   </button>
@@ -2230,13 +2309,13 @@ export default function FloristAdminPanel({
                 <button
                   type="button"
                   onClick={() => setIsAddingStoryFormOpen(!isAddingStoryFormOpen)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 ${
                     isAddingStoryFormOpen
                       ? 'bg-stone-200 text-stone-800'
-                      : 'bg-stone-900 text-white hover:bg-stone-800 shadow-xs active:scale-95'
+                      : 'bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 hover:from-stone-900 text-amber-200 border border-amber-400/40 shadow-xs hover:shadow-md ring-1 ring-amber-400/20'
                   }`}
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="w-3.5 h-3.5 text-amber-400" />
                   <span>{isAr ? '+ قصة مناسبة' : '+ New Story'}</span>
                 </button>
               </div>
@@ -2246,23 +2325,23 @@ export default function FloristAdminPanel({
             {isAddingStoryFormOpen && (
               <form
                 onSubmit={handleSubmitNewStory}
-                className="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/25 space-y-3 animate-fade-in"
+                className="p-4 rounded-3xl bg-gradient-to-b from-[#FFFDF9] to-[#FBF8F2] border border-amber-400/40 space-y-3.5 shadow-sm animate-fade-in"
               >
-                <div className="flex items-center justify-between border-b border-amber-500/20 pb-2">
-                  <span className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-amber-600" />
+                <div className="flex items-center justify-between border-b border-amber-500/20 pb-2.5">
+                  <span className="text-xs font-bold font-serif text-stone-900 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-amber-600" />
                     <span>{isAr ? 'إنشاء قصة مناسبة جديدة للمتجر' : 'Create New Occasion Story'}</span>
                   </span>
                   <button
                     type="button"
                     onClick={() => setIsAddingStoryFormOpen(false)}
-                    className="text-stone-400 hover:text-stone-700"
+                    className="text-stone-400 hover:text-stone-700 cursor-pointer p-1 rounded-full hover:bg-stone-100"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div>
                     <label className="text-[10px] font-bold text-stone-700 block mb-1">
                       {isAr ? 'اسم المناسبة (عربي) *' : 'Occasion Name (Arabic) *'}
@@ -2273,7 +2352,7 @@ export default function FloristAdminPanel({
                       placeholder={isAr ? 'مثال: خطوبة وملكة' : 'e.g. Engagement'}
                       value={storyFormNameAr}
                       onChange={(e) => setStoryFormNameAr(e.target.value)}
-                      className="w-full text-xs p-2 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      className="w-full text-xs p-2.5 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400"
                     />
                   </div>
 
@@ -2286,7 +2365,7 @@ export default function FloristAdminPanel({
                       placeholder="e.g. Engagement & Party"
                       value={storyFormNameEn}
                       onChange={(e) => setStoryFormNameEn(e.target.value)}
-                      className="w-full text-xs p-2 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      className="w-full text-xs p-2.5 rounded-xl border border-stone-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400"
                     />
                   </div>
                 </div>
@@ -2296,7 +2375,7 @@ export default function FloristAdminPanel({
                   <label className="text-[10px] font-bold text-stone-700 block">
                     {isAr ? 'صورة الغلاف الدائرية (اختر من الصور المعتمدة أو ارفع صورة):' : 'Cover Image (Select preset or upload):'}
                   </label>
-                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
+                  <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                     {VERIFIED_FLORAL_PRESETS.map((preset) => {
                       const isSelected = (storyFormUploadedImage || storyFormImage) === preset.url;
                       return (
@@ -2307,9 +2386,9 @@ export default function FloristAdminPanel({
                             setStoryFormUploadedImage(null);
                             setStoryFormImage(preset.url);
                           }}
-                          className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                          className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all cursor-pointer ${
                             isSelected
-                              ? 'border-amber-500 scale-105 shadow-xs ring-1 ring-amber-400'
+                              ? 'border-amber-500 scale-105 shadow-md ring-2 ring-amber-400/40'
                               : 'border-transparent opacity-75 hover:opacity-100 hover:border-stone-300'
                           }`}
                         >
@@ -2332,9 +2411,9 @@ export default function FloristAdminPanel({
                   <button
                     type="button"
                     onClick={() => storyFileInputRef.current?.click()}
-                    className="px-3 py-2 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold flex items-center gap-1.5 shrink-0"
+                    className="px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 text-xs font-semibold flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
                   >
-                    <Upload className="w-3.5 h-3.5" />
+                    <Upload className="w-3.5 h-3.5 text-stone-600" />
                     <span>{isAr ? 'رفع من الجهاز' : 'Upload File'}</span>
                   </button>
 
@@ -2346,21 +2425,21 @@ export default function FloristAdminPanel({
                       setStoryFormUploadedImage(null);
                       setStoryFormImage(e.target.value);
                     }}
-                    className="flex-1 text-xs p-2 rounded-xl border border-stone-300 bg-white font-mono"
+                    className="flex-1 text-xs p-2.5 rounded-xl border border-stone-300 bg-white font-mono focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
                 {/* Preview and Submit */}
                 <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-amber-400 shrink-0 bg-stone-100 shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400 shrink-0 bg-stone-100 shadow-xs ring-2 ring-amber-400/20">
                       <img
                         src={storyFormUploadedImage || storyFormImage || VERIFIED_FLORAL_PRESETS[0]?.url}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <span className="text-[11px] font-bold text-stone-800">
+                    <span className="text-xs font-bold text-stone-800 font-serif">
                       {storyFormNameAr || (isAr ? 'معاينة القصة' : 'Story Preview')}
                     </span>
                   </div>
@@ -2369,13 +2448,13 @@ export default function FloristAdminPanel({
                     <button
                       type="button"
                       onClick={() => setIsAddingStoryFormOpen(false)}
-                      className="px-3 py-1.5 rounded-xl border border-stone-300 text-stone-600 text-xs font-semibold hover:bg-stone-100"
+                      className="px-3 py-1.5 rounded-xl border border-stone-300 text-stone-600 text-xs font-semibold hover:bg-stone-100 cursor-pointer"
                     >
                       {isAr ? 'إلغاء' : 'Cancel'}
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-1.5 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-stone-800 shadow-xs transition-all active:scale-95"
+                      className="px-4 py-2 rounded-xl bg-stone-900 text-white text-xs font-bold hover:bg-stone-800 shadow-xs transition-all active:scale-95 cursor-pointer"
                     >
                       {isAr ? 'إضافة ونشر' : 'Add Story'}
                     </button>
@@ -2384,90 +2463,127 @@ export default function FloristAdminPanel({
               </form>
             )}
 
-            {/* List of Existing Stories */}
-            <div className="space-y-1.5">
-              {occasions.map((occ) => {
-                const isVisible = occ.isVisible !== false;
-                const isProtected = occ.id === 'specials' || occ.id === 'all';
+            {/* List of Existing Stories (High-End Tactile Cards) */}
+            <div className="space-y-2">
+              <AnimatePresence>
+                {occasions.map((occ) => {
+                  const isVisible = occ.isVisible !== false;
+                  const isProtected = occ.id === 'specials' || occ.id === 'all';
 
-                return (
-                  <div
-                    key={occ.id}
-                    className={`flex items-center justify-between p-2.5 rounded-2xl border transition-all ${
-                      isVisible
-                        ? 'bg-white border-stone-200/90 shadow-2xs'
-                        : 'bg-stone-50 border-stone-200/50 opacity-60'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="relative w-9 h-9 rounded-full overflow-hidden border border-stone-200 shrink-0 bg-stone-100">
-                        <img
-                          src={occ.image}
-                          alt={occ.nameAr}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = './images/products/royal-red-roses.jpg';
-                          }}
-                        />
-                        {!isVisible && (
-                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
-                            <EyeOff className="w-3.5 h-3.5" />
+                  return (
+                    <motion.div
+                      key={occ.id}
+                      layout
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      whileHover={{ y: -2, transition: { duration: 0.16 } }}
+                      className={`flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border transition-all ${
+                        isVisible
+                          ? 'bg-gradient-to-r from-white via-[#FCFBF8] to-white border-stone-200/90 shadow-[0_2px_8px_rgba(28,25,23,0.03)] hover:shadow-md hover:border-amber-400/40'
+                          : 'bg-stone-100/70 border-stone-200/60 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Story Ring Avatar (Instagram/Floward VIP Style) */}
+                        <div className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full p-0.5 shrink-0 transition-transform duration-300 group-hover:scale-105 ${
+                          isVisible
+                            ? occ.id === 'specials'
+                              ? 'bg-gradient-to-tr from-emerald-500 via-teal-400 to-emerald-600 ring-2 ring-emerald-500/20 shadow-xs'
+                              : 'bg-gradient-to-tr from-amber-400 via-amber-200 to-amber-500 ring-2 ring-amber-400/20 shadow-xs'
+                            : 'bg-stone-300'
+                        }`}>
+                          <div className="w-full h-full rounded-full overflow-hidden bg-stone-100">
+                            <img
+                              src={occ.image}
+                              alt={occ.nameAr}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = './images/products/royal-red-roses.jpg';
+                              }}
+                            />
+                            {!isVisible && (
+                              <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-2xs flex items-center justify-center text-white rounded-full">
+                                <EyeOff className="w-3.5 h-3.5" />
+                              </div>
+                            )}
                           </div>
+                        </div>
+
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs sm:text-sm font-bold font-serif text-stone-900 truncate">
+                              {isAr ? occ.nameAr : occ.nameEn}
+                            </span>
+                            {occ.id === 'specials' && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/60 flex items-center gap-1 shadow-2xs font-sans">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                                <span>{isAr ? 'جاهز للاستلام والتوصيل الفوري' : 'Live Cooler'}</span>
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[10px] text-stone-400 mt-0.5 font-sans">
+                            <span className="font-mono text-stone-400">✦ {occ.id}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        {/* Intuitive Tactile Visibility Switch (iOS Quiet Luxury) */}
+                        {onToggleOccasionVisibility && (
+                          <button
+                            type="button"
+                            onClick={() => onToggleOccasionVisibility(occ.id)}
+                            className="flex items-center gap-2 group cursor-pointer select-none py-1 px-1.5 rounded-xl hover:bg-stone-100/60 transition-colors"
+                            title={isVisible ? (isAr ? 'إخفاء القصة من المتجر' : 'Hide Story') : (isAr ? 'إظهار القصة في المتجر' : 'Show Story')}
+                          >
+                            <span className={`text-[11px] font-bold transition-colors hidden sm:inline ${isVisible ? 'text-emerald-700' : 'text-stone-400'}`}>
+                              {isVisible ? (isAr ? 'معروضة' : 'Visible') : (isAr ? 'مخفية' : 'Hidden')}
+                            </span>
+                            <div
+                              className={`w-10 h-5.5 rounded-full p-0.5 transition-colors duration-200 flex items-center shrink-0 ${
+                                isVisible ? 'bg-emerald-600' : 'bg-stone-300'
+                              }`}
+                            >
+                              <div
+                                className={`w-4.5 h-4.5 rounded-full bg-white shadow-xs transform transition-transform duration-200 flex items-center justify-center ${
+                                  isVisible ? (isAr ? '-translate-x-4.5' : 'translate-x-4.5') : 'translate-x-0'
+                                }`}
+                              >
+                                {isVisible ? (
+                                  <Eye className="w-2.5 h-2.5 text-emerald-600" />
+                                ) : (
+                                  <EyeOff className="w-2.5 h-2.5 text-stone-400" />
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        )}
+
+                        {/* Delete Story Button */}
+                        {onDeleteOccasion && !isProtected && (
+                          <button
+                            type="button"
+                            onClick={() => onDeleteOccasion(occ.id)}
+                            title={isAr ? 'حذف القصة' : 'Delete Story'}
+                            className="p-2 rounded-xl text-stone-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all cursor-pointer active:scale-90"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+
+                        {isProtected && (
+                          <span className="p-1.5 text-stone-400 select-none text-[10px] flex items-center gap-1 font-mono" title={isAr ? 'عنصر أساسي بالنظام' : 'System protected'}>
+                            <Lock className="w-3 h-3 text-stone-400" />
+                            <span className="hidden sm:inline">{isAr ? 'أساسي' : 'Locked'}</span>
+                          </span>
                         )}
                       </div>
-
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-stone-900 truncate">
-                            {isAr ? occ.nameAr : occ.nameEn}
-                          </span>
-                          {occ.id === 'specials' && (
-                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
-                              {isAr ? 'جاهز اليوم' : 'Live Cooler'}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[10px] text-stone-400 font-mono block">
-                          #{occ.id}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5">
-                      {/* Visibility Toggle Button */}
-                      {onToggleOccasionVisibility && (
-                        <button
-                          type="button"
-                          onClick={() => onToggleOccasionVisibility(occ.id)}
-                          className={`flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
-                            isVisible
-                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/70'
-                              : 'bg-stone-200 text-stone-600 hover:bg-stone-300'
-                          }`}
-                        >
-                          {isVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                          <span className="hidden sm:inline">
-                            {isVisible ? (isAr ? 'ظاهرة' : 'Visible') : (isAr ? 'مخفية' : 'Hidden')}
-                          </span>
-                        </button>
-                      )}
-
-                      {/* Delete Story Button */}
-                      {onDeleteOccasion && !isProtected && (
-                        <button
-                          type="button"
-                          onClick={() => onDeleteOccasion(occ.id)}
-                          title={isAr ? 'حذف القصة' : 'Delete Story'}
-                          className="p-1.5 rounded-xl text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
           </div>
         </div>
