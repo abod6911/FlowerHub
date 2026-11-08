@@ -288,23 +288,13 @@ function ShopHeader({
               {renderAvatarButton('w-12 h-12')}
             </div>
 
-            {/* Status Capsule */}
-            <div className="flex items-center justify-center px-1">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md shadow-xs transition-all border ${statusColorClasses}`}>
-                <span className={`inline-flex rounded-full h-2 w-2 ${radarDotClasses}`} />
-                <span className="text-[11px] sm:text-xs font-bold text-white tracking-normal whitespace-nowrap">
-                  {statusText}
-                </span>
-              </span>
-            </div>
-
             {/* WhatsApp & Rating */}
             <div className="flex items-center justify-end gap-2">
               <a
                 href={`https://wa.me/${phone}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white border border-emerald-400/40 transition-all duration-200 active:scale-95 shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-white border border-emerald-400/40 transition-all duration-200 active:scale-95 shadow-xs"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline text-[11px] font-bold">{isAr ? 'واتساب' : 'WhatsApp'}</span>
@@ -319,25 +309,14 @@ function ShopHeader({
 
           {/* Center Brand Identity */}
           <div className="w-full py-4 relative z-10 flex flex-col items-center justify-center text-center">
-            <span className="text-[10px] tracking-widest font-serif text-amber-300 font-bold px-3 py-0.5 rounded-full bg-amber-400/15 backdrop-blur-md border border-amber-400/30 mb-1.5">
-              {isAr ? 'بوتيك أزهار وهدايا فاخرة' : 'Luxury Floral Boutique'}
-            </span>
+            <div className="flex items-center justify-center gap-2 mb-1.5 opacity-80 select-none">
+              <span className="h-px w-8 bg-gradient-to-r from-transparent to-amber-400" />
+              <span className="text-[10px] tracking-widest font-serif text-amber-300 font-bold px-2">✦ MAISON DE FLEURS ✦</span>
+              <span className="h-px w-8 bg-gradient-to-l from-transparent to-amber-400" />
+            </div>
             <h1 className="text-2xl sm:text-4xl font-serif font-black text-amber-50 drop-shadow-md leading-tight">
               {shopName}
             </h1>
-            <div className="flex items-center justify-center gap-2 text-xs text-stone-200 mt-1 flex-wrap font-medium">
-              <span>{shopTagline}</span>
-              <span className="inline-block w-1 h-1 rounded-full bg-amber-400 shrink-0" />
-              <a
-                href={locationUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-emerald-300 hover:underline font-semibold"
-              >
-                <MapPin className="w-3 h-3 shrink-0" />
-                <span>{locationLabel}</span>
-              </a>
-            </div>
           </div>
 
           {/* Search Capsule */}
@@ -351,23 +330,11 @@ function ShopHeader({
           <div className="flex flex-col items-center justify-center text-center pt-1 relative z-10">
             {renderAvatarButton('w-14 h-14')}
 
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-stone-900 dark:text-stone-50 font-serif leading-tight mt-2.5">
+            <h1 className="text-xl sm:text-3xl font-black tracking-tight text-stone-900 dark:text-stone-50 font-serif leading-tight mt-2.5">
               {shopName}
             </h1>
 
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 font-medium max-w-sm">
-              {shopTagline}
-            </p>
-
             <div className="flex items-center justify-center gap-2 mt-2.5 flex-wrap text-xs">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-[11px] border backdrop-blur-md ${statusColorClasses}`}>
-                <span className="relative flex h-2 w-2">
-                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
-                  <span className={`relative inline-flex rounded-full h-2 w-2 ${radarDotClasses}`} />
-                </span>
-                <span>{statusText}</span>
-              </span>
-
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-stone-800 text-amber-900 dark:text-amber-200 border border-amber-300/60 dark:border-stone-700">
                 <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
                 <span>4.9 ★</span>
@@ -382,16 +349,6 @@ function ShopHeader({
                 <MessageCircle className="w-3 h-3" />
                 <span>{isAr ? 'واتساب' : 'WhatsApp'}</span>
               </a>
-
-              <a
-                href={locationUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] text-stone-500 dark:text-stone-400 hover:text-emerald-600 font-medium"
-              >
-                <MapPin className="w-3 h-3 shrink-0" />
-                <span>{locationLabel}</span>
-              </a>
             </div>
           </div>
 
@@ -402,30 +359,16 @@ function ShopHeader({
       ) : (
         /* STYLE 3: SIGNATURE ULTRA-LUXURY ATELIER CARD (DEFAULT) */
         <div
-          className="relative p-5 sm:p-6 shadow-[0_20px_50px_-10px_rgba(28,25,23,0.08),0_2px_8px_rgba(0,0,0,0.03)] flex flex-col gap-4 transition-all duration-300 overflow-hidden rounded-[28px] sm:rounded-[32px] border border-stone-200/90 dark:border-stone-800 bg-gradient-to-b from-white via-[#FCFBF9] to-[#F7F5F0] dark:from-[#18181B] dark:via-[#141416] dark:to-[#0F0F11] backdrop-blur-2xl group"
+          className="relative p-5 sm:p-7 shadow-[0_24px_60px_-12px_rgba(28,25,23,0.08),0_2px_8px_rgba(0,0,0,0.02)] flex flex-col gap-4.5 transition-all duration-300 overflow-hidden rounded-[30px] sm:rounded-[36px] border border-amber-900/10 dark:border-amber-500/20 bg-gradient-to-b from-white via-[#FCFBF9] to-[#F5F2EA] dark:from-[#18181B] dark:via-[#141416] dark:to-[#0F0F11] backdrop-blur-2xl group ring-1 ring-black/[0.02]"
         >
-          {/* Subtle Top Gold Hairline & Ambient Lighting */}
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent pointer-events-none" />
-          <div className="absolute top-0 inset-x-0 h-28 bg-[radial-gradient(ellipse_at_top,rgba(212,175,55,0.08),transparent_70%)] pointer-events-none" />
+          {/* Subtle Top Gold Hairline & Warm Champagne Glow */}
+          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent pointer-events-none" />
+          <div className="absolute top-0 inset-x-0 h-32 bg-[radial-gradient(ellipse_at_top,rgba(217,119,6,0.07),transparent_70%)] pointer-events-none" />
 
-          {/* 1. TOP ROW: Store Crest & Status on Right | Concierge WhatsApp & Rating on Left */}
+          {/* 1. TOP ROW: Store Royal Crest on Right | Concierge WhatsApp & Rating on Left */}
           <div className="flex items-center justify-between w-full relative z-10 gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              {renderAvatarButton('w-12 h-12')}
-              <div className="flex flex-col text-start min-w-0">
-                <span className="text-[10px] uppercase tracking-[0.16em] font-extrabold text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                  <span>بوتيك أزهار فاخر</span>
-                  <span className="text-[8px] text-amber-500">•</span>
-                  <span className="text-[9px] font-mono tracking-tight text-stone-400 dark:text-stone-500">ATELIER</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 mt-0.5 truncate">
-                  <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                  </span>
-                  <span className="truncate">{statusText}</span>
-                </span>
-              </div>
+            <div className="flex items-center">
+              {renderAvatarButton('w-12 h-12 sm:w-14 sm:h-14')}
             </div>
 
             {/* Left Actions: Concierge WhatsApp & Rating */}
@@ -435,52 +378,39 @@ function ShopHeader({
                 target="_blank"
                 rel="noreferrer"
                 aria-label={isAr ? 'واتساب المنسق' : 'WhatsApp Concierge'}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-emerald-950 via-[#022C22] to-emerald-950 hover:from-emerald-900 hover:to-[#044133] text-emerald-100 hover:text-white border border-emerald-600/40 transition-all duration-200 active:scale-95 shadow-[0_2px_10px_rgba(2,44,34,0.2)]"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-emerald-950 via-[#022C22] to-emerald-950 hover:from-emerald-900 hover:to-[#044133] text-emerald-100 hover:text-white border border-emerald-500/40 transition-all duration-200 active:scale-95 shadow-[0_2px_12px_rgba(2,44,34,0.22)]"
                 title={isAr ? 'تواصل فوري مع منسق الزهور' : 'Private Florist Concierge'}
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400/20" />
-                <span className="text-[11px] tracking-wide">{isAr ? 'واتساب' : 'WhatsApp'}</span>
+                <span className="text-[11px] font-bold tracking-wide">{isAr ? 'واتساب' : 'WhatsApp'}</span>
               </a>
 
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-black bg-gradient-to-r from-amber-500/10 via-amber-400/15 to-amber-500/10 text-amber-950 dark:text-amber-200 border border-amber-400/35 shadow-2xs whitespace-nowrap">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0 drop-shadow-[0_1px_2px_rgba(212,175,55,0.3)]" />
-                <span className="font-black text-[12px] tracking-tight">4.9</span>
+                <span className="font-black text-[12px] tracking-tight">4.9 ★</span>
               </span>
             </div>
           </div>
 
           {/* 2. MAISON BRAND IDENTITY: HIGH-FASHION CENTERPIECE */}
-          <div className="w-full py-1 relative z-10 flex flex-col items-center justify-center text-center">
+          <div className="w-full py-2 relative z-10 flex flex-col items-center justify-center text-center">
             {/* Elegant Ornamental Hallmark */}
-            <div className="flex items-center justify-center gap-2 mb-1 opacity-70">
-              <span className="h-px w-6 bg-gradient-to-r from-transparent to-amber-400/60" />
-              <span className="text-[9px] text-amber-600 dark:text-amber-400 font-mono tracking-widest">✦ MAISON DE FLEURS ✦</span>
-              <span className="h-px w-6 bg-gradient-to-l from-transparent to-amber-400/60" />
+            <div className="flex items-center justify-center gap-3 mb-1.5 opacity-80 select-none">
+              <span className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent via-amber-400/70 to-amber-400" />
+              <span className="text-[10px] sm:text-[11px] text-amber-700 dark:text-amber-400 font-serif tracking-[0.22em] uppercase font-bold">✦ MAISON DE FLEURS • ATELIER ✦</span>
+              <span className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent via-amber-400/70 to-amber-400" />
             </div>
 
             {/* Majestic Title */}
-            <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight select-text text-stone-900 dark:text-stone-50 leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight select-text text-stone-900 dark:text-stone-50 leading-tight py-0.5">
               {shopName}
             </h1>
 
-            {/* Subtitle / Tagline */}
-            <p className="text-xs text-stone-600 dark:text-stone-300 mt-1.5 font-medium max-w-sm leading-relaxed">
-              {shopTagline}
-            </p>
-
-            {/* Location & Chilled Delivery Pill */}
-            <div className="mt-2.5 flex items-center justify-center">
-              <a
-                href={locationUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100/90 dark:bg-stone-850 border border-stone-200/80 dark:border-stone-700/80 hover:border-amber-500/40 text-[11px] font-semibold text-stone-700 dark:text-stone-300 transition-all shadow-2xs group/loc"
-              >
-                <MapPin className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 group-hover/loc:scale-110 transition-transform" />
-                <span>{locationLabel}</span>
-                <span className="text-stone-300 dark:text-stone-600">•</span>
-                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold">توصيل مبرد خاص ❄️</span>
-              </a>
+            {/* Subtle Royal Accent Line */}
+            <div className="flex items-center justify-center gap-1.5 mt-2 mb-0.5 opacity-60 select-none">
+              <span className="h-px w-6 bg-gradient-to-r from-transparent to-amber-400/80" />
+              <span className="text-[9px] text-amber-500 font-serif">✦</span>
+              <span className="h-px w-6 bg-gradient-to-l from-transparent to-amber-400/80" />
             </div>
           </div>
 
