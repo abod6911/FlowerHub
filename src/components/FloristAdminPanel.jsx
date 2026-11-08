@@ -399,6 +399,20 @@ export default function FloristAdminPanel({
     </div>
   );
 
+  const currentShopName = isAr
+    ? (shopConfig?.shopNameAr || 'دار الورد')
+    : (shopConfig?.shopNameEn || 'Dar Alward');
+
+  const getMonogram = (name) => {
+    if (!name) return 'د.و';
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+      return `${words[0][0]}.${words[1][0]}`;
+    }
+    return name.slice(0, 2);
+  };
+  const monogram = getMonogram(currentShopName);
+
   return (
     <div className="w-full max-w-6xl mx-auto bg-[#FAF9F6] min-h-screen text-stone-900 flex flex-col pb-28 transition-all">
       {/* 1. Atelier Header & Boutique Status Control */}
@@ -411,24 +425,25 @@ export default function FloristAdminPanel({
               <div className="relative group shrink-0">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1C1917] via-[#292524] to-[#0C0A09] text-amber-200 flex items-center justify-center border border-amber-400/40 shadow-[0_4px_16px_rgba(0,0,0,0.18)] ring-1 ring-amber-400/20 relative overflow-hidden transition-transform duration-300 group-hover:scale-105">
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(251,191,36,0.22),transparent_70%)] pointer-events-none" />
-                  <div className="flex flex-col items-center justify-center leading-none select-none">
-                    <span className="text-[10px] text-amber-400 font-serif -mb-0.5">✦</span>
-                    <span className="text-xs font-serif font-black tracking-widest text-amber-100">د.و</span>
-                  </div>
+                  {shopConfig?.avatarUrl || shopConfig?.logoUrl ? (
+                    <img
+                      src={shopConfig.avatarUrl || shopConfig.logoUrl}
+                      alt={currentShopName}
+                      className="w-full h-full object-cover rounded-2xl relative z-10"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center leading-none select-none relative z-10">
+                      <span className="text-[10px] text-amber-400 font-serif -mb-0.5">✦</span>
+                      <span className="text-xs font-serif font-black tracking-widest text-amber-100">{monogram}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase font-bold text-amber-700/90 mb-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500/80 inline-block" />
-                  <span>{isAr ? 'صالون الإدارة التنفيذية • ATELIER SUITE' : 'EXECUTIVE ATELIER SUITE'}</span>
-                </div>
-                <h1 className="text-sm sm:text-base font-bold font-serif text-stone-900 tracking-tight flex items-center gap-1.5">
-                  <span>{isAr ? 'استوديو إدارة المتجر والمنسق' : 'Florist Management Studio'}</span>
+                <h1 className="text-sm sm:text-base md:text-lg font-bold font-serif text-stone-900 tracking-tight flex items-center gap-1.5 select-none">
+                  <span>{currentShopName}</span>
                 </h1>
-                <span className="text-[11px] text-stone-500 block font-sans">
-                  {isAr ? 'إدارة حية للمعروض، الطلبات، والتدفق المالي' : 'Live catalog, order flows & financials'}
-                </span>
               </div>
             </div>
 
