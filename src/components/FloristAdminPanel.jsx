@@ -401,51 +401,71 @@ export default function FloristAdminPanel({
 
   return (
     <div className="w-full max-w-6xl mx-auto bg-[#FAF9F6] min-h-screen text-stone-900 flex flex-col pb-28 transition-all">
-      {/* 1. Florist Admin Top Live Status Bar */}
       {/* 1. Atelier Header & Boutique Status Control */}
-      <div className="sticky top-0 z-30 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-stone-200/80 px-4 sm:px-6 py-3.5 shadow-xs">
+      <div className="sticky top-0 z-30 bg-[#FAF9F6]/95 backdrop-blur-xl border-b border-stone-200/90 px-4 sm:px-6 py-3.5 shadow-[0_4px_20px_rgba(28,25,23,0.02)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           {/* Atelier Brand Title & Active Ticket */}
           <div className="flex items-center justify-between sm:justify-start gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-stone-900 text-amber-300 font-serif font-bold text-xs flex items-center justify-center border border-amber-400/20 shadow-xs">
-                د.و
+            <div className="flex items-center gap-3">
+              {/* Royal Atelier Monogram Seal Medallion */}
+              <div className="relative group shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1C1917] via-[#292524] to-[#0C0A09] text-amber-200 flex items-center justify-center border border-amber-400/40 shadow-[0_4px_16px_rgba(0,0,0,0.18)] ring-1 ring-amber-400/20 relative overflow-hidden transition-transform duration-300 group-hover:scale-105">
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(251,191,36,0.22),transparent_70%)] pointer-events-none" />
+                  <div className="flex flex-col items-center justify-center leading-none select-none">
+                    <span className="text-[10px] text-amber-400 font-serif -mb-0.5">✦</span>
+                    <span className="text-xs font-serif font-black tracking-widest text-amber-100">د.و</span>
+                  </div>
+                </div>
               </div>
+
               <div>
+                <div className="flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase font-bold text-amber-700/90 mb-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500/80 inline-block" />
+                  <span>{isAr ? 'صالون الإدارة التنفيذية • ATELIER SUITE' : 'EXECUTIVE ATELIER SUITE'}</span>
+                </div>
                 <h1 className="text-sm sm:text-base font-bold font-serif text-stone-900 tracking-tight flex items-center gap-1.5">
                   <span>{isAr ? 'استوديو إدارة المتجر والمنسق' : 'Florist Management Studio'}</span>
                 </h1>
-                <span className="text-[10px] text-stone-400 block font-sans">
+                <span className="text-[11px] text-stone-500 block font-sans">
                   {isAr ? 'إدارة حية للمعروض، الطلبات، والتدفق المالي' : 'Live catalog, order flows & financials'}
                 </span>
               </div>
             </div>
 
+            {/* Active Ticket Pill as High-End Order Slip Certificate */}
             <button
               onClick={onOpenOrderSlip}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-stone-50 text-stone-800 text-[11px] font-semibold border border-stone-200/90 shadow-2xs hover:shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-50/90 via-white to-amber-50/60 hover:from-amber-100/90 hover:to-white text-stone-800 text-[11px] font-semibold border border-amber-300/70 shadow-[0_2px_8px_rgba(217,119,6,0.08)] hover:shadow-md transition-all active:scale-95 cursor-pointer ring-1 ring-amber-400/20"
               title={isAr ? 'عرض تذكرة الطلب المباشرة' : 'View live order slip'}
             >
-              <FileText className="w-3.5 h-3.5 text-stone-600" />
-              <span className="font-mono font-bold text-stone-900">#8492</span>
-              <span className="text-stone-400">|</span>
-              <span className="text-emerald-700 font-bold">{isAr ? 'تذكرة نشطة' : 'Active Slip'}</span>
+              <div className="w-5 h-5 rounded-full bg-amber-100/80 border border-amber-300/60 flex items-center justify-center">
+                <FileText className="w-2.5 h-2.5 text-amber-800" />
+              </div>
+              <span className="font-mono font-bold text-stone-900 tracking-wider">#8492</span>
+              <span className="text-amber-300">|</span>
+              <span className="text-emerald-800 font-bold flex items-center gap-1">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                </span>
+                <span>{isAr ? 'تذكرة نشطة' : 'Active Slip'}</span>
+              </span>
             </button>
           </div>
 
           {/* 1-Tap Boutique Readiness Switcher (Quiet Luxury Segmented Control) */}
-          <div className="flex items-center p-1 bg-stone-100/80 rounded-2xl border border-stone-200/70 text-xs font-medium self-stretch sm:self-auto">
+          <div className="flex items-center p-1 bg-gradient-to-r from-stone-100 via-[#F5F3EF] to-stone-100 rounded-2xl border border-stone-200/90 text-xs font-medium self-stretch sm:self-auto shadow-inner">
             <button
               onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'open_20m' })}
-              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3.5 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
                 shopConfig.status === 'open_20m'
-                  ? 'bg-white text-stone-900 shadow-xs font-bold border border-stone-200/60'
+                  ? 'bg-white text-stone-950 shadow-[0_2px_8px_rgba(28,25,23,0.08)] font-bold border border-stone-200/90 ring-1 ring-emerald-500/10'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-xs" />
               </span>
               <span>{isAr ? 'مستعد للطلبات • ٢٠ د' : 'Open • 20m'}</span>
             </button>
@@ -454,7 +474,7 @@ export default function FloristAdminPanel({
               onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'busy_60m' })}
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
                 shopConfig.status === 'busy_60m'
-                  ? 'bg-white text-amber-900 shadow-xs font-bold border border-amber-200/60'
+                  ? 'bg-white text-amber-950 shadow-[0_2px_8px_rgba(28,25,23,0.08)] font-bold border border-amber-200/90'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
             >
@@ -466,7 +486,7 @@ export default function FloristAdminPanel({
               onClick={() => onUpdateShopConfig({ ...shopConfig, status: 'closed' })}
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer ${
                 shopConfig.status === 'closed'
-                  ? 'bg-stone-900 text-stone-200 shadow-xs font-bold'
+                  ? 'bg-stone-950 text-amber-100 shadow-[0_2px_8px_rgba(28,25,23,0.12)] font-bold border border-stone-800'
                   : 'text-stone-500 hover:text-stone-900'
               }`}
             >
@@ -478,14 +498,14 @@ export default function FloristAdminPanel({
       </div>
 
       {/* 2. Bespoke Luxury Navigation Tabs */}
-      <div className="px-4 sm:px-6 pt-3 pb-2 border-b border-stone-200/70 bg-[#FAF9F6]">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 bg-stone-100/70 rounded-2xl border border-stone-200/60">
+      <div className="px-4 sm:px-6 pt-3.5 pb-2.5 border-b border-stone-200/80 bg-[#FAF9F6]">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1.5 bg-stone-100/80 rounded-2xl border border-stone-200/70 shadow-inner">
           <button
             onClick={() => setActiveTab('menu')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'menu'
-                ? 'bg-stone-900 text-white shadow-xs font-bold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                ? 'bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 text-white shadow-md border border-stone-800 ring-1 ring-white/10 font-bold'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-white/80 border border-transparent hover:border-stone-200/70'
             }`}
           >
             <Package className="w-3.5 h-3.5 text-stone-400" />
@@ -497,10 +517,10 @@ export default function FloristAdminPanel({
 
           <button
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'add'
-                ? 'bg-stone-900 text-white shadow-xs font-bold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                ? 'bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 text-white shadow-md border border-stone-800 font-bold'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-white/80 border border-transparent hover:border-stone-200/70'
             }`}
           >
             <Plus className="w-3.5 h-3.5 text-amber-400" />
@@ -509,10 +529,10 @@ export default function FloristAdminPanel({
 
           <button
             onClick={() => setActiveTab('sales')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'sales'
-                ? 'bg-stone-900 text-amber-300 shadow-xs font-bold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                ? 'bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 text-amber-200 shadow-md border border-amber-500/30 ring-1 ring-amber-400/20 font-bold'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-white/80 border border-transparent hover:border-stone-200/70'
             }`}
           >
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
@@ -525,10 +545,10 @@ export default function FloristAdminPanel({
 
           <button
             onClick={() => setActiveTab('design')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
+            className={`flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
               activeTab === 'design'
-                ? 'bg-stone-900 text-white shadow-xs font-bold'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                ? 'bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 text-white shadow-md border border-stone-800 font-bold'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-white/80 border border-transparent hover:border-stone-200/70'
             }`}
           >
             <Sliders className="w-3.5 h-3.5 text-amber-400" />

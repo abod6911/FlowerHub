@@ -165,14 +165,26 @@ function Sparkline({ data = [], color = '#10B981', gradientId = 'sparkline-grad'
           }}
         />
 
-        {/* Discreet terminal dot */}
+        {/* Discreet terminal dot with radiant luxury beacon */}
         {isDrawn && lastPoint && (
-          <circle
-            cx={lastPoint.x}
-            cy={lastPoint.y}
-            r="2"
-            fill={color}
-          />
+          <g>
+            <circle
+              cx={lastPoint.x}
+              cy={lastPoint.y}
+              r="4.5"
+              fill={color}
+              opacity="0.25"
+              className="animate-pulse"
+            />
+            <circle
+              cx={lastPoint.x}
+              cy={lastPoint.y}
+              r="2.25"
+              fill={color}
+              stroke="#ffffff"
+              strokeWidth="1"
+            />
+          </g>
         )}
       </svg>
 
@@ -469,10 +481,14 @@ export default function SalesAndProfitsDashboard({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
         {/* Title & Live Status Indicator */}
         <div>
+          <div className="flex items-center gap-2 text-[9px] font-mono tracking-widest uppercase font-bold text-amber-700/90 mb-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block shadow-2xs" />
+            <span>{isAr ? 'صالون التدفق المالي • FINANCIAL INTELLIGENCE' : 'FINANCIAL INTELLIGENCE'}</span>
+          </div>
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-600 shadow-xs" />
             </span>
             <h2 className="text-xl sm:text-2xl font-bold font-serif text-stone-900 tracking-tight">
               {isAr ? 'المبيعات وصافي الأرباح' : 'Sales & Profit Flow'}
@@ -489,14 +505,14 @@ export default function SalesAndProfitsDashboard({
         <div className="flex items-center gap-3 w-full md:w-auto">
           {/* Streamlined Search Bar with Bulletproof Positioning */}
           <div className="relative flex-1 sm:w-80">
-            <Search className="w-3.5 h-3.5 text-stone-400 absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 text-amber-600/80 absolute top-1/2 -translate-y-1/2 rtl:right-3.5 ltr:left-3.5 pointer-events-none" />
             <input
               ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder={isAr ? 'بحث برقم الطلب، العميل، أو الباقة...' : 'Search orders, clients, bouquets...'}
-              className="w-full py-2.5 rounded-2xl bg-white border border-stone-200/90 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-stone-900/10 focus:border-stone-400 shadow-2xs transition-all rtl:pr-10 rtl:pl-14 ltr:pl-10 ltr:pr-14"
+              className="w-full py-2.5 rounded-2xl bg-white/95 hover:bg-white focus:bg-white border border-stone-200/90 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-hidden focus:ring-2 focus:ring-amber-500/15 focus:border-amber-400/80 shadow-[0_2px_8px_rgba(28,25,23,0.03)] transition-all rtl:pr-10 rtl:pl-14 ltr:pl-10 ltr:pr-14"
             />
             {searchQuery ? (
               <button
@@ -508,20 +524,20 @@ export default function SalesAndProfitsDashboard({
                 <X className="w-3.5 h-3.5" />
               </button>
             ) : (
-              <span className="absolute top-1/2 -translate-y-1/2 rtl:left-3.5 ltr:right-3.5 text-[10px] font-mono text-stone-400 border border-stone-200/80 px-1.5 py-0.5 rounded-md bg-stone-50 select-none hidden sm:inline pointer-events-none">
+              <span className="absolute top-1/2 -translate-y-1/2 rtl:left-3.5 ltr:right-3.5 text-[10px] font-mono text-stone-500 border border-stone-200/90 px-1.5 py-0.5 rounded-lg bg-stone-100/80 select-none hidden sm:inline pointer-events-none shadow-2xs">
                 ⌘K
               </span>
             )}
           </div>
 
-          {/* Export Action Button */}
+          {/* Export Action Button in Bespoke Obsidian Gold */}
           <button
             type="button"
             onClick={handleExportCSV}
             title={isAr ? 'تصدير كملف Excel (CSV)' : 'Export CSV'}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white hover:bg-stone-50 text-stone-800 border border-stone-200/90 shadow-2xs hover:shadow-xs text-xs font-semibold active:scale-95 transition-all cursor-pointer shrink-0"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 hover:from-stone-900 hover:to-stone-950 text-amber-200 border border-amber-400/30 shadow-[0_2px_12px_rgba(0,0,0,0.12)] hover:shadow-md text-xs font-semibold active:scale-95 transition-all cursor-pointer shrink-0 ring-1 ring-amber-400/10"
           >
-            <Download className="w-3.5 h-3.5 text-stone-600" />
+            <Download className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden sm:inline">{isAr ? 'تصدير التقرير' : 'Export'}</span>
           </button>
         </div>
@@ -530,7 +546,7 @@ export default function SalesAndProfitsDashboard({
       {/* ===================================================================== */}
       {/* 2. Sleek Segmented Time & Status Filter Pills with Fluid Morphing */}
       {/* ===================================================================== */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-100/70 p-1.5 rounded-2xl border border-stone-200/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-stone-100/90 via-[#F5F3EF] to-stone-100/90 p-1.5 rounded-2xl border border-stone-200/80 shadow-inner">
         {/* Time Segmented Control */}
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           {[
@@ -543,16 +559,16 @@ export default function SalesAndProfitsDashboard({
             <button
               key={tab.id}
               onClick={() => handleDateFilterChange(tab.id)}
-              className={`relative px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors duration-200 cursor-pointer active:scale-95 ${
+              className={`relative px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors duration-200 cursor-pointer active:scale-95 ${
                 dateFilter === tab.id
-                  ? 'text-white font-bold'
-                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+                  ? 'text-amber-200 font-bold'
+                  : 'text-stone-600 hover:text-stone-950 hover:bg-white/70'
               }`}
             >
               {dateFilter === tab.id && (
                 <motion.div
                   layoutId="activeDateFilterPill"
-                  className="absolute inset-0 bg-stone-900 rounded-xl shadow-xs"
+                  className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 rounded-xl shadow-md border border-amber-500/30 ring-1 ring-amber-400/20"
                   transition={{ type: 'spring', bounce: 0, duration: 0.25 }}
                 />
               )}
@@ -630,26 +646,26 @@ export default function SalesAndProfitsDashboard({
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
+            className="bg-gradient-to-b from-white via-[#FCFBF8] to-[#F8F6F0] rounded-[26px] p-4 sm:p-5 border border-stone-200/90 shadow-[0_10px_30px_-5px_rgba(28,25,23,0.05),0_1px_3px_rgba(28,25,23,0.02)] hover:shadow-[0_20px_40px_-10px_rgba(28,25,23,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer ring-1 ring-black/[0.02]"
           >
-            {/* Top Micro Accent Line */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-stone-800 opacity-60 group-hover:opacity-100 transition-opacity" />
+            {/* Ambient Radial Foil Glare */}
+            <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-amber-200/20 via-transparent to-transparent pointer-events-none rounded-tr-[26px]" />
 
             <div>
               <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'إجمالي المبيعات' : 'Total Revenue'}</span>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs">
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-800 bg-emerald-50/90 px-2.5 py-0.5 rounded-full border border-emerald-300/60 shadow-2xs">
                   <ArrowUpRight className="w-3 h-3 text-emerald-600" />
                   +14.2%
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight text-start">
+              <div className="text-xl sm:text-3xl font-black font-serif text-stone-900 tracking-tight text-start mt-1">
                 <AnimatedNumber value={kpis.totalRevenue} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
-            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'مقارنة بالشهر السابق' : 'vs last month'}</span>
+            <div className="mt-4 flex items-end justify-between pt-3 border-t border-stone-100/90">
+              <span className="text-[10px] text-stone-400 font-sans">{isAr ? 'مقارنة بالشهر السابق' : 'vs last month'}</span>
               <Sparkline
                 data={[240, 310, 275, 420, 380, 490, 525, 990]}
                 color="#292524"
@@ -665,29 +681,29 @@ export default function SalesAndProfitsDashboard({
             transition={{ duration: 0.35, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
+            className="bg-gradient-to-b from-[#FAFDFB] via-[#F3FAF6] to-[#ECF7F1] rounded-[26px] p-4 sm:p-5 border border-emerald-600/30 shadow-[0_12px_36px_-6px_rgba(5,150,105,0.12),0_2px_8px_-1px_rgba(5,150,105,0.04)] hover:shadow-[0_22px_44px_-8px_rgba(5,150,105,0.18)] transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer ring-1 ring-emerald-500/20"
           >
-            {/* Top Micro Accent Line in Forest Emerald */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-600 to-teal-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+            {/* Ambient Radial Emerald Glare */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-400/20 via-transparent to-transparent pointer-events-none rounded-tr-[26px]" />
 
             <div>
               <div className="flex items-center justify-between text-stone-600 mb-2">
-                <span className="text-xs font-bold text-stone-800 flex items-center gap-1.5">
+                <span className="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                   <span>{isAr ? 'صافي الأرباح' : 'Net Profit'}</span>
                 </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-900 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60 shadow-2xs">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold text-emerald-900 bg-emerald-100/80 px-2.5 py-0.5 rounded-full border border-emerald-300/80 shadow-2xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                   <span>هامش {kpis.overallMargin.toFixed(1)}%</span>
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-emerald-950 tracking-tight text-start">
+              <div className="text-xl sm:text-3xl font-black font-serif text-emerald-950 tracking-tight text-start mt-1">
                 <AnimatedNumber value={kpis.netProfit} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
-            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400 font-sans">
+            <div className="mt-4 flex items-end justify-between pt-3 border-t border-emerald-100/80">
+              <span className="text-[10px] text-emerald-800/80 font-sans font-medium">
                 {isAr ? 'صافي دخل المنسق' : 'Coordinator take-home'}
               </span>
               <Sparkline
@@ -705,26 +721,26 @@ export default function SalesAndProfitsDashboard({
             transition={{ duration: 0.35, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
+            className="bg-gradient-to-b from-white via-[#FCFAF5] to-[#F8F5EC] rounded-[26px] p-4 sm:p-5 border border-stone-200/90 shadow-[0_10px_30px_-5px_rgba(28,25,23,0.05),0_1px_3px_rgba(28,25,23,0.02)] hover:shadow-[0_20px_40px_-10px_rgba(28,25,23,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer ring-1 ring-black/[0.02]"
           >
-            {/* Top Micro Accent Line in Warm Amber */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-amber-500 opacity-60 group-hover:opacity-100 transition-opacity" />
+            {/* Ambient Radial Amber Glare */}
+            <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-amber-300/15 via-transparent to-transparent pointer-events-none rounded-tr-[26px]" />
 
             <div>
               <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'العمليات المباعة' : 'Total Orders'}</span>
-                <span className="text-[10px] font-medium text-emerald-800 bg-emerald-50 border border-emerald-200/60 px-2 py-0.5 rounded-full font-mono">
+                <span className="text-[10px] font-mono font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-300/70 shadow-2xs">
                   100% تسليم
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight text-start">
+              <div className="text-xl sm:text-3xl font-black font-serif text-stone-900 tracking-tight text-start mt-1">
                 <AnimatedNumber value={kpis.totalOrdersCount} />{' '}
-                <span className="text-xs font-normal text-stone-500">{isAr ? 'طلبات' : 'orders'}</span>
+                <span className="text-xs font-normal text-stone-500 font-sans">{isAr ? 'طلبات' : 'orders'}</span>
               </div>
             </div>
 
-            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'مكتملة ومُسلّمة' : 'All delivered'}</span>
+            <div className="mt-4 flex items-end justify-between pt-3 border-t border-stone-100/90">
+              <span className="text-[10px] text-stone-400 font-sans">{isAr ? 'مكتملة ومُسلّمة' : 'All delivered'}</span>
               <Sparkline
                 data={[1, 2, 1, 3, 2, 2, 4, 5]}
                 color="#D97706"
@@ -740,25 +756,25 @@ export default function SalesAndProfitsDashboard({
             transition={{ duration: 0.35, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -3, transition: { duration: 0.18, ease: [0.16, 1, 0.3, 1] } }}
             whileTap={{ scale: 0.98 }}
-            className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/80 shadow-[0_2px_12px_rgba(28,25,23,0.03)] hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer"
+            className="bg-gradient-to-b from-white via-[#FAF9F6] to-[#F5F4EE] rounded-[26px] p-4 sm:p-5 border border-stone-200/90 shadow-[0_10px_30px_-5px_rgba(28,25,23,0.05),0_1px_3px_rgba(28,25,23,0.02)] hover:shadow-[0_20px_40px_-10px_rgba(28,25,23,0.1)] transition-all flex flex-col justify-between relative overflow-hidden group cursor-pointer ring-1 ring-black/[0.02]"
           >
-            {/* Top Micro Accent Line */}
-            <div className="absolute top-0 inset-x-0 h-1 bg-stone-600 opacity-60 group-hover:opacity-100 transition-opacity" />
+            {/* Ambient Radial Pearl Glare */}
+            <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-stone-300/20 via-transparent to-transparent pointer-events-none rounded-tr-[26px]" />
 
             <div>
               <div className="flex items-center justify-between text-stone-500 mb-2">
                 <span className="text-xs font-bold text-stone-700">{isAr ? 'متوسط قيمة الطلب' : 'Avg Order Value'}</span>
-                <span className="text-[10px] font-medium text-stone-600 bg-stone-100 border border-stone-200/60 px-2 py-0.5 rounded-full font-mono">
-                  متوسط السلة
+                <span className="text-[10px] font-medium text-stone-700 bg-stone-100/90 px-2.5 py-0.5 rounded-full border border-stone-200 shadow-2xs font-mono">
+                  {isAr ? 'متوسط السلة' : 'Basket Avg'}
                 </span>
               </div>
-              <div className="text-xl sm:text-3xl font-bold font-serif text-stone-900 tracking-tight text-start">
+              <div className="text-xl sm:text-3xl font-black font-serif text-stone-900 tracking-tight text-start mt-1">
                 <AnimatedNumber value={kpis.aov} formatter={(v) => formatCurrency(v, lang)} />
               </div>
             </div>
 
-            <div className="mt-3.5 flex items-end justify-between pt-2.5 border-t border-stone-100">
-              <span className="text-[10px] text-stone-400">{isAr ? 'متوسط قيمة الباقة' : 'Average bouquet'}</span>
+            <div className="mt-4 flex items-end justify-between pt-3 border-t border-stone-100/90">
+              <span className="text-[10px] text-stone-400 font-sans">{isAr ? 'متوسط قيمة الباقة' : 'Average bouquet'}</span>
               <Sparkline
                 data={[210, 245, 320, 275, 360, 450, 490, 356]}
                 color="#57534E"
