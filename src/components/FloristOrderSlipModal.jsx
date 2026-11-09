@@ -234,6 +234,9 @@ export default function FloristOrderSlipModal({
       }
     : defaultOrderData;
 
+  const orderCode = orderData?.orderId || 'FLW-8492';
+  const rawId = String(orderCode).replace(/[^0-9]/g, '') || '8492';
+
   const handlePrint = () => {
     handleRePrint();
     setTimeout(() => {
@@ -242,7 +245,6 @@ export default function FloristOrderSlipModal({
   };
 
   const handleCopyLink = () => {
-    const rawId = String(orderData?.orderId || '8492').replace(/[^0-9]/g, '') || '8492';
     navigator.clipboard?.writeText(`https://flowerhub.sa/o/${rawId}`);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
@@ -265,7 +267,7 @@ export default function FloristOrderSlipModal({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="font-mono font-bold text-sm tracking-wider text-white">
-                #FLW-8492
+                #{orderData.orderId || 'FLW-8492'}
               </h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                 POS Thermal 80mm
@@ -567,7 +569,7 @@ export default function FloristOrderSlipModal({
                   <div className="flex items-center justify-between pt-1 font-sans">
                     <div className="text-[10px] max-w-[190px] text-stone-800">
                       <span className="font-bold block text-black">{isAr ? 'تتبع الطلب إلكترونياً:' : 'Digital Order Link:'}</span>
-                      <span className="font-mono text-[9px]">https://flowerhub.sa/o/8492</span>
+                      <span className="font-mono text-[9px]">https://flowerhub.sa/o/{rawId}</span>
                     </div>
                     <div className="w-12 h-12 p-0.5 bg-white border border-black shadow-xs">
                       <StylizedQRCode className="w-full h-full text-black" />
@@ -593,7 +595,7 @@ export default function FloristOrderSlipModal({
                       </p>
                       <div className="flex items-center justify-between text-[10px] pt-1.5 border-t border-stone-300 text-stone-700">
                         <span>♫ {orderData.greetingCard.songTitle}</span>
-                        <span className="font-mono font-bold text-black">#FL-8492</span>
+                        <span className="font-mono font-bold text-black">#{orderCode}</span>
                       </div>
                     </div>
                   </div>
@@ -638,7 +640,7 @@ export default function FloristOrderSlipModal({
                   </span>
                 </div>
                 <span className="text-[10px] font-mono text-stone-400">
-                  #FLW-8492
+                  #{orderCode}
                 </span>
               </div>
 
