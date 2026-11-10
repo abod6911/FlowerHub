@@ -59,6 +59,8 @@ function ProductCard({
   const [heartPop, setHeartPop] = useState(false);
   const [isMorphed, setIsMorphed] = useState(false);
   const [ripples, setRipples] = useState([]);
+  const [sparkles, setSparkles] = useState([]);
+  const [hapticPop, setHapticPop] = useState(false);
   const [flyingFlower, setFlyingFlower] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
   const cardRef = useRef(null);
@@ -119,6 +121,23 @@ function ProductCard({
     } else if (buyButtonPhysics === 'fly_to_cart') {
       setFlyingFlower(true);
       setTimeout(() => setFlyingFlower(false), 800);
+    } else if (buyButtonPhysics === 'sparkle_burst') {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      const newSparkles = Array.from({ length: 7 }, (_, i) => ({
+        id: Date.now() + i,
+        x: clickX,
+        y: clickY,
+        dx: (Math.random() - 0.5) * 60,
+        dy: -25 - Math.random() * 35,
+        scale: 0.8 + Math.random() * 0.5,
+      }));
+      setSparkles(newSparkles);
+      setTimeout(() => setSparkles([]), 700);
+    } else if (buyButtonPhysics === 'haptic_pop') {
+      setHapticPop(true);
+      setTimeout(() => setHapticPop(false), 500);
     }
 
     setIsMorphed(true);
@@ -145,6 +164,21 @@ function ProductCard({
       initial: { opacity: 0, x: 35 },
       animate: { opacity: 1, x: 0 },
       transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: (index % 10) * staggerDelay },
+    },
+    flip_3d: {
+      initial: { opacity: 0, rotateX: 25, y: 30 },
+      animate: { opacity: 1, rotateX: 0, y: 0 },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: (index % 10) * staggerDelay },
+    },
+    blur_in: {
+      initial: { opacity: 0, filter: 'blur(8px)', scale: 0.94 },
+      animate: { opacity: 1, filter: 'blur(0px)', scale: 1 },
+      transition: { duration: 0.48, ease: [0.16, 1, 0.3, 1], delay: (index % 10) * staggerDelay },
+    },
+    pop_bounce: {
+      initial: { opacity: 0, scale: 0.6, y: 15 },
+      animate: { opacity: 1, scale: 1, y: 0 },
+      transition: { type: 'spring', damping: 10, stiffness: 220, delay: (index % 10) * staggerDelay },
     },
     none: {
       initial: { opacity: 1 },
@@ -177,6 +211,10 @@ function ProductCard({
   } else if (cardHoverEffect === 'gold_glow') {
     hoverClasses =
       'hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] hover:border-amber-400/80 transition-all duration-300';
+  } else if (cardHoverEffect === 'lift_shadow') {
+    hoverClasses = 'hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.22)] transition-all duration-300';
+  } else if (cardHoverEffect === 'sheen_shine') {
+    hoverClasses = 'hover:scale-[1.018] transition-all duration-300';
   }
 
   // Determine badge config with strict restraint (no badge clutter on every single card)
@@ -341,6 +379,13 @@ function ProductCard({
 
         <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
 
+        {/* Specular Liquid Sheen Shine Effect on Hover */}
+        {cardHoverEffect === 'sheen_shine' && (
+          <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden z-20">
+            <div className="w-[180%] h-full bg-gradient-to-r from-transparent via-white/35 to-transparent -skew-x-25 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+          </div>
+        )}
+
         {/* 1. TOP-RIGHT CORNER: Status Badge with Mobile Safe Max-Width */}
         {showBadges && badgeConfig && (
           <div className="absolute top-2 right-2 z-10 pointer-events-none max-w-[calc(100%-2.2rem)]">
@@ -417,9 +462,11 @@ function ProductCard({
           </div>
 
           {/* Unified "+ Add" Button with Tactile Feedback & Selected Physics */}
-          <button
+          <motion.button
             type="button"
             onClick={handleAddToCart}
+            animate={hapticPop ? { scale: [1, 1.28, 0.94, 1.08, 1] } : undefined}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
             className={`font-bold text-white transition-all duration-200 active:scale-90 shadow-xs cursor-pointer relative overflow-hidden flex items-center justify-center gap-1 ${
               buyButtonStyle === 'circle_plus'
                 ? 'w-7 h-7 rounded-full shrink-0'
@@ -433,6 +480,19 @@ function ProductCard({
             }`}
             aria-label={isAr ? `أضف ${product.titleAr}` : `Add ${product.titleEn}`}
           >
+            {/* Sparkles Burst Physics */}
+            {sparkles.map((sp) => (
+              <motion.span
+                key={sp.id}
+                initial={{ scale: 0, opacity: 1 }}
+                animate={{ scale: sp.scale, x: sp.dx, y: sp.dy, opacity: 0 }}
+                transition={{ duration: 0.65, ease: 'easeOut' }}
+                className="absolute pointer-events-none z-30 text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.9)] text-xs font-black select-none"
+              >
+                ✦
+              </motion.span>
+            ))}
+
             {/* Ripples */}
             {ripples.map((rip) => (
               <motion.span
@@ -477,7 +537,7 @@ function ProductCard({
                 </motion.span>
               )}
             </AnimatePresence>
-          </button>
+          </motion.button>
         </div>
       </div>
     </motion.div>

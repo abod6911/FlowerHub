@@ -8,6 +8,7 @@ import {
   Camera,
   Upload,
   Trash2,
+  Globe,
 } from 'lucide-react';
 import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
@@ -35,6 +36,8 @@ const SEARCH_PLACEHOLDERS_EN = [
 function ShopHeader({
   heroStyle = 'qlub',
   lang = 'ar',
+  setLang,
+  onToggleLang,
   shopConfig,
   onUpdateShopConfig,
   _themeTokens = THEME_TOKENS.botanical,
@@ -255,6 +258,27 @@ function ShopHeader({
     </div>
   );
 
+  const handleToggleLanguage = () => {
+    if (onToggleLang) {
+      onToggleLang();
+    } else if (setLang) {
+      setLang(isAr ? 'en' : 'ar');
+    }
+  };
+
+  const renderLanguageButton = () => (
+    <button
+      type="button"
+      onClick={handleToggleLanguage}
+      aria-label={isAr ? 'Switch to English' : 'التحويل للغة العربية'}
+      title={isAr ? 'Switch to English' : 'التحويل للغة العربية'}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-stone-900/90 dark:bg-stone-800/90 hover:bg-stone-900 text-amber-300 hover:text-amber-200 border border-amber-400/35 transition-all duration-200 active:scale-95 shadow-xs cursor-pointer select-none"
+    >
+      <Globe className="w-3.5 h-3.5 text-amber-400" />
+      <span className="font-mono text-[11px] font-black tracking-wider">{isAr ? 'EN' : 'عربي'}</span>
+    </button>
+  );
+
   return (
     <header className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 w-full transition-colors duration-300 relative select-none">
       {/* Hidden file input for photo upload */}
@@ -288,8 +312,10 @@ function ShopHeader({
               {renderAvatarButton('w-12 h-12')}
             </div>
 
-            {/* WhatsApp & Rating */}
+            {/* WhatsApp, Rating & Language */}
             <div className="flex items-center justify-end gap-2">
+              {renderLanguageButton()}
+
               <a
                 href={`https://wa.me/${phone}`}
                 target="_blank"
@@ -335,6 +361,8 @@ function ShopHeader({
             </h1>
 
             <div className="flex items-center justify-center gap-2 mt-2.5 flex-wrap text-xs">
+              {renderLanguageButton()}
+
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-stone-800 text-amber-900 dark:text-amber-200 border border-amber-300/60 dark:border-stone-700">
                 <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
                 <span>4.9 ★</span>
@@ -371,8 +399,10 @@ function ShopHeader({
               {renderAvatarButton('w-12 h-12 sm:w-14 sm:h-14')}
             </div>
 
-            {/* Left Actions: Concierge WhatsApp & Rating */}
+            {/* Left Actions: Concierge WhatsApp, Rating & Language */}
             <div className="flex items-center justify-end gap-2 shrink-0">
+              {renderLanguageButton()}
+
               <a
                 href={`https://wa.me/${phone}`}
                 target="_blank"

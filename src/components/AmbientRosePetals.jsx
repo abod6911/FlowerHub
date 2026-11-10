@@ -150,29 +150,63 @@ export default function AmbientRosePetals({
       ? storeCtx.config.petalsCount
       : 14;
 
+  const activePetalsType = storeCtx?.config?.petalsType || 'rose_red';
+  const activeSpeedMode = storeCtx?.config?.petalsSpeed || 'normal';
+
+  const speedMultiplier = activeSpeedMode === 'gentle' ? 1.45 : activeSpeedMode === 'breeze' ? 0.65 : 1.0;
+
   const petals = useMemo(() => {
     const total = Math.min(Math.max(activeCount, 4), 32);
     return Array.from({ length: total }, (_, i) => {
       const pseudoRand = ((i * 37) % 100) / 100;
       const left = (i * 100) / total + (pseudoRand * 6 - 3);
       const delay = (i * 0.45) % 6;
-      const duration = isAbsolute ? 7 + (i % 4) * 1.5 : 9 + (i % 5) * 2;
+      const baseDuration = (isAbsolute ? 7 + (i % 4) * 1.5 : 9 + (i % 5) * 2) * speedMultiplier;
       const size = 12 + (i % 5) * 3.5;
       const rotation = (i * 45) % 360;
-      const swayDuration = 3.2 + (i % 3);
+      const swayDuration = (3.2 + (i % 3)) * (activeSpeedMode === 'breeze' ? 0.75 : 1.0);
       return {
         id: i,
         left: `${Math.max(2, Math.min(94, left))}%`,
         delay: `${delay}s`,
-        duration: `${duration}s`,
-        swayDuration: `${swayDuration}s`,
+        duration: `${baseDuration.toFixed(1)}s`,
+        swayDuration: `${swayDuration.toFixed(1)}s`,
         size,
         rotation,
       };
     });
-  }, [activeCount, isAbsolute]);
+  }, [activeCount, isAbsolute, speedMultiplier, activeSpeedMode]);
 
   if (!isEnabled) return null;
+
+  // Color gradient definitions based on petalsType
+  const getPetalColors = () => {
+    if (activePetalsType === 'sakura_pink') {
+      return {
+        stop1: '#F472B6', // Pink 400
+        stop2: '#DB2777', // Pink 600
+        stop3: '#831843', // Pink 900
+        vein: 'rgba(255,255,255,0.4)',
+      };
+    }
+    if (activePetalsType === 'gold_luxury') {
+      return {
+        stop1: '#FDE047', // Yellow 300
+        stop2: '#D4AF37', // Gold
+        stop3: '#92400E', // Amber 800
+        vein: 'rgba(255,255,255,0.5)',
+      };
+    }
+    // Default: 'rose_red'
+    return {
+      stop1: '#BE123C', // Rose 700
+      stop2: '#881337', // Rose 900
+      stop3: '#4C0519', // Dark burgundy
+      vein: 'rgba(255,255,255,0.25)',
+    };
+  };
+
+  const colors = getPetalColors();
 
   return (
     <div
@@ -205,13 +239,13 @@ export default function AmbientRosePetals({
             opacity: 0;
           }
           10% {
-            opacity: 0.85;
+            opacity: 0.95;
           }
           90% {
-            opacity: 0.75;
+            opacity: 0.85;
           }
           100% {
-            transform: translateY(800px) rotate(360deg);
+            transform: translateY(115vh) rotate(360deg);
             opacity: 0;
           }
         }
@@ -253,9 +287,9 @@ export default function AmbientRosePetals({
             >
               <defs>
                 <linearGradient id={`petal-grad-${p.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#BE123C" stopOpacity="0.85" />
-                  <stop offset="60%" stopColor="#881337" stopOpacity="0.75" />
-                  <stop offset="100%" stopColor="#4C0519" stopOpacity="0.9" />
+                  <stop offset="0%" stopColor={colors.stop1} stopOpacity="0.85" />
+                  <stop offset="60%" stopColor={colors.stop2} stopOpacity="0.75" />
+                  <stop offset="100%" stopColor={colors.stop3} stopOpacity="0.9" />
                 </linearGradient>
               </defs>
               <path
@@ -264,7 +298,7 @@ export default function AmbientRosePetals({
               />
               <path
                 d="M15 6 Q14 22 15 36"
-                stroke="rgba(255,255,255,0.25)"
+                stroke={colors.vein}
                 strokeWidth="0.75"
                 strokeLinecap="round"
               />

@@ -535,6 +535,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       <ShopHeader
         heroStyle={shopConfig.heroStyle}
         lang={lang}
+        setLang={setLang}
+        onToggleLang={() => setLang((prev) => (prev === 'ar' ? 'en' : 'ar'))}
         shopConfig={shopConfig}
         onUpdateShopConfig={setShopConfig}
         themeTokens={themeTokens}
@@ -776,6 +778,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           <div
             className={`w-full sm:max-w-[460px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-hidden`}
           >
+            <AmbientRosePetals isAbsolute containerClassName="z-20" />
             {renderStorefrontContent()}
           </div>
         </div>

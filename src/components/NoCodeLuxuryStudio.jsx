@@ -52,6 +52,8 @@ function StudioSimulatedCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isFav, setIsFav] = useState(false);
   const [ripples, setRipples] = useState([]);
+  const [sparkles, setSparkles] = useState([]);
+  const [hapticPop, setHapticPop] = useState(false);
 
   const handleMouseMove = (e) => {
     if (cardHoverEffect !== 'tilt_3d') return;
@@ -90,6 +92,18 @@ function StudioSimulatedCard({
       setTimeout(() => {
         setRipples((prev) => prev.filter((r) => r.id !== ripId));
       }, 700);
+    } else if (buyButtonPhysics === 'sparkle_burst') {
+      const newSparkles = Array.from({ length: 6 }, (_, i) => ({
+        id: Date.now() + i,
+        dx: (Math.random() - 0.5) * 50,
+        dy: -20 - Math.random() * 30,
+        scale: 0.8 + Math.random() * 0.4,
+      }));
+      setSparkles(newSparkles);
+      setTimeout(() => setSparkles([]), 650);
+    } else if (buyButtonPhysics === 'haptic_pop') {
+      setHapticPop(true);
+      setTimeout(() => setHapticPop(false), 500);
     }
 
     onAdd(product, {
@@ -115,6 +129,21 @@ function StudioSimulatedCard({
       initial: { opacity: 0, x: 35 },
       animate: { opacity: 1, x: 0 },
       transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: index * staggerDelay },
+    },
+    flip_3d: {
+      initial: { opacity: 0, rotateX: 25, y: 25 },
+      animate: { opacity: 1, rotateX: 0, y: 0 },
+      transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: index * staggerDelay },
+    },
+    blur_in: {
+      initial: { opacity: 0, filter: 'blur(8px)', scale: 0.94 },
+      animate: { opacity: 1, filter: 'blur(0px)', scale: 1 },
+      transition: { duration: 0.48, ease: [0.16, 1, 0.3, 1], delay: index * staggerDelay },
+    },
+    pop_bounce: {
+      initial: { opacity: 0, scale: 0.6, y: 15 },
+      animate: { opacity: 1, scale: 1, y: 0 },
+      transition: { type: 'spring', damping: 10, stiffness: 220, delay: index * staggerDelay },
     },
     none: {
       initial: { opacity: 1, scale: 1 },
@@ -147,6 +176,10 @@ function StudioSimulatedCard({
   } else if (cardHoverEffect === 'gold_glow') {
     hoverClasses =
       'hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] hover:border-amber-400 transition-all duration-300';
+  } else if (cardHoverEffect === 'lift_shadow') {
+    hoverClasses = 'hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] transition-all duration-300';
+  } else if (cardHoverEffect === 'sheen_shine') {
+    hoverClasses = 'hover:scale-[1.018] transition-all duration-300';
   }
 
   return (
@@ -195,6 +228,13 @@ function StudioSimulatedCard({
               e.currentTarget.src = './images/products/royal-red-roses.jpg';
             }}
           />
+
+          {/* Specular Liquid Sheen on Hover */}
+          {cardHoverEffect === 'sheen_shine' && (
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden z-20">
+              <div className="w-[180%] h-full bg-gradient-to-r from-transparent via-white/35 to-transparent -skew-x-25 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+            </div>
+          )}
 
           {/* Top-Right Badge */}
           {showBadges && (
@@ -256,9 +296,11 @@ function StudioSimulatedCard({
         </div>
 
         {/* Buy Button */}
-        <button
+        <motion.button
           type="button"
           onClick={handleButtonClick}
+          animate={hapticPop ? { scale: [1, 1.28, 0.94, 1.08, 1] } : undefined}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
           className={`font-bold transition-all active:scale-95 shadow-2xs flex items-center justify-center gap-1 relative overflow-hidden ${
             buyButtonStyle === 'circle_plus'
               ? 'w-7 h-7 rounded-full text-white shrink-0'
@@ -270,6 +312,19 @@ function StudioSimulatedCard({
             backgroundColor: isAdded ? '#059669' : colors.primary,
           }}
         >
+          {/* Sparkles Burst */}
+          {sparkles.map((sp) => (
+            <motion.span
+              key={sp.id}
+              initial={{ scale: 0, opacity: 1 }}
+              animate={{ scale: sp.scale, x: sp.dx, y: sp.dy, opacity: 0 }}
+              transition={{ duration: 0.65, ease: 'easeOut' }}
+              className="absolute pointer-events-none z-30 text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.9)] text-xs font-black select-none"
+            >
+              ✦
+            </motion.span>
+          ))}
+
           {/* Ripple Wave Elements */}
           {ripples.map((rip) => (
             <motion.span
@@ -315,7 +370,7 @@ function StudioSimulatedCard({
               </motion.span>
             )}
           </AnimatePresence>
-        </button>
+        </motion.button>
       </div>
     </motion.div>
   );
@@ -1237,11 +1292,14 @@ export default function NoCodeLuxuryStudio({
                       أنيميشن دخول وظهور البطاقات (Entrance Stagger)
                     </h3>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                       {[
                         { id: 'fade_up', label: 'انسياب للأعلى (Fade Up)' },
                         { id: 'elastic_scale', label: 'تمدد مرن (Elastic Scale)' },
                         { id: 'slide', label: 'انزلاق جانبي (Slide)' },
+                        { id: 'flip_3d', label: 'تدوير ثلاثي الأبعاد (3D Flip)' },
+                        { id: 'blur_in', label: 'تلاشي سينمائي (Blur Reveal)' },
+                        { id: 'pop_bounce', label: 'ارتداد مبهج (Pop Bounce)' },
                         { id: 'none', label: 'فوري (بدون أنيميشن)' },
                       ].map((m) => (
                         <button
@@ -1251,7 +1309,7 @@ export default function NoCodeLuxuryStudio({
                             updateField('cardEntranceMotion', m.id);
                             setReplayTrigger((prev) => prev + 1);
                           }}
-                          className={`py-2 rounded-xl border text-center transition-all ${
+                          className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
                             config.cardEntranceMotion === m.id
                               ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
                               : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
@@ -1297,17 +1355,19 @@ export default function NoCodeLuxuryStudio({
                       <label className="text-xs font-semibold text-stone-700 block mb-1.5">
                         فيزياء زر الشراء (Add-to-Cart Physics)
                       </label>
-                      <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                         {[
                           { id: 'morph_checkmark', label: 'تحول للعلامة (Morph)' },
                           { id: 'ripple_wave', label: 'موجة ضوئية (Ripple)' },
                           { id: 'fly_to_cart', label: 'طيران للسلة' },
+                          { id: 'sparkle_burst', label: 'تناثر نجوم ذهبية (Sparkles)' },
+                          { id: 'haptic_pop', label: 'نبض تفاعلي (Haptic Pop)' },
                         ].map((b) => (
                           <button
                             key={b.id}
                             type="button"
                             onClick={() => updateField('buyButtonPhysics', b.id)}
-                            className={`py-2 rounded-xl border text-center transition-all ${
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
                               config.buyButtonPhysics === b.id
                                 ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
                                 : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
@@ -1323,17 +1383,19 @@ export default function NoCodeLuxuryStudio({
                       <label className="text-xs font-semibold text-stone-700 block mb-1.5">
                         تأثير التمرير على البطاقة (Card Hover Effect)
                       </label>
-                      <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                         {[
                           { id: 'zoom_soft', label: 'تكبير ناعم (Zoom)' },
                           { id: 'tilt_3d', label: 'ميلان ثلاثي الأبعاد (3D Tilt)' },
                           { id: 'gold_glow', label: 'توهج ذهبي (Glow)' },
+                          { id: 'lift_shadow', label: 'ارتفاع عائم فاخر (Lift)' },
+                          { id: 'sheen_shine', label: 'انعكاس سائل (Sheen)' },
                         ].map((h) => (
                           <button
                             key={h.id}
                             type="button"
                             onClick={() => updateField('cardHoverEffect', h.id)}
-                            className={`py-2 rounded-xl border text-center transition-all ${
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
                               config.cardHoverEffect === h.id
                                 ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
                                 : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
@@ -1370,6 +1432,58 @@ export default function NoCodeLuxuryStudio({
 
                     {config.floatingPetalsEnabled && (
                       <div className="space-y-3 pt-2 border-t border-stone-200/60 animate-fade-in">
+                        <div>
+                          <label className="text-xs font-semibold text-stone-700 block mb-1.5">
+                            طراز ولون البتلات (Petals Palette)
+                          </label>
+                          <div className="grid grid-cols-3 gap-2 text-xs">
+                            {[
+                              { id: 'rose_red', label: '🌹 روز جوري ملكي' },
+                              { id: 'sakura_pink', label: '🌸 ساكورا زهرية' },
+                              { id: 'gold_luxury', label: '✨ شذرات ذهبية' },
+                            ].map((pt) => (
+                              <button
+                                key={pt.id}
+                                type="button"
+                                onClick={() => updateField('petalsType', pt.id)}
+                                className={`py-1.5 px-1 rounded-xl border text-center transition-all ${
+                                  (config.petalsType || 'rose_red') === pt.id
+                                    ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                    : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                                }`}
+                              >
+                                {pt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-semibold text-stone-700 block mb-1.5">
+                            سرعة الانسياب والسقوط (Fall Pace)
+                          </label>
+                          <div className="grid grid-cols-3 gap-2 text-xs">
+                            {[
+                              { id: 'gentle', label: 'هادئ وبطيء' },
+                              { id: 'normal', label: 'طبيعي متوازن' },
+                              { id: 'breeze', label: 'نسيم عاطر سريع' },
+                            ].map((ps) => (
+                              <button
+                                key={ps.id}
+                                type="button"
+                                onClick={() => updateField('petalsSpeed', ps.id)}
+                                className={`py-1.5 px-1 rounded-xl border text-center transition-all ${
+                                  (config.petalsSpeed || 'normal') === ps.id
+                                    ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                    : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                                }`}
+                              >
+                                {ps.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
                         <div>
                           <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
                             <span>كثافة البتلات</span>

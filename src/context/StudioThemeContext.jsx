@@ -62,13 +62,15 @@ export const DEFAULT_STUDIO_CONFIG = {
   showFavoriteButton: true,
 
   // Motion & Physics (Tab: الحركة والفيزياء)
-  cardEntranceMotion: 'fade_up', // 'fade_up' | 'elastic_scale' | 'slide' | 'none'
+  cardEntranceMotion: 'fade_up', // 'fade_up' | 'elastic_scale' | 'slide' | 'flip_3d' | 'blur_in' | 'pop_bounce' | 'none'
   staggerDelay: 0.08, // 0.02s to 0.25s
-  buyButtonPhysics: 'morph_checkmark', // 'morph_checkmark' | 'ripple_wave' | 'fly_to_cart'
-  cardHoverEffect: 'zoom_soft', // 'zoom_soft' | 'tilt_3d' | 'gold_glow'
+  buyButtonPhysics: 'morph_checkmark', // 'morph_checkmark' | 'ripple_wave' | 'fly_to_cart' | 'sparkle_burst' | 'haptic_pop'
+  cardHoverEffect: 'zoom_soft', // 'zoom_soft' | 'tilt_3d' | 'gold_glow' | 'lift_shadow' | 'sheen_shine'
   floatingPetalsEnabled: true,
   petalsCount: 14,
   petalsOpacity: 0.6,
+  petalsType: 'rose_red', // 'rose_red' | 'sakura_pink' | 'gold_luxury'
+  petalsSpeed: 'normal', // 'gentle' | 'normal' | 'breeze'
 
   // Colors & Typography
   paletteId: 'royalBurgundy',
@@ -308,6 +310,8 @@ export function StudioThemeProvider({ children }) {
             floatingPetalsEnabled: safeConfig.floatingPetalsEnabled,
             petalsCount: safeConfig.petalsCount,
             petalsOpacity: safeConfig.petalsOpacity,
+            petalsType: safeConfig.petalsType,
+            petalsSpeed: safeConfig.petalsSpeed,
             gridLayout: safeConfig.gridLayout,
             cardBorderRadius: safeConfig.cardBorderRadius,
             cardShadow: safeConfig.cardShadow,
