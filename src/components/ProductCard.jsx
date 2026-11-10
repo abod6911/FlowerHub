@@ -17,6 +17,7 @@ function ProductCard({
   index = 0,
   isPortfolio = false,
   onSelectProduct,
+  onAddToCart,
   onRequestPortfolio,
   lang = 'ar',
   _themeTokens = THEME_TOKENS.botanical,
@@ -108,7 +109,7 @@ function ProductCard({
   const handleAddToCart = (e) => {
     e.stopPropagation();
 
-    // Trigger physics
+    // Trigger selected physics
     if (buyButtonPhysics === 'ripple_wave') {
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
@@ -120,18 +121,18 @@ function ProductCard({
       }, 650);
     } else if (buyButtonPhysics === 'fly_to_cart') {
       setFlyingFlower(true);
-      setTimeout(() => setFlyingFlower(false), 800);
+      setTimeout(() => setFlyingFlower(false), 850);
     } else if (buyButtonPhysics === 'sparkle_burst') {
       const rect = e.currentTarget.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const clickY = e.clientY - rect.top;
-      const newSparkles = Array.from({ length: 7 }, (_, i) => ({
+      const newSparkles = Array.from({ length: 8 }, (_, i) => ({
         id: Date.now() + i,
         x: clickX,
         y: clickY,
-        dx: (Math.random() - 0.5) * 60,
-        dy: -25 - Math.random() * 35,
-        scale: 0.8 + Math.random() * 0.5,
+        dx: (Math.random() - 0.5) * 65,
+        dy: -25 - Math.random() * 40,
+        scale: 0.9 + Math.random() * 0.5,
       }));
       setSparkles(newSparkles);
       setTimeout(() => setSparkles([]), 700);
@@ -143,7 +144,28 @@ function ProductCard({
     setIsMorphed(true);
     setTimeout(() => setIsMorphed(false), 1200);
 
-    if (onSelectProduct) {
+    // If an explicit onAddToCart callback is provided, add item directly to bag with full tactile satisfaction
+    if (onAddToCart) {
+      const defaultItem = {
+        ...product,
+        basePrice: product.price,
+        price: product.price,
+        totalPrice: product.price,
+        orderStyle: 'as_is',
+        modificationNote: null,
+        addons: [],
+        giftCardMessage: null,
+        handover: {
+          type: 'self',
+          timing: 'immediate',
+          recipientName: null,
+          recipientPhone: null,
+        },
+        trustPhoto: true,
+        quantity: 1,
+      };
+      onAddToCart(defaultItem);
+    } else if (onSelectProduct) {
       onSelectProduct(product);
     }
   };
@@ -199,23 +221,45 @@ function ProductCard({
       ? 'shadow-xl hover:shadow-2xl'
       : 'shadow-[0_4px_18px_-4px_rgba(0,0,0,0.04)] hover:shadow-md';
 
-  // Hover transform and visual classes
-  let transformStyle = '';
-  let hoverClasses = '';
-  if (cardHoverEffect === 'tilt_3d') {
-    transformStyle = tilt.active
+  // Framer Motion native whileHover to prevent CSS class vs inline transform matrix collisions
+  const getWhileHover = () => {
+    if (cardHoverEffect === 'zoom_soft') {
+      return {
+        scale: 1.035,
+        boxShadow: '0 14px 30px -6px rgba(0,0,0,0.16)',
+        transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
+      };
+    }
+    if (cardHoverEffect === 'lift_shadow') {
+      return {
+        y: -7,
+        boxShadow: '0 20px 35px -10px rgba(0,0,0,0.22)',
+        transition: { duration: 0.24, ease: [0.16, 1, 0.3, 1] },
+      };
+    }
+    if (cardHoverEffect === 'gold_glow') {
+      return {
+        scale: 1.018,
+        boxShadow: '0 0 26px rgba(212,175,55,0.55)',
+        borderColor: '#fbbf24',
+        transition: { duration: 0.25, ease: 'easeOut' },
+      };
+    }
+    if (cardHoverEffect === 'sheen_shine') {
+      return {
+        scale: 1.02,
+        transition: { duration: 0.22, ease: 'easeOut' },
+      };
+    }
+    return undefined;
+  };
+
+  const transformStyle =
+    cardHoverEffect === 'tilt_3d' && tilt.active
       ? `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.025, 1.025, 1.025)`
-      : 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-  } else if (cardHoverEffect === 'zoom_soft') {
-    hoverClasses = 'hover:scale-[1.025] transition-transform duration-300';
-  } else if (cardHoverEffect === 'gold_glow') {
-    hoverClasses =
-      'hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] hover:border-amber-400/80 transition-all duration-300';
-  } else if (cardHoverEffect === 'lift_shadow') {
-    hoverClasses = 'hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.22)] transition-all duration-300';
-  } else if (cardHoverEffect === 'sheen_shine') {
-    hoverClasses = 'hover:scale-[1.018] transition-all duration-300';
-  }
+      : cardHoverEffect === 'tilt_3d'
+      ? 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
+      : undefined;
 
   // Determine badge config with strict restraint (no badge clutter on every single card)
   const getBadgeConfig = () => {
@@ -321,11 +365,12 @@ function ProductCard({
       ref={cardRef}
       initial={currentEntrance.initial}
       animate={currentEntrance.animate}
+      whileHover={cardHoverEffect !== 'tilt_3d' ? getWhileHover() : undefined}
       transition={currentEntrance.transition}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={() => onSelectProduct && onSelectProduct(product)}
-      className={`bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] ${shadowClass} ${hoverClasses}`}
+      className={`bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800/80 flex flex-col justify-between group cursor-pointer overflow-hidden relative active:scale-[0.98] ${shadowClass}`}
       style={{
         borderRadius: `${cardRadius || 22}px`,
         transform: transformStyle,

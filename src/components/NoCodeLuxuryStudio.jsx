@@ -164,34 +164,57 @@ function StudioSimulatedCard({
       ? 'shadow-xl hover:shadow-2xl'
       : 'shadow-xs hover:shadow-md';
 
-  // Hover transform and visual classes
-  let transformStyle = '';
-  let hoverClasses = '';
-  if (cardHoverEffect === 'tilt_3d') {
-    transformStyle = tilt.active
+  // Framer Motion native whileHover to prevent CSS class vs inline transform matrix collisions
+  const getWhileHover = () => {
+    if (cardHoverEffect === 'zoom_soft') {
+      return {
+        scale: 1.035,
+        boxShadow: '0 12px 28px -6px rgba(0,0,0,0.15)',
+        transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
+      };
+    }
+    if (cardHoverEffect === 'lift_shadow') {
+      return {
+        y: -7,
+        boxShadow: '0 20px 35px -10px rgba(0,0,0,0.22)',
+        transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
+      };
+    }
+    if (cardHoverEffect === 'gold_glow') {
+      return {
+        scale: 1.018,
+        boxShadow: '0 0 24px rgba(212,175,55,0.45)',
+        borderColor: '#fbbf24',
+        transition: { duration: 0.22, ease: 'easeOut' },
+      };
+    }
+    if (cardHoverEffect === 'sheen_shine') {
+      return {
+        scale: 1.02,
+        transition: { duration: 0.22, ease: 'easeOut' },
+      };
+    }
+    return undefined;
+  };
+
+  const transformStyle =
+    cardHoverEffect === 'tilt_3d' && tilt.active
       ? `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.025, 1.025, 1.025)`
-      : 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-  } else if (cardHoverEffect === 'zoom_soft') {
-    hoverClasses = 'hover:scale-[1.03] transition-transform duration-300';
-  } else if (cardHoverEffect === 'gold_glow') {
-    hoverClasses =
-      'hover:shadow-[0_0_24px_rgba(212,175,55,0.45)] hover:border-amber-400 transition-all duration-300';
-  } else if (cardHoverEffect === 'lift_shadow') {
-    hoverClasses = 'hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] transition-all duration-300';
-  } else if (cardHoverEffect === 'sheen_shine') {
-    hoverClasses = 'hover:scale-[1.018] transition-all duration-300';
-  }
+      : cardHoverEffect === 'tilt_3d'
+      ? 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
+      : undefined;
 
   return (
     <motion.div
       key={`${cardEntranceMotion}-${staggerDelay}-${replayKey}-${product.id}`}
       initial={motionProps.initial}
       animate={motionProps.animate}
+      whileHover={cardHoverEffect !== 'tilt_3d' ? getWhileHover() : undefined}
       transition={motionProps.transition}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`border border-stone-200/70 p-2.5 flex flex-col justify-between transition-all group overflow-hidden relative cursor-pointer ${shadowClass} ${hoverClasses} ${
+      className={`border border-stone-200/70 p-2.5 flex flex-col justify-between transition-all group overflow-hidden relative cursor-pointer ${shadowClass} ${
         isBentoSpan ? 'col-span-2' : 'col-span-1'
       }`}
       style={{
@@ -373,6 +396,339 @@ function StudioSimulatedCard({
         </motion.button>
       </div>
     </motion.div>
+  );
+}
+
+function StudioMotionSandboxCard({
+  cardHoverEffect = 'zoom_soft',
+  buyButtonPhysics = 'sparkle_burst',
+  primaryColor = '#7E1529',
+  cardRadius = 22,
+  triggerCount = 0,
+  hoverTriggerCount = 0,
+}) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+  const [isAdded, setIsAdded] = useState(false);
+  const [ripples, setRipples] = useState([]);
+  const [sparkles, setSparkles] = useState([]);
+  const [hapticPop, setHapticPop] = useState(false);
+  const [flyingParticle, setFlyingParticle] = useState(false);
+  const [simulatedHover, setSimulatedHover] = useState(false);
+
+  // Auto-trigger physics whenever triggerCount increments
+  useEffect(() => {
+    if (triggerCount > 0) {
+      triggerPhysics();
+    }
+  }, [triggerCount]);
+
+  // Auto-trigger hover preview whenever hoverTriggerCount increments
+  useEffect(() => {
+    if (hoverTriggerCount > 0) {
+      setSimulatedHover(true);
+      if (cardHoverEffect === 'tilt_3d') {
+        setTilt({ x: -9, y: 9, active: true, glareX: 75, glareY: 30 });
+      }
+      const t = setTimeout(() => {
+        setSimulatedHover(false);
+        setTilt({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+      }, 1800);
+      return () => clearTimeout(t);
+    }
+  }, [hoverTriggerCount, cardHoverEffect]);
+
+  const handleMouseMove = (e) => {
+    if (cardHoverEffect !== 'tilt_3d') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const py = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    setTilt({
+      x: -py * 10,
+      y: px * 10,
+      active: true,
+      glareX: ((px + 1) / 2) * 100,
+      glareY: ((py + 1) / 2) * 100,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (cardHoverEffect === 'tilt_3d') {
+      setTilt({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 });
+    }
+  };
+
+  const triggerPhysics = (clientX, clientY, targetRect) => {
+    if (buyButtonPhysics === 'ripple_wave') {
+      const clickX = clientX && targetRect ? clientX - targetRect.left : 45;
+      const clickY = clientY && targetRect ? clientY - targetRect.top : 16;
+      const ripId = Date.now();
+      setRipples((prev) => [...prev, { id: ripId, x: clickX, y: clickY }]);
+      setTimeout(() => setRipples((prev) => prev.filter((r) => r.id !== ripId)), 700);
+    } else if (buyButtonPhysics === 'sparkle_burst') {
+      const newSparkles = Array.from({ length: 8 }, (_, i) => ({
+        id: Date.now() + i,
+        dx: (Math.random() - 0.5) * 75,
+        dy: -25 - Math.random() * 45,
+        scale: 0.9 + Math.random() * 0.5,
+      }));
+      setSparkles(newSparkles);
+      setTimeout(() => setSparkles([]), 700);
+    } else if (buyButtonPhysics === 'haptic_pop') {
+      setHapticPop(true);
+      setTimeout(() => setHapticPop(false), 500);
+    } else if (buyButtonPhysics === 'fly_to_cart') {
+      setFlyingParticle(true);
+      setTimeout(() => setFlyingParticle(false), 900);
+    }
+
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1400);
+  };
+
+  const getWhileHover = () => {
+    if (cardHoverEffect === 'zoom_soft') {
+      return { scale: 1.04, boxShadow: '0 16px 32px -8px rgba(0,0,0,0.18)', transition: { duration: 0.22 } };
+    }
+    if (cardHoverEffect === 'lift_shadow') {
+      return { y: -8, boxShadow: '0 22px 38px -10px rgba(0,0,0,0.24)', transition: { duration: 0.22 } };
+    }
+    if (cardHoverEffect === 'gold_glow') {
+      return { scale: 1.02, boxShadow: '0 0 28px rgba(212,175,55,0.65)', borderColor: '#fbbf24', transition: { duration: 0.22 } };
+    }
+    if (cardHoverEffect === 'sheen_shine') {
+      return { scale: 1.02, transition: { duration: 0.22 } };
+    }
+    return undefined;
+  };
+
+  const transformStyle =
+    cardHoverEffect === 'tilt_3d' && tilt.active
+      ? `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.03, 1.03, 1.03)`
+      : cardHoverEffect === 'tilt_3d'
+      ? 'perspective(700px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)'
+      : undefined;
+
+  const physicsLabels = {
+    morph_checkmark: 'تحول للعلامة (Morph)',
+    ripple_wave: 'موجة ضوئية (Ripple)',
+    fly_to_cart: 'طيران للسلة (Fly to Cart)',
+    sparkle_burst: 'تناثر نجوم ذهبية (Sparkles)',
+    haptic_pop: 'نبض تفاعلي (Haptic Pop)',
+  };
+
+  const hoverLabels = {
+    zoom_soft: 'تكبير ناعم (Zoom)',
+    tilt_3d: 'ميلان ثلاثي الأبعاد (3D Tilt)',
+    gold_glow: 'توهج ذهبي (Glow)',
+    lift_shadow: 'ارتفاع عائم فاخر (Lift)',
+    sheen_shine: 'انعكاس سائل (Sheen)',
+  };
+
+  return (
+    <div className="mt-3 p-3.5 rounded-2xl bg-white border border-stone-200/90 shadow-xs space-y-3">
+      {/* Header Info */}
+      <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-stone-100">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+          <span className="text-xs font-bold text-stone-900">مختبر التجربة التفاعلية المباشرة</span>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300">
+            {physicsLabels[buyButtonPhysics] || buyButtonPhysics}
+          </span>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-100 text-stone-800 border border-stone-200">
+            {hoverLabels[cardHoverEffect] || cardHoverEffect}
+          </span>
+        </div>
+      </div>
+
+      <div className="text-[11px] text-stone-500 leading-relaxed flex items-center justify-between">
+        <span>💡 مرر الفأرة فوق البطاقة لتجربة التمرير، أو انقر زر الشراء لاختبار الحركة:</span>
+        <button
+          type="button"
+          onClick={() => {
+            setSimulatedHover((prev) => !prev);
+            if (cardHoverEffect === 'tilt_3d') {
+              setTilt({ x: -10, y: 10, active: true, glareX: 80, glareY: 20 });
+              setTimeout(() => setTilt({ x: 0, y: 0, active: false, glareX: 50, glareY: 50 }), 1600);
+            }
+          }}
+          className="text-[10px] font-bold text-[#7E1529] hover:underline cursor-pointer"
+        >
+          {simulatedHover ? 'إلغاء المحاكاة' : '⚡ محاكاة التمرير'}
+        </button>
+      </div>
+
+      {/* The Interactive Sandbox Card */}
+      <div className="flex justify-center p-3 bg-stone-50/80 rounded-xl border border-stone-100">
+        <motion.div
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          whileHover={cardHoverEffect !== 'tilt_3d' ? getWhileHover() : undefined}
+          animate={
+            simulatedHover && cardHoverEffect !== 'tilt_3d'
+              ? getWhileHover()
+              : undefined
+          }
+          className="w-56 bg-white border border-stone-200/90 p-3 rounded-2xl shadow-sm flex flex-col justify-between relative overflow-hidden transition-all select-none cursor-pointer group"
+          style={{
+            borderRadius: `${cardRadius || 22}px`,
+            transform: transformStyle,
+            transition: tilt.active
+              ? 'transform 0.08s ease-out'
+              : 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease',
+          }}
+        >
+          {/* Specular Glare for 3D Tilt */}
+          {cardHoverEffect === 'tilt_3d' && tilt.active && (
+            <div
+              className="absolute inset-0 pointer-events-none rounded-[inherit] transition-opacity duration-200 z-30"
+              style={{
+                background: `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255,255,255,0.3) 0%, transparent 65%)`,
+              }}
+            />
+          )}
+
+          {/* Flying Flower Particle for fly_to_cart */}
+          {flyingParticle && (
+            <motion.div
+              initial={{ x: 20, y: 40, scale: 0.8, opacity: 1 }}
+              animate={{
+                x: [20, -10, -50],
+                y: [40, -40, -120],
+                scale: [0.8, 1.4, 0.4],
+                opacity: [1, 1, 0],
+                rotate: [0, 90, 270],
+              }}
+              transition={{ duration: 0.85, ease: 'easeOut' }}
+              className="absolute pointer-events-none z-50 text-2xl flex items-center justify-center filter drop-shadow-md"
+            >
+              🌸
+            </motion.div>
+          )}
+
+          {/* Product Image */}
+          <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-stone-100 mb-2.5">
+            <img
+              src="./images/products/royal-red-roses.jpg"
+              alt="بوكيه الروز الملكي"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = './images/products/royal-red-roses.jpg';
+              }}
+            />
+
+            {/* Specular Liquid Sheen Sweep */}
+            {cardHoverEffect === 'sheen_shine' && (
+              <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 overflow-hidden z-20">
+                <div className="w-[180%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-25 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+              </div>
+            )}
+
+            <span className="absolute top-2 right-2 text-[9px] font-bold px-2 py-0.5 rounded-full bg-white/90 backdrop-blur-md text-stone-900 border border-white/60 shadow-2xs">
+              الأكثر طلباً
+            </span>
+          </div>
+
+          {/* Details */}
+          <div>
+            <h4 className="text-xs font-bold text-stone-900 truncate">بوكيه الروز الملكي الفاخر</h4>
+            <span className="text-[10px] text-stone-400 block mt-0.5">توصيل ساعتين • مبرد</span>
+          </div>
+
+          {/* Footer & Interactive Button */}
+          <div className="pt-2 mt-2 border-t border-stone-100 flex items-center justify-between">
+            <div className="flex items-baseline gap-0.5">
+              <span className="text-xs font-black text-[#7E1529]">245</span>
+              <span className="text-[9px] text-stone-500 font-bold">ر.س</span>
+            </div>
+
+            <motion.button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                triggerPhysics(e.clientX, e.clientY, rect);
+              }}
+              animate={hapticPop ? { scale: [1, 1.32, 0.92, 1.1, 1] } : undefined}
+              transition={{ duration: 0.45, ease: 'easeOut' }}
+              className={`font-bold px-3 py-1 rounded-full text-white text-xs shadow-xs flex items-center justify-center gap-1 relative overflow-hidden cursor-pointer active:scale-90 transition-colors duration-200 ${
+                isAdded ? 'bg-emerald-600' : 'bg-[#7E1529] hover:opacity-95'
+              }`}
+            >
+              {/* Sparkles Burst */}
+              {sparkles.map((sp) => (
+                <motion.span
+                  key={sp.id}
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{ scale: sp.scale, x: sp.dx, y: sp.dy, opacity: 0 }}
+                  transition={{ duration: 0.65, ease: 'easeOut' }}
+                  className="absolute pointer-events-none z-30 text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.9)] text-xs font-black select-none"
+                >
+                  ✦
+                </motion.span>
+              ))}
+
+              {/* Ripple Wave */}
+              {ripples.map((rip) => (
+                <motion.span
+                  key={rip.id}
+                  initial={{ scale: 0, opacity: 0.85 }}
+                  animate={{ scale: 4.2, opacity: 0 }}
+                  transition={{ duration: 0.55, ease: 'easeOut' }}
+                  className="absolute rounded-full pointer-events-none bg-white/70 shadow-[0_0_12px_rgba(255,255,255,0.9)]"
+                  style={{
+                    left: rip.x - 12,
+                    top: rip.y - 12,
+                    width: 24,
+                    height: 24,
+                  }}
+                />
+              ))}
+
+              <AnimatePresence mode="wait">
+                {isAdded ? (
+                  <motion.span
+                    key="added"
+                    initial={{ scale: 0.7, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.7, opacity: 0 }}
+                    transition={{ duration: 0.16 }}
+                    className="flex items-center gap-1 text-[11px]"
+                  >
+                    <Check className="w-3 h-3 stroke-[3]" />
+                    <span>✓ أُضيف</span>
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="add"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ duration: 0.14 }}
+                    className="flex items-center gap-1 text-[11px]"
+                  >
+                    <Plus className="w-3 h-3 stroke-[2.5]" />
+                    <span>+ أضف</span>
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Quick Action Button for Instant Verification */}
+      <button
+        type="button"
+        onClick={() => triggerPhysics()}
+        className="w-full py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-950 border border-amber-300/80 text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-98 cursor-pointer"
+      >
+        <Sparkles className="w-4 h-4 text-amber-600" />
+        <span>اختبر فيزياء الزر فوراً ({physicsLabels[buyButtonPhysics] || buyButtonPhysics})</span>
+      </button>
+    </div>
   );
 }
 
@@ -793,6 +1149,8 @@ export default function NoCodeLuxuryStudio({
   const [importText, setImportText] = useState('');
   const [toastMessage, setToastMessage] = useState('');
   const [replayTrigger, setReplayTrigger] = useState(0);
+  const [sandboxTrigger, setSandboxTrigger] = useState(0);
+  const [sandboxHoverTrigger, setSandboxHoverTrigger] = useState(0);
 
   if (!isOpen) return null;
 
@@ -1352,9 +1710,12 @@ export default function NoCodeLuxuryStudio({
                   {/* Physics & Hover */}
                   <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-3">
                     <div>
-                      <label className="text-xs font-semibold text-stone-700 block mb-1.5">
-                        فيزياء زر الشراء (Add-to-Cart Physics)
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          فيزياء زر الشراء (Add-to-Cart Physics)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">اضغط لتجربة الحركة</span>
+                      </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                         {[
                           { id: 'morph_checkmark', label: 'تحول للعلامة (Morph)' },
@@ -1366,8 +1727,11 @@ export default function NoCodeLuxuryStudio({
                           <button
                             key={b.id}
                             type="button"
-                            onClick={() => updateField('buyButtonPhysics', b.id)}
-                            className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                            onClick={() => {
+                              updateField('buyButtonPhysics', b.id);
+                              setSandboxTrigger((prev) => prev + 1);
+                            }}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
                               config.buyButtonPhysics === b.id
                                 ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
                                 : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
@@ -1380,9 +1744,12 @@ export default function NoCodeLuxuryStudio({
                     </div>
 
                     <div className="pt-2">
-                      <label className="text-xs font-semibold text-stone-700 block mb-1.5">
-                        تأثير التمرير على البطاقة (Card Hover Effect)
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          تأثير التمرير على البطاقة (Card Hover Effect)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">اختر ومرر لتجربة التأثير</span>
+                      </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                         {[
                           { id: 'zoom_soft', label: 'تكبير ناعم (Zoom)' },
@@ -1394,8 +1761,11 @@ export default function NoCodeLuxuryStudio({
                           <button
                             key={h.id}
                             type="button"
-                            onClick={() => updateField('cardHoverEffect', h.id)}
-                            className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                            onClick={() => {
+                              updateField('cardHoverEffect', h.id);
+                              setSandboxHoverTrigger((prev) => prev + 1);
+                            }}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
                               config.cardHoverEffect === h.id
                                 ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
                                 : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
@@ -1406,6 +1776,16 @@ export default function NoCodeLuxuryStudio({
                         ))}
                       </div>
                     </div>
+
+                    {/* Integrated Interactive Sandbox Card */}
+                    <StudioMotionSandboxCard
+                      cardHoverEffect={config.cardHoverEffect || 'zoom_soft'}
+                      buyButtonPhysics={config.buyButtonPhysics || 'sparkle_burst'}
+                      primaryColor={config?.colors?.primary || '#7E1529'}
+                      cardRadius={config?.cardBorderRadius || 22}
+                      triggerCount={sandboxTrigger}
+                      hoverTriggerCount={sandboxHoverTrigger}
+                    />
                   </div>
 
                   {/* Ambient Rose Petals Overlay */}

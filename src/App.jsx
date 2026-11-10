@@ -637,6 +637,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 index={idx}
                 isPortfolio={false}
                 onSelectProduct={handleOpenProduct}
+                onAddToCart={handleAddToBag}
                 lang={lang}
                 themeTokens={themeTokens}
               />
