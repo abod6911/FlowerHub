@@ -52,20 +52,35 @@ export const DEFAULT_STUDIO_CONFIG = {
   phone: '966500000000',
 
   // Layout & Cards (Tab: البطاقات والأقسام)
-  gridLayout: 'bento', // '2cols' | '1col' | 'bento'
-  cardBorderRadius: 22, // 0 to 28px
-  cardShadow: 'soft', // 'none' | 'soft' | 'medium' | 'high'
-  buyButtonStyle: 'pill_add', // 'circle_plus' | 'pill_add' | 'full_width'
+  gridLayout: 'bento', // '2cols' | '1col' | 'bento' | 'magazine' | 'compact'
+  cardBorderRadius: 22, // 0 to 32px
+  cardShadow: 'soft', // 'none' | 'soft' | 'medium' | 'high' | 'gold_glow'
+  cardAspectRatio: 'aspect_4_5', // 'aspect_4_5' | 'aspect_1_1' | 'aspect_3_4'
+  cardSurfaceMaterial: 'pure_white', // 'pure_white' | 'frosted_glass' | 'warm_ivory' | 'velvet_dark'
+  cardBorderStyle: 'hairline', // 'hairline' | 'gold_rim' | 'none' | 'glow_rim'
+  showImageOverlay: true, // gradient vignette at bottom of card image
+
+  // Card Anatomy & Conversion Boosters
+  buyButtonStyle: 'pill_add', // 'circle_plus' | 'pill_add' | 'full_width' | 'split_price'
   fullTitleWrap: true,
   showBadges: true,
-  badgeStyle: 'glassmorphic', // 'glassmorphic' | 'solid_pastel'
+  badgeStyle: 'glassmorphic', // 'glassmorphic' | 'solid_pastel' | 'royal_gold' | 'dark_velvet'
   showFavoriteButton: true,
+  showDeliveryBadge: true,
+  deliveryBadgeText: 'توصيل ساعتين • مبرد ⚡',
+  showRatingStars: true,
+  showDiscountBadge: true,
+  showQuickView: true,
+  sectionDividerStyle: 'none', // 'none' | 'gold_hairline' | 'subtle_line'
 
   // Motion & Physics (Tab: الحركة والفيزياء)
-  cardEntranceMotion: 'fade_up', // 'fade_up' | 'elastic_scale' | 'slide' | 'flip_3d' | 'blur_in' | 'pop_bounce' | 'none'
+  cardEntranceMotion: 'fade_up', // 'fade_up' | 'elastic_scale' | 'slide' | 'flip_3d' | 'blur_in' | 'pop_bounce' | 'waterfall_drop' | 'spiral_bloom' | 'cinematic_zoom' | 'none'
   staggerDelay: 0.08, // 0.02s to 0.25s
-  buyButtonPhysics: 'morph_checkmark', // 'morph_checkmark' | 'ripple_wave' | 'fly_to_cart' | 'sparkle_burst' | 'haptic_pop'
-  cardHoverEffect: 'zoom_soft', // 'zoom_soft' | 'tilt_3d' | 'gold_glow' | 'lift_shadow' | 'sheen_shine'
+  buyButtonPhysics: 'morph_checkmark', // 'morph_checkmark' | 'ripple_wave' | 'fly_to_cart' | 'sparkle_burst' | 'haptic_pop' | 'flower_bloom' | 'confetti_shower' | 'golden_stamp' | 'heart_burst' | 'magnet_snap'
+  cardHoverEffect: 'zoom_soft', // 'zoom_soft' | 'tilt_3d' | 'gold_glow' | 'lift_shadow' | 'sheen_shine' | 'border_beam' | 'crystal_glass' | 'parallax_depth' | 'aurora_pulse' | 'spotlight_glow'
+  cardIdleMotion: 'none', // 'none' | 'gentle_float' | 'breathe_pulse' | 'subtle_sheen_loop' | 'gentle_sway'
+  cardImageMotion: 'zoom_in', // 'zoom_in' | 'ken_burns' | 'vivid_chroma' | 'depth_tilt' | 'soft_vignette'
+  badgeMotion: 'pulse_dot', // 'static' | 'pulse_dot' | 'shimmer_gold' | 'float_badge'
   floatingPetalsEnabled: true,
   petalsCount: 14,
   petalsOpacity: 0.6,
@@ -307,6 +322,9 @@ export function StudioThemeProvider({ children }) {
             staggerDelay: safeConfig.staggerDelay,
             buyButtonPhysics: safeConfig.buyButtonPhysics,
             cardHoverEffect: safeConfig.cardHoverEffect,
+            cardIdleMotion: safeConfig.cardIdleMotion,
+            cardImageMotion: safeConfig.cardImageMotion,
+            badgeMotion: safeConfig.badgeMotion,
             floatingPetalsEnabled: safeConfig.floatingPetalsEnabled,
             petalsCount: safeConfig.petalsCount,
             petalsOpacity: safeConfig.petalsOpacity,
@@ -315,11 +333,21 @@ export function StudioThemeProvider({ children }) {
             gridLayout: safeConfig.gridLayout,
             cardBorderRadius: safeConfig.cardBorderRadius,
             cardShadow: safeConfig.cardShadow,
+            cardAspectRatio: safeConfig.cardAspectRatio,
+            cardSurfaceMaterial: safeConfig.cardSurfaceMaterial,
+            cardBorderStyle: safeConfig.cardBorderStyle,
+            showImageOverlay: safeConfig.showImageOverlay,
             buyButtonStyle: safeConfig.buyButtonStyle,
             fullTitleWrap: safeConfig.fullTitleWrap,
             showBadges: safeConfig.showBadges,
             badgeStyle: safeConfig.badgeStyle,
             showFavoriteButton: safeConfig.showFavoriteButton,
+            showDeliveryBadge: safeConfig.showDeliveryBadge,
+            deliveryBadgeText: safeConfig.deliveryBadgeText,
+            showRatingStars: safeConfig.showRatingStars,
+            showDiscountBadge: safeConfig.showDiscountBadge,
+            showQuickView: safeConfig.showQuickView,
+            sectionDividerStyle: safeConfig.sectionDividerStyle,
             sections: safeConfig.sections,
             colors: safeConfig.colors,
             paletteId: safeConfig.paletteId,

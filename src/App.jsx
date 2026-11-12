@@ -36,6 +36,7 @@ import {
   createOrderSlipFromCustomOrder,
 } from './utils/orderSlipHelper';
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
+import { STUDIO_SYNC_EVENT } from './context/StudioThemeContext';
 
 class SafeErrorBoundary extends React.Component {
   constructor(props) {
@@ -83,6 +84,53 @@ export default function App() {
       console.error('Failed to save shop config to localStorage', e);
     }
   }, [shopConfig]);
+
+  // Reactive listener to studio synchronization event
+  useEffect(() => {
+    const handleSync = (e) => {
+      if (e?.detail) {
+        const d = e.detail;
+        setShopConfig((prev) => ({
+          ...prev,
+          shopNameAr: d.storeName || prev.shopNameAr,
+          taglineAr: d.storeSubtitle || prev.taglineAr,
+          phone: d.phone || prev.phone,
+          locationLabel: d.locationLabel || prev.locationLabel,
+          statusText: d.statusText ?? prev.statusText,
+          statusPulse: d.statusPulse ?? prev.statusPulse,
+          rating: d.rating ?? prev.rating,
+          avatarText: d.avatarText ?? prev.avatarText,
+          cardEntranceMotion: d.cardEntranceMotion ?? prev.cardEntranceMotion,
+          staggerDelay: d.staggerDelay ?? prev.staggerDelay,
+          buyButtonPhysics: d.buyButtonPhysics ?? prev.buyButtonPhysics,
+          cardHoverEffect: d.cardHoverEffect ?? prev.cardHoverEffect,
+          cardIdleMotion: d.cardIdleMotion ?? prev.cardIdleMotion,
+          cardImageMotion: d.cardImageMotion ?? prev.cardImageMotion,
+          badgeMotion: d.badgeMotion ?? prev.badgeMotion,
+          gridLayout: d.gridLayout ?? prev.gridLayout,
+          cardBorderRadius: d.cardBorderRadius ?? prev.cardBorderRadius,
+          cardShadow: d.cardShadow ?? prev.cardShadow,
+          cardAspectRatio: d.cardAspectRatio ?? prev.cardAspectRatio,
+          cardSurfaceMaterial: d.cardSurfaceMaterial ?? prev.cardSurfaceMaterial,
+          cardBorderStyle: d.cardBorderStyle ?? prev.cardBorderStyle,
+          showImageOverlay: d.showImageOverlay ?? prev.showImageOverlay,
+          buyButtonStyle: d.buyButtonStyle ?? prev.buyButtonStyle,
+          fullTitleWrap: d.fullTitleWrap ?? prev.fullTitleWrap,
+          showBadges: d.showBadges ?? prev.showBadges,
+          badgeStyle: d.badgeStyle ?? prev.badgeStyle,
+          showFavoriteButton: d.showFavoriteButton ?? prev.showFavoriteButton,
+          showDeliveryBadge: d.showDeliveryBadge ?? prev.showDeliveryBadge,
+          deliveryBadgeText: d.deliveryBadgeText ?? prev.deliveryBadgeText,
+          showRatingStars: d.showRatingStars ?? prev.showRatingStars,
+          showDiscountBadge: d.showDiscountBadge ?? prev.showDiscountBadge,
+          showQuickView: d.showQuickView ?? prev.showQuickView,
+          sectionDividerStyle: d.sectionDividerStyle ?? prev.sectionDividerStyle,
+        }));
+      }
+    };
+    window.addEventListener(STUDIO_SYNC_EVENT, handleSync);
+    return () => window.removeEventListener(STUDIO_SYNC_EVENT, handleSync);
+  }, []);
 
   // Apply theme tokens (CSS variables) and dark mode class to root document & body
   useEffect(() => {
@@ -624,24 +672,34 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           </div>
         ) : (
           <div
-            className={`grid gap-2.5 sm:gap-3 ${
+            className={`grid gap-2.5 sm:gap-3.5 ${
               shopConfig.gridLayout === '1col'
                 ? 'grid-cols-1 max-w-md mx-auto'
+                : shopConfig.gridLayout === 'compact'
+                ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4'
                 : 'grid-cols-2'
             }`}
           >
-            {filteredProducts.map((product, idx) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                index={idx}
-                isPortfolio={false}
-                onSelectProduct={handleOpenProduct}
-                onAddToCart={handleAddToBag}
-                lang={lang}
-                themeTokens={themeTokens}
-              />
-            ))}
+            {filteredProducts.map((product, idx) => {
+              const isMagazineSpan = shopConfig.gridLayout === 'magazine' && idx === 0;
+              const isBentoSpan = (shopConfig.gridLayout === 'bento' && idx === 0) || isMagazineSpan;
+              return (
+                <div
+                  key={product.id}
+                  className={isBentoSpan ? 'col-span-2' : 'col-span-1'}
+                >
+                  <ProductCard
+                    product={product}
+                    index={idx}
+                    isPortfolio={false}
+                    onSelectProduct={handleOpenProduct}
+                    onAddToCart={handleAddToBag}
+                    lang={lang}
+                    themeTokens={themeTokens}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 
