@@ -2274,6 +2274,126 @@ export default function FloristAdminPanel({
             </div>
           </div>
 
+          {/* 4.5 Card Animations & Physics (أنيميشن وحركات وفيزياء بطاقات المنتجات) */}
+          <div className="space-y-3 pt-3 border-t border-stone-200/80">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="text-xs sm:text-sm font-bold font-serif text-stone-900 flex items-center gap-1.5">
+                  <Zap className="w-4 h-4 text-emerald-600" />
+                  <span>{isAr ? 'أنيميشن وحركات بطاقات المنتجات (Card Animations):' : 'Card Animations & Physics:'}</span>
+                </label>
+                <p className="text-[11px] text-stone-500 mt-0.5 font-sans">
+                  {isAr ? 'اختر نمط ظهور البطاقات، وفيزياء زر الشراء، وتفاعل التمرير' : 'Card entrance motion, buy button physics & hover effect'}
+                </p>
+              </div>
+              {onOpenDesignStudio && (
+                <button
+                  type="button"
+                  onClick={onOpenDesignStudio}
+                  className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold transition-all"
+                >
+                  {isAr ? '⚡ تخصيص متقدم في الاستوديو' : 'Advanced Studio'}
+                </button>
+              )}
+            </div>
+
+            {/* A. Entrance Motion - 5 quick presets */}
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-bold text-stone-700 block">
+                {isAr ? 'أنيميشن دخول وظهور البطاقات:' : 'Card Entrance Motion:'}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-xs">
+                {[
+                  { id: 'fade_up', label: isAr ? 'انسياب للأعلى' : 'Fade Up' },
+                  { id: 'elastic_scale', label: isAr ? 'تمدد مرن' : 'Elastic' },
+                  { id: 'waterfall_drop', label: isAr ? 'شلال متساقط 💧' : 'Waterfall' },
+                  { id: 'spiral_bloom', label: isAr ? 'تفتح لولبي 🌸' : 'Spiral Bloom' },
+                  { id: 'cinematic_zoom', label: isAr ? 'زووم سينمائي 🎬' : 'Cinematic' },
+                ].map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => {
+                      onUpdateShopConfig({ ...shopConfig, cardEntranceMotion: m.id });
+                      triggerDesignFeedback(isAr ? `⚡ تم تفعيل حركة الدخول: ${m.label}` : `Entrance: ${m.label}`);
+                    }}
+                    className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                      (shopConfig.cardEntranceMotion || 'fade_up') === m.id
+                        ? 'bg-stone-900 text-white border-stone-900 font-bold shadow-xs'
+                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* B. Buy Button Physics - 5 quick presets */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[11px] font-bold text-stone-700 block">
+                {isAr ? 'فيزياء وتأثير زر الشراء:' : 'Buy Button Physics:'}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-xs">
+                {[
+                  { id: 'fly_to_cart', label: isAr ? 'طيران للسلة 🌸' : 'Fly to Cart' },
+                  { id: 'sparkle_burst', label: isAr ? 'نجوم ذهبية ✨' : 'Sparkles' },
+                  { id: 'flower_bloom', label: isAr ? 'تفتح ورد 🌺' : 'Bloom' },
+                  { id: 'confetti_shower', label: isAr ? 'مطر احتفال 🎉' : 'Confetti' },
+                  { id: 'golden_stamp', label: isAr ? 'ختم ملكي 👑' : 'Wax Stamp' },
+                ].map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => {
+                      onUpdateShopConfig({ ...shopConfig, buyButtonPhysics: b.id });
+                      triggerDesignFeedback(isAr ? `⚡ تم تفعيل فيزياء الزر: ${b.label}` : `Physics: ${b.label}`);
+                    }}
+                    className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                      (shopConfig.buyButtonPhysics || 'morph_checkmark') === b.id
+                        ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* C. Card Hover Effect - 5 quick presets */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[11px] font-bold text-stone-700 block">
+                {isAr ? 'تأثير التمرير (Hover):' : 'Card Hover Effect:'}
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-xs">
+                {[
+                  { id: 'zoom_soft', label: isAr ? 'تكبير ناعم' : 'Zoom' },
+                  { id: 'tilt_3d', label: isAr ? 'ميلان ثلاثي الأبعاد' : '3D Tilt' },
+                  { id: 'border_beam', label: isAr ? 'شعاع إطار ✨' : 'Border Beam' },
+                  { id: 'crystal_glass', label: isAr ? 'موشور بلوري 💎' : 'Crystal' },
+                  { id: 'spotlight_glow', label: isAr ? 'كشاف تفاعلي 🔦' : 'Spotlight' },
+                ].map((h) => (
+                  <button
+                    key={h.id}
+                    type="button"
+                    onClick={() => {
+                      onUpdateShopConfig({ ...shopConfig, cardHoverEffect: h.id });
+                      triggerDesignFeedback(isAr ? `⚡ تم تفعيل تأثير التمرير: ${h.label}` : `Hover: ${h.label}`);
+                    }}
+                    className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                      (shopConfig.cardHoverEffect || 'zoom_soft') === h.id
+                        ? 'bg-amber-600 text-white border-amber-600 font-bold shadow-xs'
+                        : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                    }`}
+                  >
+                    {h.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* 5. Occasion Stories Manager (Ultra-Luxury Stories Studio) */}
           <div className="space-y-3.5 pt-3 border-t border-stone-200/80">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
