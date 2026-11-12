@@ -3223,7 +3223,269 @@ export default function NoCodeLuxuryStudio({
                     </div>
                   </div>
 
-                  {/* 4. Section Manager & Dividers (مدير أقسام الصفحة والفواصل) */}
+                  {/* 4. Card Motion, Animations & Physics (حركات وأنيميشن وفيزياء البطاقات) */}
+                  <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-200/60">
+                      <h3 className="font-bold text-sm text-stone-900 flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-emerald-600" />
+                        حركات وأنيميشن وفيزياء البطاقات (Card Motion & Physics)
+                      </h3>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+                        مباشر ⚡
+                      </span>
+                    </div>
+
+                    {/* Entrance Stagger - 10 Options */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          أنيميشن دخول وظهور البطاقات (Entrance Stagger)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">10 حركات</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                        {[
+                          { id: 'fade_up', label: 'انسياب للأعلى (Fade Up)' },
+                          { id: 'elastic_scale', label: 'تمدد مرن (Elastic Scale)' },
+                          { id: 'slide', label: 'انزلاق جانبي (Slide)' },
+                          { id: 'flip_3d', label: 'تدوير ثلاثي الأبعاد (3D Flip)' },
+                          { id: 'blur_in', label: 'تلاشي سينمائي (Blur Reveal)' },
+                          { id: 'pop_bounce', label: 'ارتداد مبهج (Pop Bounce)' },
+                          { id: 'waterfall_drop', label: 'شلال متساقط (Waterfall Drop 💧)' },
+                          { id: 'spiral_bloom', label: 'تفتح لولبي (Spiral Bloom 🌸)' },
+                          { id: 'cinematic_zoom', label: 'زووم سينمائي (Cinematic Zoom 🎬)' },
+                          { id: 'none', label: 'فوري (بدون أنيميشن)' },
+                        ].map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => {
+                              updateField('cardEntranceMotion', m.id);
+                              setReplayTrigger((prev) => prev + 1);
+                            }}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all ${
+                              config.cardEntranceMotion === m.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            {m.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="pt-2">
+                        <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
+                          <span>فارق التتابع الزمني (Stagger Delay)</span>
+                          <span className="font-mono text-rose-800 font-bold">{config.staggerDelay}s</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0.02"
+                          max="0.25"
+                          step="0.01"
+                          value={config.staggerDelay}
+                          onChange={(e) => {
+                            updateField('staggerDelay', Number(e.target.value));
+                            setReplayTrigger((prev) => prev + 1);
+                          }}
+                          className="w-full accent-[#7E1529] cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Buy Button Physics - 10 Options */}
+                    <div className="pt-2 border-t border-stone-200/60">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          فيزياء زر الشراء (Add-to-Cart Physics)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">10 تأثيرات</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                        {[
+                          { id: 'morph_checkmark', label: 'تحول للعلامة (Morph ✓)' },
+                          { id: 'ripple_wave', label: 'موجة ضوئية (Ripple 🌊)' },
+                          { id: 'fly_to_cart', label: 'طيران للسلة (Fly to Cart 🌸)' },
+                          { id: 'sparkle_burst', label: 'تناثر نجوم ذهبية (Sparkles ✨)' },
+                          { id: 'haptic_pop', label: 'نبض تفاعلي (Haptic Pop 💓)' },
+                          { id: 'flower_bloom', label: 'تفتح زهور الورد (Flower Bloom 🌺)' },
+                          { id: 'confetti_shower', label: 'مطر احتفال وقصاصات (Confetti 🎉)' },
+                          { id: 'golden_stamp', label: 'ختم الشمع الملكي (Wax Stamp 👑)' },
+                          { id: 'heart_burst', label: 'تناثر قلوب إعجاب (Heart Burst 💖)' },
+                          { id: 'magnet_snap', label: 'انجذاب مغناطيسي (Magnet Snap 🧲)' },
+                        ].map((b) => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => {
+                              updateField('buyButtonPhysics', b.id);
+                              setActivePhysicsDemo(b.id);
+                              setSandboxTrigger((prev) => prev + 1);
+                              setTimeout(() => setActivePhysicsDemo(null), 1500);
+                            }}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
+                              config.buyButtonPhysics === b.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            <span>{b.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Card Hover Effect - 10 Options */}
+                    <div className="pt-2 border-t border-stone-200/60">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          تأثير التمرير والتفاعل مع البطاقة (Card Hover FX)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">10 تأثيرات</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                        {[
+                          { id: 'zoom_soft', label: 'تكبير ناعم (Zoom)' },
+                          { id: 'tilt_3d', label: 'ميلان ثلاثي الأبعاد (3D Tilt)' },
+                          { id: 'gold_glow', label: 'توهج ذهبي (Glow)' },
+                          { id: 'lift_shadow', label: 'ارتفاع عائم فاخر (Lift)' },
+                          { id: 'sheen_shine', label: 'انعكاس سائل (Sheen)' },
+                          { id: 'border_beam', label: 'شعاع إطار ضوئي (Border Beam ✨)' },
+                          { id: 'crystal_glass', label: 'موشور بلوري (Crystal Glass 💎)' },
+                          { id: 'parallax_depth', label: 'عمق بارالاكس (Parallax 🌌)' },
+                          { id: 'aurora_pulse', label: 'شفق قطبي متوهج (Aurora Pulse 🌈)' },
+                          { id: 'spotlight_glow', label: 'كشاف تفاعلي (Spotlight 🔦)' },
+                        ].map((h) => (
+                          <button
+                            key={h.id}
+                            type="button"
+                            onClick={() => {
+                              updateField('cardHoverEffect', h.id);
+                              setSandboxHoverTrigger((prev) => prev + 1);
+                            }}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
+                              config.cardHoverEffect === h.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            {h.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Card Ambient Motion - 5 Options */}
+                    <div className="pt-2 border-t border-stone-200/60">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          حركة البطاقات أثناء السكون (Card Ambient Motion)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">حركة حية هادئة</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                        {[
+                          { id: 'none', label: 'سكون ثابت (Static)' },
+                          { id: 'gentle_float', label: 'طفو انسيابي ناعم (Float 🌊)' },
+                          { id: 'breathe_pulse', label: 'نبض تنفس هادئ (Breathe 🫀)' },
+                          { id: 'subtle_sheen_loop', label: 'بريق لمعان دوري (Sheen Loop ✨)' },
+                          { id: 'gentle_sway', label: 'تمايل نسيم رقيق (Sway 🍃)' },
+                        ].map((im) => (
+                          <button
+                            key={im.id}
+                            type="button"
+                            onClick={() => updateField('cardIdleMotion', im.id)}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
+                              (config.cardIdleMotion || 'none') === im.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            {im.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Image Hover FX - 5 Options */}
+                    <div className="pt-2 border-t border-stone-200/60">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          أنيميشن تفاعل صورة الباقة (Image Hover FX)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">تفاعل زهور الباقة</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                        {[
+                          { id: 'zoom_in', label: 'زووم ناعم (Zoom In)' },
+                          { id: 'ken_burns', label: 'سينمائي (Ken Burns 🎬)' },
+                          { id: 'vivid_chroma', label: 'ألوان حيوية (Vivid 🎨)' },
+                          { id: 'depth_tilt', label: 'عمق ورفع (Depth Tilt 📦)' },
+                          { id: 'soft_vignette', label: 'تركيز بؤري (Vignette 👁️)' },
+                        ].map((imgFx) => (
+                          <button
+                            key={imgFx.id}
+                            type="button"
+                            onClick={() => updateField('cardImageMotion', imgFx.id)}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
+                              (config.cardImageMotion || 'zoom_in') === imgFx.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            {imgFx.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Badge Motion - 4 Options */}
+                    <div className="pt-2 border-t border-stone-200/60">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-700 block">
+                          أنيميشن شارات التميز (Badge Motion)
+                        </label>
+                        <span className="text-[10px] text-stone-400 font-medium">حركة الشارات</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                        {[
+                          { id: 'static', label: 'ثابت (Static)' },
+                          { id: 'pulse_dot', label: 'نبض حي (Pulse 🟢)' },
+                          { id: 'shimmer_gold', label: 'بريق (Shimmer ✨)' },
+                          { id: 'float_badge', label: 'طفو (Float 🎈)' },
+                        ].map((bm) => (
+                          <button
+                            key={bm.id}
+                            type="button"
+                            onClick={() => updateField('badgeMotion', bm.id)}
+                            className={`py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer active:scale-95 ${
+                              (config.badgeMotion || 'pulse_dot') === bm.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            {bm.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Integrated Interactive Sandbox Card */}
+                    <StudioMotionSandboxCard
+                      cardHoverEffect={config.cardHoverEffect || 'zoom_soft'}
+                      buyButtonPhysics={config.buyButtonPhysics || 'sparkle_burst'}
+                      cardIdleMotion={config.cardIdleMotion || 'none'}
+                      cardImageMotion={config.cardImageMotion || 'zoom_in'}
+                      badgeMotion={config.badgeMotion || 'pulse_dot'}
+                      primaryColor={config?.colors?.primary || '#7E1529'}
+                      cardRadius={config?.cardBorderRadius || 22}
+                      triggerCount={sandboxTrigger}
+                      hoverTriggerCount={sandboxHoverTrigger}
+                    />
+                  </div>
+
+                  {/* 5. Section Manager & Dividers (مدير أقسام الصفحة والفواصل) */}
                   <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-4">
                     <h3 className="font-bold text-sm text-stone-900 flex items-center gap-2">
                       <Layers className="w-4 h-4 text-indigo-700" />
