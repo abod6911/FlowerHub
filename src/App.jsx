@@ -199,10 +199,36 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false);
   const [isCustomDrawerOpen, setIsCustomDrawerOpen] = useState(false);
-  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(() => {
+    return typeof window !== 'undefined' && window.location.search.includes('testCart=true');
+  });
 
   // Bag / Cart
-  const [bagItems, setBagItems] = useState([]);
+  const [bagItems, setBagItems] = useState(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('testCart=true')) {
+      return [
+        {
+          id: 'p1',
+          titleAr: 'فازة الجورى الأحمر الفاخرة',
+          titleEn: 'Luxury Red Rose Vase',
+          price: 450,
+          image: './images/products/royal-red-roses.jpg',
+          quantity: 1,
+          handover: { type: 'delivery' },
+        },
+        {
+          id: 'p2',
+          titleAr: 'بوكس الأكريليك الفاخر مع طباعة الاسم',
+          titleEn: 'Luxury Acrylic Box with Custom Print',
+          price: 275,
+          image: './images/products/acrylic-box-celebration.jpg',
+          quantity: 1,
+          handover: { type: 'delivery' },
+        },
+      ];
+    }
+    return [];
+  });
 
   // WhatsApp Preview Modal
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);

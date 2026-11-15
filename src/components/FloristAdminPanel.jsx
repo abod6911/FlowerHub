@@ -32,6 +32,7 @@ import {
   Lock,
   Layers,
   Play,
+  Zap,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import { validateUploadedFile } from '../services/uploadSecurity';

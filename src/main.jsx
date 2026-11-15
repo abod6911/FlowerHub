@@ -15,19 +15,21 @@ class ErrorBoundary extends Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, incidentCode: generateIncidentCode() };
+    return {
+      hasError: true,
+      incidentCode: generateIncidentCode(),
+      errorMessage: error?.message || String(error)
+    };
   }
 
   componentDidCatch(error, errorInfo) {
-    // In production, traces are only sent to internal monitoring, never exposed in client UI
-    if (!import.meta.env.PROD) {
-      console.error('FlowerHub ErrorBoundary caught an error:', error, errorInfo);
-    }
+    console.error('FlowerHub ErrorBoundary caught an error:', error, errorInfo);
   }
 
   handleReset = () => {
     try {
       localStorage.clear();
+      sessionStorage.clear();
       window.location.reload();
     } catch {
       window.location.reload();
@@ -35,7 +37,7 @@ class ErrorBoundary extends Component {
   };
 
   handleSoftRetry = () => {
-    this.setState({ hasError: false, incidentCode: null });
+    this.setState({ hasError: false, incidentCode: null, errorMessage: null });
   };
 
   render() {

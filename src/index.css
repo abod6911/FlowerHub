@@ -205,6 +205,391 @@
   transform-style: preserve-3d;
 }
 
+/* ==========================================================================
+   Tactile Skeuomorphic 3D Buttons & Realistic Depth System
+   ========================================================================== */
+
+/* Universal Tactile Push Button Animation */
+.tactile-btn {
+  position: relative;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.12s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease;
+  transform: translateY(0);
+  user-select: none;
+}
+.tactile-btn:active:not(:disabled) {
+  transform: translateY(2px) !important;
+}
+
+/* Recessed Machined Dock / Tray */
+.tactile-recessed-tray {
+  background: linear-gradient(180deg, #EBE8E2 0%, #F5F3EE 100%);
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.08),
+    inset 0 1px 2px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.dark .tactile-recessed-tray {
+  background: linear-gradient(180deg, #12100E 0%, #1A1816 100%);
+  box-shadow: 
+    inset 0 2px 5px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 3D Mechanical Keycaps (for +, -, trash, close buttons) */
+.tactile-keycap {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F5F4 100%);
+  border: 1px solid rgba(214, 211, 209, 0.85);
+  box-shadow: 
+    0 2.5px 0 #D6D3D1,
+    0 3px 6px -1px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 #FFFFFF;
+  transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+}
+.tactile-keycap:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF9 100%);
+  box-shadow: 
+    0 3px 0 #D6D3D1,
+    0 5px 8px -1px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 #FFFFFF;
+  transform: translateY(-0.5px);
+}
+.tactile-keycap:active {
+  transform: translateY(2px) !important;
+  box-shadow: 
+    0 0.5px 0 #D6D3D1,
+    0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+.dark .tactile-keycap {
+  background: linear-gradient(180deg, #2E2A27 0%, #1F1C1A 100%);
+  border: 1px solid rgba(87, 83, 78, 0.5);
+  box-shadow: 
+    0 2.5px 0 #12100E,
+    0 3px 6px -1px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.dark .tactile-keycap:hover {
+  background: linear-gradient(180deg, #38332F 0%, #25221F 100%);
+  box-shadow: 
+    0 3px 0 #12100E,
+    0 5px 8px -1px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.dark .tactile-keycap:active {
+  box-shadow: 
+    0 0.5px 0 #12100E,
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 3D Trash / Rose Keycap */
+.tactile-trash-keycap {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF1F2 100%);
+  border: 1px solid rgba(254, 205, 211, 0.8);
+  box-shadow: 
+    0 2.5px 0 #FECDD3,
+    0 3px 6px -1px rgba(244, 63, 94, 0.09),
+    inset 0 1px 0 #FFFFFF;
+  transition: all 0.1s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+}
+.tactile-trash-keycap:hover {
+  background: linear-gradient(180deg, #FFF1F2 0%, #FFE4E6 100%);
+  border-color: rgba(251, 113, 133, 0.6);
+  box-shadow: 
+    0 3px 0 #FDA4AF,
+    0 5px 10px -1px rgba(244, 63, 94, 0.15),
+    inset 0 1px 0 #FFFFFF;
+  transform: translateY(-0.5px);
+}
+.tactile-trash-keycap:active {
+  transform: translateY(2px) !important;
+  box-shadow: 
+    0 0.5px 0 #FDA4AF,
+    0 1px 2px rgba(244, 63, 94, 0.06),
+    inset 0 1px 2px rgba(0, 0, 0, 0.06) !important;
+}
+
+.dark .tactile-trash-keycap {
+  background: linear-gradient(180deg, #3A1D23 0%, #251014 100%);
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  box-shadow: 
+    0 2.5px 0 #150608,
+    0 3px 6px -1px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.dark .tactile-trash-keycap:hover {
+  background: linear-gradient(180deg, #4C242D 0%, #30141A 100%);
+  box-shadow: 
+    0 3px 0 #150608,
+    0 5px 8px -1px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.dark .tactile-trash-keycap:active {
+  box-shadow: 
+    0 0.5px 0 #150608,
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 3D Segmented Control Tabs (Payment Method Switcher) */
+.tactile-segment-btn {
+  position: relative;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+  user-select: none;
+}
+
+.tactile-segment-btn.active-dark {
+  background: linear-gradient(180deg, #2C2825 0%, #181615 50%, #0D0C0B 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 3px 0 #000000,
+    0 6px 14px -2px rgba(0, 0, 0, 0.35),
+    inset 0 1.2px 1px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+}
+.tactile-segment-btn.active-dark:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 #000000,
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.tactile-segment-btn.active-gold {
+  background: linear-gradient(180deg, #332B1E 0%, #1E1810 50%, #100C08 100%);
+  color: #FBBF24;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 
+    0 3px 0 #0B0805,
+    0 6px 14px -2px rgba(217, 119, 6, 0.3),
+    inset 0 1.2px 1px rgba(251, 191, 36, 0.35),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+}
+.tactile-segment-btn.active-gold:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 #0B0805,
+    0 2px 6px rgba(217, 119, 6, 0.2);
+}
+
+.tactile-segment-btn.active-emerald {
+  background: linear-gradient(180deg, #1C2E24 0%, #0F1D15 50%, #070F0A 100%);
+  color: #34D399;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow: 
+    0 3px 0 #040805,
+    0 6px 14px -2px rgba(16, 185, 129, 0.3),
+    inset 0 1.2px 1px rgba(52, 211, 153, 0.35),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+}
+.tactile-segment-btn.active-emerald:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 0 #040805,
+    0 2px 6px rgba(16, 185, 129, 0.2);
+}
+
+.tactile-segment-btn.inactive {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F5F4F0 100%);
+  color: #57534E;
+  border: 1px solid rgba(214, 211, 209, 0.85);
+  box-shadow: 
+    0 2px 0 #D6D3D1,
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 #FFFFFF;
+}
+.tactile-segment-btn.inactive:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
+  color: #1C1917;
+  transform: translateY(-0.5px);
+  box-shadow: 
+    0 2.5px 0 #D6D3D1,
+    0 4px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 #FFFFFF;
+}
+.tactile-segment-btn.inactive:active {
+  transform: translateY(1.5px);
+  box-shadow: 
+    0 0.5px 0 #D6D3D1,
+    0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .tactile-segment-btn.inactive {
+  background: linear-gradient(180deg, #262320 0%, #1A1816 100%);
+  color: #A8A29E;
+  border: 1px solid rgba(68, 64, 60, 0.6);
+  box-shadow: 
+    0 2px 0 #0E0C0B,
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.dark .tactile-segment-btn.inactive:hover {
+  background: linear-gradient(180deg, #302C28 0%, #201D1A 100%);
+  color: #F5F5F4;
+  box-shadow: 
+    0 2.5px 0 #0E0C0B,
+    0 4px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+.dark .tactile-segment-btn.inactive:active {
+  box-shadow: 
+    0 0.5px 0 #0E0C0B,
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Master 3D Apple Pay CTA Button */
+.tactile-apple-pay-cta {
+  position: relative;
+  background: linear-gradient(180deg, #2A2725 0%, #161413 45%, #080707 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 4.5px 0 #000000,
+    0 14px 30px -4px rgba(0, 0, 0, 0.5),
+    0 4px 10px rgba(0, 0, 0, 0.25),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.32),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.6);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+  user-select: none;
+}
+.tactile-apple-pay-cta:hover:not(:disabled) {
+  background: linear-gradient(180deg, #363230 0%, #1C1A18 45%, #0B0A09 100%);
+  box-shadow: 
+    0 5.5px 0 #000000,
+    0 18px 36px -4px rgba(0, 0, 0, 0.55),
+    0 6px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.42);
+  transform: translateY(-1px);
+}
+.tactile-apple-pay-cta:active:not(:disabled) {
+  transform: translateY(3.5px) !important;
+  box-shadow: 
+    0 1px 0 #000000,
+    0 5px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Master 3D 24K Gold CTA Button */
+.tactile-gold-cta {
+  position: relative;
+  background: linear-gradient(180deg, #FDE68A 0%, #F59E0B 38%, #D97706 75%, #B45309 100%);
+  color: #1C1917;
+  border: 1px solid rgba(254, 243, 199, 0.7);
+  box-shadow: 
+    0 4.5px 0 #78350F,
+    0 16px 32px -4px rgba(245, 158, 11, 0.48),
+    0 5px 12px rgba(180, 83, 9, 0.32),
+    inset 0 2px 1px rgba(255, 255, 255, 0.88),
+    inset 0 -2px 2px rgba(120, 53, 15, 0.5);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+  user-select: none;
+}
+.tactile-gold-cta:hover:not(:disabled) {
+  background: linear-gradient(180deg, #FEF08A 0%, #FBBF24 38%, #EAB308 75%, #C2410C 100%);
+  box-shadow: 
+    0 5.5px 0 #78350F,
+    0 20px 38px -4px rgba(245, 158, 11, 0.6),
+    inset 0 2.5px 1.5px rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+.tactile-gold-cta:active:not(:disabled) {
+  transform: translateY(3.5px) !important;
+  box-shadow: 
+    0 1px 0 #78350F,
+    0 6px 14px rgba(245, 158, 11, 0.3),
+    inset 0 1.5px 2px rgba(120, 53, 15, 0.45) !important;
+}
+
+/* Master 3D WhatsApp Button */
+.tactile-whatsapp-cta {
+  position: relative;
+  background: linear-gradient(180deg, #10B981 0%, #059669 55%, #047857 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(167, 243, 208, 0.45);
+  box-shadow: 
+    0 3.5px 0 #064E3B,
+    0 10px 22px -3px rgba(16, 185, 129, 0.35),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.42),
+    inset 0 -1.5px 2px rgba(6, 78, 59, 0.45);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+  user-select: none;
+}
+.tactile-whatsapp-cta:hover:not(:disabled) {
+  background: linear-gradient(180deg, #34D399 0%, #10B981 55%, #059669 100%);
+  box-shadow: 
+    0 4.5px 0 #064E3B,
+    0 14px 26px -3px rgba(16, 185, 129, 0.42),
+    inset 0 1.8px 1px rgba(255, 255, 255, 0.55);
+  transform: translateY(-0.8px);
+}
+.tactile-whatsapp-cta:active:not(:disabled) {
+  transform: translateY(2.8px) !important;
+  box-shadow: 
+    0 1px 0 #064E3B,
+    0 4px 10px rgba(16, 185, 129, 0.25),
+    inset 0 1px 2px rgba(6, 78, 59, 0.4) !important;
+}
+
+/* 3D Thermal Slip Print Button */
+.tactile-print-cta {
+  position: relative;
+  background: linear-gradient(180deg, #242220 0%, #151312 50%, #0B0A09 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 
+    0 3.5px 0 #000000,
+    0 10px 22px -3px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.22);
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0);
+  user-select: none;
+}
+.tactile-print-cta:hover {
+  background: linear-gradient(180deg, #302C29 0%, #1C1917 50%, #0F0E0D 100%);
+  box-shadow: 
+    0 4.5px 0 #000000,
+    0 14px 26px -3px rgba(0, 0, 0, 0.55);
+  transform: translateY(-0.8px);
+}
+.tactile-print-cta:active {
+  transform: translateY(2.5px) !important;
+  box-shadow: 
+    0 1px 0 #000000,
+    0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Subtle Shimmer Sweeper for Master CTA */
+@keyframes lightSheen {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  35%, 100% { transform: translateX(250%) skewX(-20deg); }
+}
+.tactile-sheen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  animation: lightSheen 4.5s ease-in-out infinite;
+}
 
 /* Print Styles for Florist Thermal POS 80mm Order Slip & A6 Gift Card */
 @media print {
