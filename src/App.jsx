@@ -65,16 +65,20 @@ export default function App() {
   // Live Design Customizer Studio Modal State
   const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
 
-  // Multi-Tenant Shop Config & Theme State (Hydrated from localStorage)
+  // Multi-Tenant Shop Config & Theme State (Hydrated safely from localStorage)
   const [shopConfig, setShopConfig] = useState(() => {
     try {
       const saved = localStorage.getItem('flowerhub_shop_config');
-      return saved ? { ...INITIAL_SHOP_CONFIG, ...JSON.parse(saved) } : INITIAL_SHOP_CONFIG;
+      const parsed = saved ? JSON.parse(saved) : null;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return { ...INITIAL_SHOP_CONFIG, ...parsed };
+      }
+      return INITIAL_SHOP_CONFIG;
     } catch {
       return INITIAL_SHOP_CONFIG;
     }
   });
-  const themeTokens = THEME_TOKENS[shopConfig.theme] || THEME_TOKENS.botanical;
+  const themeTokens = (shopConfig?.theme && THEME_TOKENS[shopConfig.theme]) ? THEME_TOKENS[shopConfig.theme] : THEME_TOKENS.botanical;
 
   // Persist shopConfig to localStorage
   useEffect(() => {
@@ -153,7 +157,8 @@ export default function App() {
   const [occasions, setOccasions] = useState(() => {
     try {
       const saved = localStorage.getItem('flowerhub_occasions');
-      return saved ? JSON.parse(saved) : INITIAL_OCCASIONS;
+      const parsed = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_OCCASIONS;
     } catch {
       return INITIAL_OCCASIONS;
     }
@@ -176,7 +181,8 @@ export default function App() {
   const [activeOrderSlipData, setActiveOrderSlipData] = useState(() => {
     try {
       const saved = localStorage.getItem('flowerhub_last_order');
-      return saved ? JSON.parse(saved) : null;
+      const parsed = saved ? JSON.parse(saved) : null;
+      return (parsed && typeof parsed === 'object') ? parsed : null;
     } catch {
       return null;
     }

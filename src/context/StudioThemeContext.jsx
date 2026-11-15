@@ -119,6 +119,9 @@ export const loadStoredStudioConfig = () => {
     const raw = localStorage.getItem(STUDIO_STORAGE_KEY);
     if (!raw) return DEFAULT_STUDIO_CONFIG;
     const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return DEFAULT_STUDIO_CONFIG;
+    }
     return {
       ...DEFAULT_STUDIO_CONFIG,
       ...parsed,
