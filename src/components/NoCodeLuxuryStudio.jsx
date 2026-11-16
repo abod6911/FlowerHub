@@ -1516,22 +1516,22 @@ function StudioStorefrontLiveSimulation({ config, replayTrigger = 0 }) {
                 <motion.span
                   animate={headerPulse ? { scale: [1, 1.25, 0.95, 1] } : {}}
                   transition={{ duration: 0.4 }}
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-800 border border-amber-300/40 flex items-center gap-1 shadow-2xs"
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-800 border border-amber-300/40 flex items-center gap-1 shadow-2xs shrink-0"
                 >
                   <span className="text-amber-500">★</span> {config?.rating || '4.9'}
                 </motion.span>
 
                 {/* Status Pill with Dynamic Pulse */}
                 <span
-                  className="text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs text-white"
+                  className="text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-2xs text-white shrink truncate min-w-0"
                   style={{ backgroundColor: colors.primary }}
                 >
                   <span
-                    className={`w-1.5 h-1.5 rounded-full bg-emerald-400 ${
+                    className={`w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 ${
                       config?.statusPulse !== false ? 'animate-pulse' : ''
                     }`}
                   />
-                  <span className="truncate max-w-[100px]">
+                  <span className="truncate">
                     {config?.statusText || 'مفتوح • ٢٠ د'}
                   </span>
                 </span>
@@ -1780,8 +1780,6 @@ export default function NoCodeLuxuryStudio({
   const {
     config,
     hasUnsavedChanges,
-    activeTab,
-    setActiveTab,
     updateField,
     applyPalette,
     toggleSection,
@@ -1791,6 +1789,8 @@ export default function NoCodeLuxuryStudio({
     exportConfig,
     importConfig,
   } = useStudioStore();
+
+  const [activeTab, setActiveTab] = useState('identity');
 
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState('');
@@ -2059,6 +2059,17 @@ export default function NoCodeLuxuryStudio({
                       />
                     </div>
 
+                    <div>
+                      <label className="text-xs font-semibold text-stone-700 block mb-1">نص الموقع والتغطية (Location & Coverage)</label>
+                      <input
+                        type="text"
+                        value={config.locationLabel || ''}
+                        onChange={(e) => updateField('locationLabel', e.target.value)}
+                        placeholder="الرياض • التوصيل لكافة الأحياء"
+                        className="w-full px-3 py-2 rounded-xl border border-stone-200 bg-white text-stone-900 text-xs focus:outline-none focus:ring-2 focus:ring-[#7E1529]/30"
+                      />
+                    </div>
+
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <label className="text-[11px] font-semibold text-stone-700 block mb-1">شارة الحالة والتجهيز</label>
@@ -2257,6 +2268,32 @@ export default function NoCodeLuxuryStudio({
                             }
                             className={`py-2 px-2.5 rounded-xl border text-center transition-all ${
                               config.typography?.headerFont === f.id
+                                ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
+                                : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
+                            }`}
+                          >
+                            {f.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <label className="text-xs font-semibold text-stone-700 block mb-1.5">خط الكتالوج والنصوص والأسعار (Catalog Font)</label>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        {[
+                          { id: 'Readex Pro', label: 'ريدكس برو (Readex Pro)' },
+                          { id: 'Cairo', label: 'كايرو (Cairo)' },
+                          { id: 'Alexandria', label: 'الإسكندرية (Alexandria)' },
+                        ].map((f) => (
+                          <button
+                            key={f.id}
+                            type="button"
+                            onClick={() =>
+                              updateField('typography', { ...config.typography, catalogFont: f.id })
+                            }
+                            className={`py-2 px-2 rounded-xl border text-center transition-all ${
+                              (config.typography?.catalogFont || 'Readex Pro') === f.id
                                 ? 'bg-[#7E1529] text-white border-[#7E1529] font-bold shadow-xs'
                                 : 'bg-white border-stone-200 text-stone-700 hover:bg-stone-50'
                             }`}

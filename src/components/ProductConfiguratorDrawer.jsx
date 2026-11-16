@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Check,
@@ -60,12 +61,9 @@ export default function ProductConfiguratorDrawer({
   const [cardMessage, setCardMessage] = useState('');
   const [activeCardCategory, setActiveCardCategory] = useState(null);
 
-  // Return early AFTER hook declarations to adhere to React Rules of Hooks
-  if (!isOpen || !product) return null;
-
   // Surcharge calculations
   const addonsTotal = selectedAddons.reduce((sum, a) => sum + (a.price || 0), 0);
-  const unitPrice = (product.price || 0) + addonsTotal;
+  const unitPrice = ((product?.price || 0)) + addonsTotal;
 
   // Toggle addon helper
   const toggleAddon = (addon) => {
@@ -168,30 +166,47 @@ export default function ProductConfiguratorDrawer({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex flex-col justify-end animate-fade-in">
-      {/* 1. Backdrop Overlay: Glass Dimmer */}
-      <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* 2. Slide-Up Drawer Sheet: Boutique Atelier Surface */}
-      <div
-        className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-[28px] sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t transition-colors duration-300"
-        style={{
-          backgroundColor: 'var(--surface-card, #FFFFFF)',
-          color: 'var(--text-main, #1C1917)',
-          borderTopColor: 'var(--border-subtle, #E7E5E4)',
-        }}
-      >
-        {/* Top Handle Bar */}
-        <div className="pt-3 pb-1 flex justify-center items-center shrink-0 cursor-grab active:cursor-grabbing">
-          <div
-            className="w-12 h-1 rounded-full opacity-40 hover:opacity-75 transition-opacity"
-            style={{ backgroundColor: 'var(--text-muted, #78716C)' }}
+    <AnimatePresence>
+      {isOpen && product && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex flex-col justify-end select-none">
+          {/* 1. Backdrop Overlay: Glass Dimmer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 bg-stone-950/70 backdrop-blur-sm"
+            onClick={onClose}
+            aria-hidden="true"
           />
-        </div>
+
+          {/* 2. Slide-Up Drawer Sheet with Spring & Drag-Down to Dismiss */}
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 340, mass: 0.85 }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.25 }}
+            onDragEnd={(_e, info) => {
+              if (info.offset.y > 90 || info.velocity.y > 350) {
+                onClose();
+              }
+            }}
+            className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-[32px] sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-t transition-colors duration-300"
+            style={{
+              backgroundColor: 'var(--surface-card, #FFFFFF)',
+              color: 'var(--text-main, #1C1917)',
+              borderTopColor: 'var(--border-subtle, #E7E5E4)',
+            }}
+          >
+            {/* Top Handle Bar */}
+            <div className="pt-3 pb-1 flex justify-center items-center shrink-0 cursor-grab active:cursor-grabbing">
+              <div
+                className="w-12 h-1.5 rounded-full bg-stone-300 dark:bg-stone-700 shadow-xs"
+              />
+            </div>
 
         {/* Header Bar */}
         <div
@@ -947,7 +962,9 @@ export default function ProductConfiguratorDrawer({
             <span>{isAr ? '+ للسلة' : '+ Bag'}</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
+  )}
+</AnimatePresence>
   );
 }

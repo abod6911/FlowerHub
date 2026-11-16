@@ -66,11 +66,11 @@ export const DEFAULT_STUDIO_CONFIG = {
   showBadges: true,
   badgeStyle: 'glassmorphic', // 'glassmorphic' | 'solid_pastel' | 'royal_gold' | 'dark_velvet'
   showFavoriteButton: true,
-  showDeliveryBadge: true,
+  showDeliveryBadge: false,
   deliveryBadgeText: 'توصيل ساعتين • مبرد ⚡',
-  showRatingStars: true,
+  showRatingStars: false,
   showDiscountBadge: true,
-  showQuickView: true,
+  showQuickView: false,
   sectionDividerStyle: 'none', // 'none' | 'gold_hairline' | 'subtle_line'
 
   // Motion & Physics (Tab: الحركة والفيزياء)
@@ -82,8 +82,8 @@ export const DEFAULT_STUDIO_CONFIG = {
   cardImageMotion: 'zoom_in', // 'zoom_in' | 'ken_burns' | 'vivid_chroma' | 'depth_tilt' | 'soft_vignette'
   badgeMotion: 'pulse_dot', // 'static' | 'pulse_dot' | 'shimmer_gold' | 'float_badge'
   floatingPetalsEnabled: true,
-  petalsCount: 14,
-  petalsOpacity: 0.6,
+  petalsCount: 6,
+  petalsOpacity: 0.18,
   petalsType: 'rose_red', // 'rose_red' | 'sakura_pink' | 'gold_luxury'
   petalsSpeed: 'normal', // 'gentle' | 'normal' | 'breeze'
 
@@ -152,39 +152,24 @@ const StudioThemeContext = createContext(null);
 export function StudioThemeProvider({ children }) {
   const [config, setConfig] = useState(loadStoredStudioConfig);
 
-  // Cross-tab and window event listener
+  // Cross-tab storage event listener (for syncing across separate browser windows/tabs)
   useEffect(() => {
-    const handleSync = (e) => {
+    const handleStorage = (e) => {
       try {
-        if (e?.detail) {
-          const detail = e.detail;
+        if (e.key === STUDIO_STORAGE_KEY && e.newValue) {
+          const parsed = JSON.parse(e.newValue);
           setConfig((prev) => ({
             ...prev,
-            ...detail,
-            colors: {
-              ...(prev?.colors || DEFAULT_STUDIO_CONFIG.colors),
-              ...(detail.colors || {}),
-            },
-            typography: {
-              ...(prev?.typography || DEFAULT_STUDIO_CONFIG.typography),
-              ...(detail.typography || {}),
-            },
-            sections: Array.isArray(detail.sections) && detail.sections.length > 0
-              ? detail.sections
-              : (prev?.sections || DEFAULT_STUDIO_CONFIG.sections),
+            ...parsed,
           }));
-        } else {
-          setConfig(loadStoredStudioConfig());
         }
       } catch (err) {
-        console.warn('Error in handleSync event listener:', err);
+        console.warn('Error in handleStorage event listener:', err);
       }
     };
-    window.addEventListener(STUDIO_SYNC_EVENT, handleSync);
-    window.addEventListener('storage', handleSync);
+    window.addEventListener('storage', handleStorage);
     return () => {
-      window.removeEventListener(STUDIO_SYNC_EVENT, handleSync);
-      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 
@@ -215,6 +200,18 @@ export function StudioThemeProvider({ children }) {
     const safeRadius = cardBorderRadius ?? 22;
     root.style.setProperty('--radius-card', `${safeRadius}px`);
     root.style.setProperty('--radius-unit', `${safeRadius}px`);
+  }, [config]);
+
+  // Real-time broadcast to window on any config change so live storefront and split previews update immediately
+  useEffect(() => {
+    if (typeof window === 'undefined' || !config) return;
+    try {
+      window.dispatchEvent(
+        new CustomEvent(STUDIO_SYNC_EVENT, { detail: config })
+      );
+    } catch (e) {
+      console.warn('Failed to dispatch realtime STUDIO_SYNC_EVENT', e);
+    }
   }, [config]);
 
   // Update one or more fields in the store

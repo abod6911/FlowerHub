@@ -154,8 +154,6 @@ export default function CartDrawer({
     onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -165,16 +163,25 @@ export default function CartDrawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             className="fixed inset-0 bg-stone-950/75 backdrop-blur-md"
             onClick={handleCloseDrawer}
           />
 
-          {/* Luxury Slide-Up Drawer Sheet with Physical Depth */}
+          {/* Luxury Slide-Up Drawer Sheet with Physical Depth & Drag-to-Dismiss */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 340, mass: 0.85 }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.25 }}
+            onDragEnd={(_e, info) => {
+              if (info.offset.y > 90 || info.velocity.y > 350) {
+                handleCloseDrawer();
+              }
+            }}
             className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-[2.5rem] sm:rounded-3xl max-h-[94vh] flex flex-col overflow-hidden"
             style={{
               backgroundColor: 'var(--surface-card, #FFFFFF)',

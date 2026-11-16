@@ -1315,33 +1315,35 @@ export default function FloristAdminPanel({
             )}
           </div>
 
-          {/* 1. REALISTIC INTERACTIVE MINI-PHONE LIVE PREVIEW */}
-          <div className="rounded-3xl border border-stone-200/90 bg-gradient-to-b from-stone-50 via-white to-stone-50/50 p-4 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-900 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <Eye className="w-4 h-4 text-emerald-600" />
-                <span>{isAr ? 'معاينة حية حقيقية للمتجر (هاتف العميل)' : 'Live Mobile Phone Preview'}</span>
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/40">
-                  {isAr ? 'مباشر وتفاعلي' : 'Live Interactive'}
-                </span>
-                <span className="text-[10px] font-mono text-stone-400">
-                  {shopConfig.theme}
-                </span>
-              </div>
-            </div>
+          {/* Side-by-Side Split Workspace: Sticky Live Preview on RIGHT, All Customization Controls on LEFT */}
+          <div className="flex flex-col lg:flex-row items-start gap-6 relative">
+            {/* RIGHT COLUMN (In RTL): Sticky Interactive Live Customer Phone Preview */}
+            <div className="w-full lg:w-[350px] xl:w-[380px] shrink-0 lg:sticky lg:top-14 order-1 space-y-2.5">
+              <div className="rounded-3xl border border-stone-200/90 bg-gradient-to-b from-stone-50 via-white to-stone-50/50 p-3.5 shadow-sm space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-900 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <Eye className="w-4 h-4 text-emerald-600" />
+                    <span>{isAr ? 'معاينة مباشرة باليمين (هاتف العميل)' : 'Live Preview (Right Pane)'}</span>
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300/40">
+                      {isAr ? 'محدث لحظياً' : 'Live Sync'}
+                    </span>
+                    <span className="text-[10px] font-mono text-stone-400">
+                      {shopConfig.theme}
+                    </span>
+                  </div>
+                </div>
 
-            {/* iPhone Device Shell */}
-            <div className="max-w-[340px] mx-auto rounded-[38px] p-2.5 bg-stone-950 shadow-2xl ring-1 ring-stone-800 border-4 border-stone-800 transition-all duration-300">
-              {/* Screen Container */}
-              <div
-                className={`rounded-[28px] overflow-hidden border border-stone-700/40 relative shadow-inner text-start transition-all duration-300 ${
-                  themeTokens.pageBg
-                }`}
-                style={{ minHeight: '460px' }}
-              >
+                {/* iPhone Device Shell */}
+                <div className="max-w-[340px] mx-auto rounded-[38px] p-2 bg-stone-950 shadow-2xl ring-1 ring-stone-800 border-4 border-stone-800 transition-all duration-300">
+                  {/* Scrollable Screen Container */}
+                  <div
+                    className={`rounded-[28px] max-h-[72vh] overflow-y-auto no-scrollbar border border-stone-700/40 relative shadow-inner text-start transition-all duration-300 ${
+                      themeTokens.pageBg
+                    }`}
+                  >
                 {/* Phone Top Status Bar (9:41, Dynamic Island, Wifi, Battery) */}
                 <div className="pt-2 px-4 pb-1 flex items-center justify-between text-[10px] font-bold text-stone-800 dark:text-stone-200 select-none">
                   <span>9:41</span>
@@ -1550,6 +1552,10 @@ export default function FloristAdminPanel({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* LEFT COLUMN (In RTL): All Customization Controls & Configuration Sections */}
+        <div className="flex-1 w-full space-y-4 order-2 min-w-0">
 
           {/* 2. STORE OPERATIONAL STATUS & SECTION TOGGLES */}
           <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm space-y-3.5">
@@ -2708,7 +2714,9 @@ export default function FloristAdminPanel({
             </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+        )}
 
       {/* ========================================================= */}
       {/* TAB 4: Sales & Net Profits Analytics Dashboard */}

@@ -141,14 +141,14 @@ export default function AmbientRosePetals({
       ? opacity
       : storeCtx?.config?.petalsOpacity !== undefined
       ? storeCtx.config.petalsOpacity
-      : 0.6;
+      : 0.18;
 
   const activeCount =
     count !== undefined
       ? count
       : storeCtx?.config?.petalsCount !== undefined
       ? storeCtx.config.petalsCount
-      : 14;
+      : 6;
 
   const activePetalsType = storeCtx?.config?.petalsType || 'rose_red';
   const activeSpeedMode = storeCtx?.config?.petalsSpeed || 'normal';
@@ -156,7 +156,7 @@ export default function AmbientRosePetals({
   const speedMultiplier = activeSpeedMode === 'gentle' ? 1.45 : activeSpeedMode === 'breeze' ? 0.65 : 1.0;
 
   const petals = useMemo(() => {
-    const total = Math.min(Math.max(activeCount, 4), 32);
+    const total = Math.min(Math.max(activeCount, 2), 12);
     return Array.from({ length: total }, (_, i) => {
       const pseudoRand = ((i * 37) % 100) / 100;
       const left = (i * 100) / total + (pseudoRand * 6 - 3);

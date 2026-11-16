@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
   Sparkles,
@@ -61,8 +62,6 @@ export default function CustomOrderDrawer({
   const [pickupTime, setPickupTime] = useState(isAr ? 'خلال ٣٠ دقيقة' : 'In 30 mins');
   const [deliveryAddress, setDeliveryAddress] = useState('');
 
-  if (!isOpen) return null;
-
   const colorVibes = isAr
     ? [
         'ألوان باستيل هادئة ورومانسية',
@@ -121,30 +120,46 @@ export default function CustomOrderDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden flex flex-col justify-end animate-fade-in">
-      {/* 1. Backdrop Overlay: Dimmer with blur */}
-      <div
-        className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* 2. Slide-Up Drawer Sheet: Dynamic Reactive Surface */}
-      <div
-        className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-slide-up border-t transition-colors duration-300"
-        style={{
-          backgroundColor: 'var(--surface-card, #FFFFFF)',
-          color: 'var(--text-main, #1C1917)',
-          borderTopColor: 'var(--border-subtle, #E7E5E4)',
-          backdropFilter: 'blur(var(--glass-blur, 12px))',
-        }}
-      >
-        {/* Top Handle bar */}
-        <div className="pt-3 pb-1 flex justify-center items-center shrink-0">
-          <div
-            className="w-12 h-1.5 rounded-full opacity-60"
-            style={{ backgroundColor: 'var(--border-subtle, #D6D3D1)' }}
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex flex-col justify-end select-none">
+          {/* 1. Backdrop Overlay: Dimmer with blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 bg-stone-950/75 backdrop-blur-md"
+            onClick={onClose}
           />
-        </div>
+
+          {/* 2. Slide-Up Drawer Sheet: Dynamic Reactive Surface with Drag-to-Dismiss */}
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 340, mass: 0.85 }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.25 }}
+            onDragEnd={(_e, info) => {
+              if (info.offset.y > 90 || info.velocity.y > 350) {
+                onClose();
+              }
+            }}
+            className="relative z-10 w-full max-w-full sm:max-w-lg mx-auto rounded-t-[32px] sm:rounded-3xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden border-t transition-colors duration-300"
+            style={{
+              backgroundColor: 'var(--surface-card, #FFFFFF)',
+              color: 'var(--text-main, #1C1917)',
+              borderTopColor: 'var(--border-subtle, #E7E5E4)',
+            }}
+          >
+            {/* Top Handle bar */}
+            <div className="pt-3 pb-1 flex justify-center items-center shrink-0 cursor-grab active:cursor-grabbing">
+              <div
+                className="w-12 h-1.5 rounded-full bg-stone-300 dark:bg-stone-700 shadow-xs"
+              />
+            </div>
 
         {/* Header Bar */}
         <div
@@ -574,7 +589,9 @@ export default function CustomOrderDrawer({
             <span>{strings.sendCustomTicketBtn}</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
+  )}
+</AnimatePresence>
   );
 }
