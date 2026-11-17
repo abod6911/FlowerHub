@@ -303,10 +303,38 @@ export const SPECIALS_STYLES = [
     id: 'editorial_deck',
     name: 'Full-Width Editorial',
     nameAr: 'بطاقة العرض العريضة',
+    description: 'Full-bleed luxury magazine split card with floating glassmorphism strip',
+    descriptionAr: 'بطاقة عريضة بتنسيق مجلات الأزياء',
     motionProps: {
       aspectRatio: '16/9',
       parallaxFactor: 0.12,
       springDamping: 22,
+    },
+  },
+  {
+    id: 'stacked_cards',
+    name: 'Royal Card Stack',
+    nameAr: 'مكدس البطاقات الملكي',
+    description: 'Layered 3D deck with fluid touch swipe & tactile depth',
+    descriptionAr: 'مكدس طبقات متراكب بفيزياء سحب سلسة وعمق ثلاثي الأبعاد',
+    motionProps: {
+      stackOffset: 14,
+      rotationAngle: 3.5,
+      springStiffness: 300,
+      springDamping: 25,
+    },
+  },
+  {
+    id: 'floating_filmstrip',
+    name: 'Floating Cinema Reel',
+    nameAr: 'شريط السينما المعلق',
+    description: 'Floating glassmorphic filmstrip with fluid snap scrolling',
+    descriptionAr: 'شريط أفقي سينمائي ببطاقات زجاجية عائمة وتمرير تفاعلي حر',
+    motionProps: {
+      cardAspect: '3/4',
+      sheenAngle: 45,
+      parallaxFactor: 0.18,
+      snapInterval: 240,
     },
   },
 ];
@@ -749,7 +777,7 @@ export const INITIAL_SHOP_CONFIG = {
   locationLabel: 'الرياض • التوصيل لكافة الأحياء',
   phone: '966500000000',
   status: 'open_20m', // 'open_20m' | 'busy_60m' | 'closed'
-  specialsStyle: 'marquee',
+  specialsStyle: 'editorial_deck',
   theme: 'botanical',
   heroStyle: 'qlub',
   showStories: true,

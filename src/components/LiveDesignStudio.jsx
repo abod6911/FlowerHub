@@ -716,12 +716,16 @@ export default function LiveDesignStudio({
                     <span className="font-bold text-[11px]">{isAr ? spec.nameAr : spec.name}</span>
                     <span className="text-[9px] text-stone-500 font-mono">
                       {spec.id === 'marquee'
-                        ? `Loop: ${spec.motionProps?.speed}s`
+                        ? `Loop: ${spec.motionProps?.speed || 30}s`
                         : spec.id === 'coverflow'
-                        ? `Tilt: ${spec.motionProps?.depthAngle}°`
+                        ? `Tilt: ${spec.motionProps?.depthAngle || 18}°`
                         : spec.id === 'spotlight'
-                        ? `Blur: ${spec.motionProps?.backdropBlur}`
-                        : 'Aspect: 16/9'}
+                        ? `Blur: ${spec.motionProps?.backdropBlur || '12px'}`
+                        : spec.id === 'editorial_deck'
+                        ? 'Aspect: 16/9'
+                        : spec.id === 'stacked_cards'
+                        ? '3D Stack: 14px'
+                        : 'Cinema Reel: 240px'}
                     </span>
                   </button>
                 ))}

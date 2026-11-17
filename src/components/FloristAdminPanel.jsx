@@ -33,6 +33,11 @@ import {
   Layers,
   Play,
   Zap,
+  Film,
+  Copy,
+  Share2,
+  Globe,
+  CheckCircle2,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import { validateUploadedFile } from '../services/uploadSecurity';
@@ -170,10 +175,60 @@ export default function FloristAdminPanel({
   const [logoUrlInput, setLogoUrlInput] = useState('');
   const [logoToast, setLogoToast] = useState('');
   const [designToast, setDesignToast] = useState('');
+  const [copiedPublishLink, setCopiedPublishLink] = useState(false);
 
   const triggerDesignFeedback = (msg) => {
     setDesignToast(msg);
     setTimeout(() => setDesignToast(''), 3500);
+  };
+
+  const handlePublishAndShareLink = () => {
+    try {
+      const payload = {
+        theme: shopConfig.theme,
+        heroStyle: shopConfig.heroStyle,
+        specialsStyle: shopConfig.specialsStyle,
+        cardEntranceMotion: shopConfig.cardEntranceMotion,
+        staggerDelay: shopConfig.staggerDelay,
+        buyButtonPhysics: shopConfig.buyButtonPhysics,
+        cardHoverEffect: shopConfig.cardHoverEffect,
+        cardIdleMotion: shopConfig.cardIdleMotion,
+        cardImageMotion: shopConfig.cardImageMotion,
+        badgeMotion: shopConfig.badgeMotion,
+        gridLayout: shopConfig.gridLayout,
+        cardBorderRadius: shopConfig.cardBorderRadius,
+        cardShadow: shopConfig.cardShadow,
+        cardAspectRatio: shopConfig.cardAspectRatio,
+        cardSurfaceMaterial: shopConfig.cardSurfaceMaterial,
+        cardBorderStyle: shopConfig.cardBorderStyle,
+        showImageOverlay: shopConfig.showImageOverlay,
+        buyButtonStyle: shopConfig.buyButtonStyle,
+        shopNameAr: shopConfig.shopNameAr,
+        taglineAr: shopConfig.taglineAr,
+        locationLabel: shopConfig.locationLabel,
+      };
+      const jsonStr = JSON.stringify(payload);
+      const encoded = encodeURIComponent(jsonStr);
+      const baseUrl = window.location.href.split('#')[0].split('?')[0];
+      const liveShareUrl = `${baseUrl}#theme=${encoded}`;
+
+      window.history.replaceState(null, '', liveShareUrl);
+
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(liveShareUrl);
+      }
+
+      setCopiedPublishLink(true);
+      setTimeout(() => setCopiedPublishLink(false), 3500);
+
+      triggerDesignFeedback(
+        isAr
+          ? '🚀 تم نشر وتعميم رابط المتجر بنجاح! تم نسخ الرابط المباشر إلى الحافظة لمشاركته مع العملاء.'
+          : '🚀 Store customizations published! Live share link copied to clipboard.'
+      );
+    } catch (e) {
+      console.error('Failed to generate publish link', e);
+    }
   };
 
   const handleLogoUpload = async (e) => {
@@ -1286,7 +1341,54 @@ export default function FloristAdminPanel({
             </div>
           )}
 
-          {/* 0. Live Customizer Studio Quick Launch Banner */}
+          {/* 0. Universal Storefront Publishing & Share Action Bar */}
+          <div className="p-4 rounded-3xl bg-gradient-to-br from-emerald-950 via-stone-950 to-stone-900 border border-emerald-500/40 text-white flex flex-col sm:flex-row items-center justify-between gap-3.5 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 end-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-stone-950 flex items-center justify-center font-bold shrink-0 shadow-md">
+                <Globe className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className="font-bold text-xs sm:text-sm text-emerald-300">
+                    {isAr ? 'نشر التعديلات وتعميم الرابط المباشر' : 'Universal Storefront Publishing'}
+                  </h4>
+                  <span className="text-[9px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
+                    Live Link
+                  </span>
+                </div>
+                <p className="text-[11px] text-stone-300 mt-0.5">
+                  {isAr ? 'اضغط لنشر التعديلات فوراً وتعميمها على رابط المتجر ليفتح عند أي شخص بنفس المظهر والحركات' : 'Publish changes & copy direct link so any visitor sees the exact live customizations'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 w-full sm:w-auto relative z-10 shrink-0">
+              <button
+                type="button"
+                onClick={handlePublishAndShareLink}
+                className={`w-full sm:w-auto px-4 py-2.5 rounded-2xl font-bold text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
+                  copiedPublishLink
+                    ? 'bg-emerald-500 text-stone-950 shadow-emerald-500/30'
+                    : 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950'
+                }`}
+              >
+                {copiedPublishLink ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                    <span>{isAr ? 'تم نسخ الرابط المنشور! ✓' : 'Live Link Copied! ✓'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 stroke-[2.5]" />
+                    <span>{isAr ? 'نشر ونسخ رابط المتجر الحي' : 'Publish & Copy Link'}</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* 0.1 Live Customizer Studio Quick Launch Banner */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950 border border-amber-500/30 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 flex items-center justify-center font-bold shrink-0 shadow-sm">
@@ -1308,7 +1410,7 @@ export default function FloristAdminPanel({
               <button
                 type="button"
                 onClick={onOpenDesignStudio}
-                className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 text-center"
+                className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 text-center cursor-pointer"
               >
                 {isAr ? 'فتح الاستوديو الكامل' : 'Open Studio'}
               </button>
@@ -1467,8 +1569,18 @@ export default function FloristAdminPanel({
                       <span className={themeTokens.textMain}>
                         {isAr ? 'جاهز للاستلام الفوري ❄️' : 'Ready Today Specials'}
                       </span>
-                      <span className={`px-1.5 py-0.2 rounded font-mono text-[8px] ${themeTokens.badge} ${themeTokens.textMain}`}>
-                        {shopConfig.specialsStyle}
+                      <span className="px-2 py-0.5 rounded-full font-mono text-[8px] bg-amber-400 text-stone-950 font-bold border border-amber-300">
+                        {shopConfig.specialsStyle === 'stacked_cards'
+                          ? (isAr ? 'مكدس ملكي 3D' : 'Royal Stack')
+                          : shopConfig.specialsStyle === 'floating_filmstrip'
+                          ? (isAr ? 'شريط سينمائي' : 'Cinema Reel')
+                          : shopConfig.specialsStyle === 'editorial_deck'
+                          ? (isAr ? 'بطاقة عريضة' : 'Editorial')
+                          : shopConfig.specialsStyle === 'spotlight'
+                          ? (isAr ? 'منصة فاخرة' : 'Spotlight')
+                          : shopConfig.specialsStyle === 'coverflow'
+                          ? (isAr ? 'تركيز ثلاثي الأبعاد' : 'Coverflow')
+                          : (isAr ? 'انسيابي متحرك' : 'Marquee')}
                       </span>
                     </div>
                     <div className={`p-2 rounded-xl border border-stone-200/60 dark:border-stone-700/60 flex items-center justify-between gap-2 shadow-2xs ${themeTokens.cardBg}`}>
@@ -2257,6 +2369,8 @@ export default function FloristAdminPanel({
                       {style.id === 'coverflow' && <Layers className="w-4 h-4" />}
                       {style.id === 'spotlight' && <Sparkles className="w-4 h-4" />}
                       {style.id === 'editorial_deck' && <Layout className="w-4 h-4" />}
+                      {style.id === 'stacked_cards' && <Copy className="w-4 h-4" />}
+                      {style.id === 'floating_filmstrip' && <Film className="w-4 h-4" />}
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -2273,6 +2387,8 @@ export default function FloristAdminPanel({
                         {style.id === 'coverflow' && (isAr ? 'تركيز ثلاثي الأبعاد بتأثير عمق سينمائي' : '3D depth snapping with focus')}
                         {style.id === 'spotlight' && (isAr ? 'منصة عرض متباينة تبرز كل قطعة بفخامة' : 'High-contrast staged spotlight')}
                         {style.id === 'editorial_deck' && (isAr ? 'بطاقة عريضة بتنسيق مجلات الأزياء' : 'Full-bleed luxury magazine split card')}
+                        {style.id === 'stacked_cards' && (isAr ? 'مكدس طبقات متراكب بفيزياء سحب سلسة وعمق 3D' : '3D stacked deck with fluid tactile swipe')}
+                        {style.id === 'floating_filmstrip' && (isAr ? 'شريط سينمائي ببطاقات زجاجية عائمة وتمرير حر' : 'Floating cinema reel with glassmorphic cards')}
                       </p>
                     </div>
                   </motion.button>

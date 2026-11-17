@@ -57,6 +57,47 @@ class SafeErrorBoundary extends React.Component {
   }
 }
 
+// Helper to decode universal live published theme from URL hash/query
+const parseUrlThemeConfig = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const hash = window.location.hash || '';
+    const searchParams = new URLSearchParams(window.location.search || '');
+    let raw = null;
+
+    if (hash.includes('theme=')) {
+      const match = hash.match(/theme=([^&]+)/);
+      if (match && match[1]) raw = decodeURIComponent(match[1]);
+    } else if (hash.includes('config=')) {
+      const match = hash.match(/config=([^&]+)/);
+      if (match && match[1]) raw = decodeURIComponent(match[1]);
+    } else if (searchParams.get('theme')) {
+      raw = searchParams.get('theme');
+    } else if (searchParams.get('config')) {
+      raw = searchParams.get('config');
+    }
+
+    if (raw) {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        try {
+          parsed = JSON.parse(atob(raw));
+        } catch {
+          // ignore malformed base64
+        }
+      }
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to parse URL theme', e);
+  }
+  return null;
+};
+
 export default function App() {
   // Language & RTL State
   const [lang, setLang] = useState('ar');
@@ -65,17 +106,22 @@ export default function App() {
   // Live Design Customizer Studio Modal State
   const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
 
-  // Multi-Tenant Shop Config & Theme State (Hydrated safely from localStorage)
+  // Multi-Tenant Shop Config & Theme State (Hydrated from URL param or localStorage)
   const [shopConfig, setShopConfig] = useState(() => {
+    const urlConfig = parseUrlThemeConfig();
     try {
       const saved = localStorage.getItem('flowerhub_shop_config');
       const parsed = saved ? JSON.parse(saved) : null;
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        return { ...INITIAL_SHOP_CONFIG, ...parsed };
+      const base = (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
+        ? { ...INITIAL_SHOP_CONFIG, ...parsed }
+        : INITIAL_SHOP_CONFIG;
+
+      if (urlConfig) {
+        return { ...base, ...urlConfig };
       }
-      return INITIAL_SHOP_CONFIG;
+      return base;
     } catch {
-      return INITIAL_SHOP_CONFIG;
+      return urlConfig ? { ...INITIAL_SHOP_CONFIG, ...urlConfig } : INITIAL_SHOP_CONFIG;
     }
   });
   const themeTokens = (shopConfig?.theme && THEME_TOKENS[shopConfig.theme]) ? THEME_TOKENS[shopConfig.theme] : THEME_TOKENS.botanical;
@@ -89,6 +135,25 @@ export default function App() {
     }
   }, [shopConfig]);
 
+  // Reactive listener to URL hash/query changes for instant live theme sharing
+  useEffect(() => {
+    const handleHashOrUrl = () => {
+      const urlConfig = parseUrlThemeConfig();
+      if (urlConfig) {
+        setShopConfig((prev) => ({
+          ...prev,
+          ...urlConfig,
+        }));
+      }
+    };
+    window.addEventListener('hashchange', handleHashOrUrl);
+    window.addEventListener('popstate', handleHashOrUrl);
+    return () => {
+      window.removeEventListener('hashchange', handleHashOrUrl);
+      window.removeEventListener('popstate', handleHashOrUrl);
+    };
+  }, []);
+
   // Reactive listener to studio synchronization event
   useEffect(() => {
     const handleSync = (e) => {
@@ -96,6 +161,7 @@ export default function App() {
         const d = e.detail;
         setShopConfig((prev) => ({
           ...prev,
+          specialsStyle: d.specialsStyle ?? prev.specialsStyle,
           shopNameAr: d.storeName || prev.shopNameAr,
           taglineAr: d.storeSubtitle || prev.taglineAr,
           phone: d.phone || prev.phone,

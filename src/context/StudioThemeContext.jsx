@@ -52,6 +52,7 @@ export const DEFAULT_STUDIO_CONFIG = {
   phone: '966500000000',
 
   // Layout & Cards (Tab: البطاقات والأقسام)
+  specialsStyle: 'editorial_deck', // 'editorial_deck' | 'stacked_cards' | 'floating_filmstrip' | 'spotlight' | 'coverflow' | 'marquee'
   gridLayout: 'bento', // '2cols' | '1col' | 'bento' | 'magazine' | 'compact'
   cardBorderRadius: 22, // 0 to 32px
   cardShadow: 'soft', // 'none' | 'soft' | 'medium' | 'high' | 'gold_glow'
