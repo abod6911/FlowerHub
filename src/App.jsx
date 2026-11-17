@@ -280,20 +280,20 @@ export default function App() {
     if (typeof window !== 'undefined' && window.location.search.includes('testCart=true')) {
       return [
         {
-          id: 'p1',
-          titleAr: 'فازة الجورى الأحمر الفاخرة',
-          titleEn: 'Luxury Red Rose Vase',
-          price: 450,
+          id: 'prod-1',
+          titleAr: 'بوكيه الروز الأحمر المخملي',
+          titleEn: 'Royal Velvet Red Rose Bouquet',
+          price: 245,
           image: './images/products/royal-red-roses.jpg',
           quantity: 1,
           handover: { type: 'delivery' },
         },
         {
-          id: 'p2',
-          titleAr: 'بوكس الأكريليك الفاخر مع طباعة الاسم',
-          titleEn: 'Luxury Acrylic Box with Custom Print',
-          price: 275,
-          image: './images/products/acrylic-box-celebration.jpg',
+          id: 'prod-2',
+          titleAr: 'فازة الهيدرنجيا والبيبي روز الباستيل',
+          titleEn: 'Blush Hydrangea & Baby Rose Vase',
+          price: 320,
+          image: './images/products/blush-hydrangea-vase.jpg',
           quantity: 1,
           handover: { type: 'delivery' },
         },
@@ -550,6 +550,7 @@ export default function App() {
     setIsCartDrawerOpen(false);
     recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
+      shopConfig,
       lang,
       items: sanitizedItems,
       handover,
@@ -559,6 +560,16 @@ export default function App() {
     setWhatsAppTicketText(text);
     fireConfetti();
     setIsWhatsAppModalOpen(true);
+
+    // Launch WhatsApp chat directly with full order details
+    const cleanPhone = (shopConfig.phone || '966500000000').replace(/[^0-9]/g, '');
+    const encoded = encodeURIComponent(text);
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encoded}`;
+    try {
+      window.open(waUrl, '_blank');
+    } catch (e) {
+      console.log('Direct popup blocked or handled by preview modal', e);
+    }
   };
 
   // Custom Order Submission (Drawer B) (Sanitization + Rate Limiting)

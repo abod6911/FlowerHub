@@ -21,6 +21,17 @@ import { t } from '../utils/translations';
 import { THEME_TOKENS } from '../data/mockData';
 
 /**
+ * Official Scalable Vector WhatsApp Icon
+ */
+function WhatsAppIcon({ className = "w-5 h-5 fill-current" }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67ZM9.11 7.44C8.94 7.44 8.68 7.5 8.46 7.74C8.24 7.98 7.63 8.55 7.63 9.71C7.63 10.87 8.48 11.99 8.6 12.15C8.72 12.31 10.26 14.68 12.62 15.7C13.22 15.96 13.69 16.12 14.06 16.23C14.83 16.48 15.53 16.44 16.08 16.36C16.7 16.27 17.98 15.59 18.25 14.83C18.51 14.07 18.51 13.41 18.43 13.28C18.35 13.15 18.14 13.07 17.82 12.91C17.5 12.75 15.94 11.98 15.65 11.87C15.36 11.76 15.15 11.71 14.94 12.03C14.73 12.35 14.12 13.07 13.93 13.28C13.74 13.5 13.56 13.53 13.24 13.37C12.92 13.21 11.89 12.87 10.67 11.78C9.72 10.93 9.08 9.88 8.92 9.61C8.76 9.34 8.9 9.19 9.06 9.03C9.21 8.89 9.39 8.65 9.55 8.46C9.71 8.27 9.77 8.14 9.88 7.92C9.99 7.7 9.93 7.51 9.85 7.35C9.77 7.19 9.17 5.71 8.92 5.11C8.68 4.53 8.43 4.61 8.24 4.6C8.06 4.59 7.85 4.59 7.64 4.59C7.43 4.59 7.08 4.67 6.79 4.99C6.5 5.31 5.68 6.08 5.68 7.64C5.68 9.2 6.82 10.7 6.98 10.92C7.14 11.14 9.22 14.33 12.38 15.7C13.13 16.03 13.72 16.22 14.18 16.37C15.16 16.68 16.05 16.64 16.76 16.53C17.55 16.41 19.19 15.54 19.53 14.57C19.87 13.6 19.87 12.76 19.77 12.59C19.67 12.42 19.4 12.32 18.99 12.11L9.11 7.44Z" />
+    </svg>
+  );
+}
+
+/**
  * Official Scalable Vector Apple Pay Logo
  * Eliminates broken glyph boxes (e.g. "Pay []") across all operating systems and browsers.
  */
@@ -582,68 +593,53 @@ export default function CartDrawer({
                     </div>
                   )}
 
-                  {/* Express Payment Selector Segment — 3D Machine-Cut Control */}
+                  {/* Single Unified WhatsApp Confirmation Channel */}
                   {items.length > 0 && (
-                    <div className="space-y-2 pt-1">
+                    <div className="space-y-2 pt-1 select-none">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-serif font-bold text-stone-900 flex items-center gap-1.5">
-                          <span>{isAr ? 'طريقة الدفع والتأكيد السريع:' : 'Payment & Express Checkout:'}</span>
+                        <label className="text-xs font-serif font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                          <WhatsAppIcon className="w-4 h-4 text-emerald-600" />
+                          <span>{isAr ? 'طريقة تأكيد وإرسال الطلب:' : 'Order Dispatch Channel:'}</span>
                         </label>
                         <span
-                          className="text-[10px] font-mono font-bold flex items-center gap-1 px-2 py-0.5 rounded-full"
+                          className="text-[10px] font-mono font-bold flex items-center gap-1 px-2.5 py-0.5 rounded-full"
                           style={{
-                            background: 'rgba(217, 175, 55, 0.12)',
-                            color: '#b45309',
-                            border: '1px solid rgba(217, 175, 55, 0.3)',
+                            background: 'rgba(37, 211, 102, 0.12)',
+                            color: '#0f766e',
+                            border: '1px solid rgba(37, 211, 102, 0.3)',
                           }}
                         >
-                          <Sparkles className="w-3 h-3 text-amber-500" />
-                          <span>{isAr ? 'دفع فوري آمن' : 'Instant & Secure'}</span>
+                          <Sparkles className="w-3 h-3 text-emerald-600" />
+                          <span>{isAr ? 'واتساب مباشر 💬' : 'Direct WhatsApp'}</span>
                         </span>
                       </div>
 
-                      {/* 3D Segmented Control Dock */}
-                      <div className="tactile-recessed-tray rounded-2xl p-1.5 border border-stone-200 grid grid-cols-3 gap-1.5 text-xs font-bold">
-                        {/* Tab 1: Apple Pay */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('apple_pay')}
-                          className={`tactile-segment-btn py-2.5 px-1.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer ${
-                            paymentMethod === 'apple_pay' ? 'active-dark' : 'inactive'
-                          }`}
-                        >
-                          <ApplePayLogo className={`h-4.5 ${paymentMethod === 'apple_pay' ? 'text-white' : 'text-stone-900'}`} />
-                        </button>
-
-                        {/* Tab 2: Mada / Card */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('card')}
-                          className={`tactile-segment-btn py-2.5 px-1.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer ${
-                            paymentMethod === 'card' ? 'active-gold' : 'inactive'
-                          }`}
-                        >
-                          <CreditCard className={`w-3.5 h-3.5 ${paymentMethod === 'card' ? 'text-amber-400' : 'text-stone-600'}`} />
-                          <span>{isAr ? 'مدى / فيزا' : 'Card'}</span>
-                        </button>
-
-                        {/* Tab 3: Cash On Delivery / POS */}
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('cod')}
-                          className={`tactile-segment-btn py-2.5 px-1.5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer ${
-                            paymentMethod === 'cod' ? 'active-emerald' : 'inactive'
-                          }`}
-                        >
-                          <Truck className={`w-3.5 h-3.5 ${paymentMethod === 'cod' ? 'text-emerald-400' : 'text-stone-600'}`} />
-                          <span>{isAr ? 'عند الاستلام' : 'COD'}</span>
-                        </button>
+                      {/* WhatsApp Channel Card with Florist Direct Contact Details */}
+                      <div className="tactile-recessed-tray rounded-2xl p-3 border border-emerald-500/25 flex items-start gap-3 bg-gradient-to-br from-emerald-50/70 via-white to-stone-50/50 shadow-2xs">
+                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 via-[#25D366] to-teal-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                          <WhatsAppIcon className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-xs font-bold text-stone-900 font-serif">
+                              {isAr ? 'إرسال الطلب والتواصل مباشرة عبر واتساب' : 'Direct WhatsApp Order Dispatch'}
+                            </span>
+                            <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              {isAr ? 'معتمد' : 'Direct'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-stone-600 leading-relaxed">
+                            {isAr
+                              ? 'ستنتقل محادثتك فوراً إلى واتساب منسق المتجر مع تفاصيل الباقات، كرت الإهداء، والموقع لتأكيد التجهيز والدفع والتوصيل بلحظات.'
+                              : 'Your complete order details, gift card, and address will be sent directly to the florist on WhatsApp to confirm preparation and delivery.'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Checkout Action Footer with Master 3D Realistic Buttons */}
+                {/* Checkout Action Footer with Single 3D Master WhatsApp Button */}
                 {items.length > 0 && (
                   <div
                     className="p-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] space-y-2.5 shrink-0"
@@ -653,85 +649,54 @@ export default function CartDrawer({
                       boxShadow: '0 -10px 25px -5px rgba(0, 0, 0, 0.04)',
                     }}
                   >
-                    {/* Method 1: Master 3D Apple Pay Button */}
-                    {paymentMethod === 'apple_pay' && (
-                      <button
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={() => handleExpressPayment('apple_pay')}
-                        className="tactile-apple-pay-cta tactile-sheen w-full py-4 px-4 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60 overflow-hidden"
-                      >
-                        {isProcessing ? (
-                          <span className="flex items-center gap-2">
-                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>{isAr ? 'جاري المصادقة عبر Face ID...' : 'Authenticating Face ID...'}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <ApplePayLogo className="h-5 text-white" />
-                            <span className="text-amber-400 text-xs select-none">✦</span>
-                            <div className="flex items-baseline gap-1">
-                              <span className="font-extrabold text-base tracking-tight text-amber-300">
-                                {grandTotal}
-                              </span>
-                              <span className="text-xs font-semibold text-stone-300">{strings.sar}</span>
-                            </div>
-                          </>
-                        )}
-                      </button>
-                    )}
-
-                    {/* Method 2: Master 3D Royal Gold Button (Mada/Visa or COD) */}
-                    {paymentMethod !== 'apple_pay' && (
-                      <button
-                        type="button"
-                        disabled={isProcessing}
-                        onClick={() => handleExpressPayment(paymentMethod)}
-                        className="tactile-gold-cta tactile-sheen w-full py-4 px-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 overflow-hidden"
-                      >
-                        {isProcessing ? (
-                          <span className="flex items-center gap-2">
-                            <span className="w-4 h-4 border-2 border-stone-950/30 border-t-stone-950 rounded-full animate-spin" />
-                            <span>{isAr ? 'جاري تأكيد الدفع...' : 'Processing Payment...'}</span>
-                          </span>
-                        ) : (
-                          <>
-                            <ShieldCheck className="w-4.5 h-4.5 text-stone-950 stroke-[2.2]" />
-                            <span>
-                              {isAr ? 'تأكيد الطلب الفوري' : 'Confirm Express Order'} • {grandTotal} {strings.sar}
+                    {/* Master 3D WhatsApp Button */}
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={() => {
+                        setIsProcessing(true);
+                        setTimeout(() => {
+                          setIsProcessing(false);
+                          if (onCheckout) onCheckout();
+                        }, 250);
+                      }}
+                      className="tactile-whatsapp-master-cta tactile-sheen w-full py-4 px-4 rounded-2xl text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60 overflow-hidden shadow-lg"
+                    >
+                      {isProcessing ? (
+                        <span className="flex items-center gap-2">
+                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>{isAr ? 'جاري فتح محادثة الواتساب...' : 'Opening WhatsApp chat...'}</span>
+                        </span>
+                      ) : (
+                        <>
+                          <WhatsAppIcon className="w-5 h-5 fill-current shrink-0" />
+                          <span>{isAr ? 'إرسال وتأكيد الطلب عبر واتساب' : 'Confirm Order on WhatsApp'}</span>
+                          <span className="text-emerald-200 text-xs select-none">✦</span>
+                          <div className="flex items-baseline gap-1 text-white">
+                            <span className="font-black text-base sm:text-lg tracking-tight">
+                              {grandTotal}
                             </span>
-                          </>
-                        )}
-                      </button>
-                    )}
+                            <span className="text-xs font-bold text-emerald-100">{strings.sar}</span>
+                          </div>
+                        </>
+                      )}
+                    </button>
 
-                    {/* Method 3: 3D WhatsApp Checkout Alternative */}
-                    {onCheckoutWhatsApp && (
-                      <button
-                        type="button"
-                        onClick={onCheckoutWhatsApp}
-                        className="tactile-whatsapp-cta w-full py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5 fill-current" />
-                        <span>{isAr ? 'أو الإرسال المباشر وتأكيد الطلب عبر واتساب' : 'Or Send directly via WhatsApp'}</span>
-                      </button>
-                    )}
-
-                    {/* 3D Security & Trust Micro-Badges */}
+                    {/* WhatsApp Trust & Direct Communication Micro-Badges */}
                     <div className="flex items-center justify-center gap-3 pt-1 text-[10px] text-stone-500 font-medium">
-                      <span className="flex items-center gap-1">
-                        <Lock className="w-3 h-3 text-emerald-600" />
-                        {isAr ? 'دفع إلكتروني مشفر' : 'Encrypted Checkout'}
+                      <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                        <WhatsAppIcon className="w-3.5 h-3.5 fill-current" />
+                        {isAr ? 'محادثة مباشرة مع المنسق' : 'Direct Florist Chat'}
                       </span>
                       <span className="text-stone-300">•</span>
                       <span className="flex items-center gap-1">
                         <Flame className="w-3 h-3 text-amber-500" />
-                        {isAr ? 'أزهار طبيعية طازجة' : 'Fresh Blooms'}
+                        {isAr ? 'تصوير الباقة قبل التوصيل' : 'Photo Proof'}
                       </span>
                       <span className="text-stone-300">•</span>
                       <span className="flex items-center gap-1">
                         <Truck className="w-3 h-3 text-blue-500" />
-                        {isAr ? 'أسطول مبرد سريع' : 'Chilled Delivery'}
+                        {isAr ? 'أسطول مبرد سريع' : 'Chilled Fleet'}
                       </span>
                     </div>
                   </div>
