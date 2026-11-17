@@ -38,6 +38,7 @@ import {
   Share2,
   Globe,
   CheckCircle2,
+  Store,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import { validateUploadedFile } from '../services/uploadSecurity';
@@ -137,11 +138,13 @@ export default function FloristAdminPanel({
   onPublishBotanicalConfig,
   onOpenBotanicalTypography,
   initialTab = 'menu',
+  onClose,
 }) {
   const strings = t[lang];
   const isAr = lang === 'ar';
 
   const [activeTab, setActiveTab] = useState(initialTab); // 'menu' | 'add' | 'sales' | 'design'
+  const [designSection, setDesignSection] = useState('all'); // 'all' | 'quick' | 'style' | 'motion' | 'publish'
   const [menuFilter, setMenuFilter] = useState('all'); // 'all' | 'ready_today' | 'one_time' | 'sold_out' | 'past_work'
 
   // Quick Add Form State
@@ -504,8 +507,24 @@ export default function FloristAdminPanel({
                 <h1 className="text-sm sm:text-base md:text-lg font-bold font-serif text-stone-900 tracking-tight flex items-center gap-1.5 select-none">
                   <span>{currentShopName}</span>
                 </h1>
+                <span className="text-[10px] text-stone-400 font-sans block">
+                  {isAr ? 'لوحة تحكم وتخصيص المتجر' : 'Boutique Florist Studio'}
+                </span>
               </div>
             </div>
+
+            {/* Back to Storefront Button */}
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs shadow-sm transition-all active:scale-95 cursor-pointer ring-1 ring-amber-400/30"
+                title={isAr ? 'الرجوع لمعاينة المتجر كعميل' : 'Back to Storefront'}
+              >
+                <Store className="w-3.5 h-3.5 text-amber-300" />
+                <span>{isAr ? 'الرجوع للمتجر ↩️' : 'Storefront ↩️'}</span>
+              </button>
+            )}
 
             {/* Active Ticket Pill as High-End Order Slip Certificate */}
             <button
@@ -1417,6 +1436,148 @@ export default function FloristAdminPanel({
             )}
           </div>
 
+          {/* 0.2 Human-Centered 3-Step Storefront Customization Guide */}
+          <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-300/40 space-y-2.5 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">💡</span>
+                <div>
+                  <h4 className="font-bold text-xs sm:text-sm text-stone-900">
+                    {isAr ? 'دليل التعديل السريع في ٣ خطوات بسيطة:' : 'Easy 3-Step Storefront Setup:'}
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    {isAr ? 'كل تعديل تجريه يظهر فوراً في المعاينة على اليمين ويتم حفظه تلقائياً' : 'Every change reflects live on the preview and saves instantly'}
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-2xs self-start sm:self-auto">
+                {isAr ? '⚡ مربوط مباشرة بالمتجر الحي' : 'Live Syncing'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs text-stone-800">
+              <button
+                type="button"
+                onClick={() => setDesignSection('quick')}
+                className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-center gap-2.5 shadow-2xs ${
+                  designSection === 'quick'
+                    ? 'bg-amber-50 border-amber-400 ring-2 ring-amber-300/60 font-bold'
+                    : 'bg-white/90 border-stone-200/90 hover:bg-white'
+                }`}
+              >
+                <span className="w-6 h-6 rounded-xl bg-amber-500 text-stone-950 font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">١</span>
+                <div className="min-w-0">
+                  <span className="block font-bold text-xs">{isAr ? '١. الهوية والواتساب' : '1. Name & WhatsApp'}</span>
+                  <span className="block text-[10px] text-stone-500 truncate">{isAr ? 'اسم المتجر، رقم الطلبات، الشعار' : 'Store name, WhatsApp & Logo'}</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDesignSection('style')}
+                className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-center gap-2.5 shadow-2xs ${
+                  designSection === 'style'
+                    ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300/60 font-bold'
+                    : 'bg-white/90 border-stone-200/90 hover:bg-white'
+                }`}
+              >
+                <span className="w-6 h-6 rounded-xl bg-emerald-600 text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">٢</span>
+                <div className="min-w-0">
+                  <span className="block font-bold text-xs">{isAr ? '٢. القوالب والألوان' : '2. Theme & Colors'}</span>
+                  <span className="block text-[10px] text-stone-500 truncate">{isAr ? 'قوالب ملكية بنقرة واحدة' : '1-tap luxury presets & colors'}</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setDesignSection('publish')}
+                className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-center gap-2.5 shadow-2xs ${
+                  designSection === 'publish'
+                    ? 'bg-stone-900 border-stone-900 text-white ring-2 ring-amber-400/60 font-bold'
+                    : 'bg-white/90 border-stone-200/90 hover:bg-white'
+                }`}
+              >
+                <span className={`w-6 h-6 rounded-xl font-black flex items-center justify-center text-xs shrink-0 shadow-2xs ${
+                  designSection === 'publish' ? 'bg-amber-400 text-stone-950' : 'bg-stone-900 text-amber-300'
+                }`}>٣</span>
+                <div className="min-w-0">
+                  <span className="block font-bold text-xs">{isAr ? '٣. نشر الرابط لجميع الزوار' : '3. Publish & Share'}</span>
+                  <span className={`block text-[10px] truncate ${designSection === 'publish' ? 'text-stone-300' : 'text-stone-500'}`}>
+                    {isAr ? 'تعميم التعديلات على الرابط الحي' : 'Publish changes live for all'}
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* 0.3 Human-Friendly Category Selector Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 bg-stone-100/90 rounded-2xl border border-stone-200/80 shadow-inner">
+            <button
+              type="button"
+              onClick={() => setDesignSection('all')}
+              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                designSection === 'all'
+                  ? 'bg-stone-900 text-white shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+              }`}
+            >
+              <span>🌟</span>
+              <span>{isAr ? 'عرض كل الخيارات' : 'View All'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDesignSection('quick')}
+              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                designSection === 'quick'
+                  ? 'bg-amber-500 text-stone-950 shadow-xs ring-1 ring-amber-400'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+              }`}
+            >
+              <span>⚡</span>
+              <span>{isAr ? 'البيانات الأساسية وهوية المتجر' : 'Quick Identity'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDesignSection('style')}
+              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                designSection === 'style'
+                  ? 'bg-emerald-600 text-white shadow-xs ring-1 ring-emerald-500'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+              }`}
+            >
+              <span>🎨</span>
+              <span>{isAr ? 'القوالب والألوان الفاخرة' : 'Themes & Colors'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDesignSection('motion')}
+              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                designSection === 'motion'
+                  ? 'bg-stone-900 text-amber-300 shadow-xs ring-1 ring-amber-400/40'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+              }`}
+            >
+              <span>🎬</span>
+              <span>{isAr ? 'الحركات وتنسيق الترويسة' : 'Motion & Layout'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDesignSection('publish')}
+              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 ${
+                designSection === 'publish'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-xs ring-1 ring-emerald-400'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
+              }`}
+            >
+              <span>🚀</span>
+              <span>{isAr ? 'نشر الرابط المباشر' : 'Publish & Share'}</span>
+            </button>
+          </div>
+
           {/* Side-by-Side Split Workspace: Sticky Live Preview on RIGHT, All Customization Controls on LEFT */}
           <div className="flex flex-col lg:flex-row items-start gap-6 relative">
             {/* RIGHT COLUMN (In RTL): Sticky Interactive Live Customer Phone Preview */}
@@ -1669,8 +1830,21 @@ export default function FloristAdminPanel({
         {/* LEFT COLUMN (In RTL): All Customization Controls & Configuration Sections */}
         <div className="flex-1 w-full space-y-4 order-2 min-w-0">
 
-          {/* 2. STORE OPERATIONAL STATUS & SECTION TOGGLES */}
-          <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm space-y-3.5">
+          {/* GROUP 1: QUICK IDENTITY, WHATSAPP & STORE STATUS */}
+          {(designSection === 'all' || designSection === 'quick') && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between text-xs text-amber-900">
+                <span className="font-bold flex items-center gap-1.5">
+                  <span>⚡</span>
+                  <span>{isAr ? 'البيانات الأساسية وهوية المتجر ورقم الطلبات:' : 'Quick Identity & Contact Details:'}</span>
+                </span>
+                <span className="text-[10px] bg-amber-200/60 px-2 py-0.5 rounded-full font-mono font-bold">
+                  {isAr ? 'حفظ فوري' : 'Auto-saved'}
+                </span>
+              </div>
+
+              {/* 2. STORE OPERATIONAL STATUS & SECTION TOGGLES */}
+              <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm space-y-3.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
@@ -2097,6 +2271,21 @@ export default function FloristAdminPanel({
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* GROUP 2: CURATED THEMES & COLOR PALETTES */}
+      {(designSection === 'all' || designSection === 'style') && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between text-xs text-emerald-950">
+            <span className="font-bold flex items-center gap-1.5">
+              <span>🎨</span>
+              <span>{isAr ? 'القوالب الجاهزة وهوية الألوان (بنقرة واحدة):' : 'Curated Luxury Themes & Palettes:'}</span>
+            </span>
+            <span className="text-[10px] bg-emerald-200/60 text-emerald-900 px-2 py-0.5 rounded-full font-mono font-bold">
+              {isAr ? 'معاينة فورية' : 'Live Preview'}
+            </span>
+          </div>
 
           {/* 1.5 Curated Storefront Full Design Presets (5 Templates) */}
           <div className="space-y-2">
@@ -2230,6 +2419,21 @@ export default function FloristAdminPanel({
                   );
                 })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* GROUP 3: HEADER LAYOUT & PRODUCT MOTION PHYSICS */}
+      {(designSection === 'all' || designSection === 'motion') && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="p-3 rounded-2xl bg-stone-900 border border-stone-800 text-white flex items-center justify-between text-xs">
+            <span className="font-bold flex items-center gap-1.5 text-amber-300">
+              <span>🎬</span>
+              <span>{isAr ? 'شكل الترويسة وأنماط الحركة والفيزياء التفاعلية:' : 'Header Layout & Motion Dynamics:'}</span>
+            </span>
+            <span className="text-[10px] bg-stone-800 text-stone-300 px-2 py-0.5 rounded-full font-mono">
+              {isAr ? 'حركة 60 إطار' : '60fps Physics'}
+            </span>
           </div>
 
           {/* 3. Shop Header Layout (Bespoke Interactive Visual Cards) */}
@@ -2830,8 +3034,91 @@ export default function FloristAdminPanel({
             </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* GROUP 4: DEDICATED UNIVERSAL PUBLISHING & LINK SHARING */}
+      {(designSection === 'all' || designSection === 'publish') && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="p-5 rounded-3xl bg-gradient-to-br from-emerald-950 via-stone-950 to-stone-900 border-2 border-emerald-500/50 text-white shadow-2xl relative overflow-hidden space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-stone-950 flex items-center justify-center font-bold shrink-0 shadow-lg">
+                <Globe className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm sm:text-base text-emerald-300 flex items-center gap-2">
+                  <span>{isAr ? 'نشر وتعميم التعديلات على الرابط المباشر' : 'Universal Storefront Publishing'}</span>
+                  <span className="text-[10px] bg-emerald-400/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/40">
+                    Live Link
+                  </span>
+                </h4>
+                <p className="text-xs text-stone-300 mt-0.5">
+                  {isAr
+                    ? 'اضغط هنا لتعميم كافة التعديلات، الألوان، والحركات على رابط المتجر ليفتح عند أي عميل بنفس المظهر الفاخر'
+                    : 'Publish your modifications live so all visitors instantly see your customized theme'}
+                </p>
+              </div>
+            </div>
+
+            {/* Quick summary of published attributes */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-stone-400 block">{isAr ? 'اسم المتجر' : 'Store'}</span>
+                <span className="font-bold text-emerald-300 truncate block mt-0.5">{shopConfig.shopNameAr}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-stone-400 block">{isAr ? 'الهوية واللون' : 'Theme'}</span>
+                <span className="font-bold text-amber-300 truncate block mt-0.5">{shopConfig.theme}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-stone-400 block">{isAr ? 'نمط الحركة' : 'Motion'}</span>
+                <span className="font-bold text-teal-300 truncate block mt-0.5">{shopConfig.specialsStyle}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[10px] text-stone-400 block">{isAr ? 'رقم الواتساب' : 'WhatsApp'}</span>
+                <span className="font-bold text-stone-200 font-mono truncate block mt-0.5">{shopConfig.phone}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={handlePublishAndShareLink}
+                className={`w-full sm:flex-1 py-3 px-4 rounded-2xl font-bold text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
+                  copiedPublishLink
+                    ? 'bg-emerald-500 text-stone-950 shadow-emerald-500/30 ring-2 ring-emerald-300'
+                    : 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950'
+                }`}
+              >
+                {copiedPublishLink ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                    <span>{isAr ? 'تم نسخ الرابط المنشور بنجاح! ✓' : 'Live Link Copied! ✓'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-4 h-4 stroke-[2.5]" />
+                    <span>{isAr ? 'نشر التعديلات ونسخ رابط المتجر الحي' : 'Publish & Copy Live Link'}</span>
+                  </>
+                )}
+              </button>
+
+              {onClose && (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full sm:w-auto py-3 px-4 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+                >
+                  <Store className="w-4 h-4 text-emerald-400" />
+                  <span>{isAr ? 'معاينة المتجر كعميل ↩️' : 'View Storefront ↩️'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  </div>
+</div>
         )}
 
       {/* ========================================================= */}

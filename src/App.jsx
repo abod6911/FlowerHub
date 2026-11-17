@@ -944,7 +944,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         <div className="w-full flex justify-center py-0 sm:py-6 sm:px-4 relative">
           <AmbientRosePetals />
           <div
-            className={`w-full sm:max-w-[460px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-hidden`}
+            className={`w-full sm:max-w-[460px] min-h-screen ${themeTokens.pageBg} sm:rounded-[36px] sm:shadow-[0_25px_70px_rgba(0,0,0,0.18)] sm:border sm:border-stone-200/90 dark:sm:border-stone-800 flex flex-col relative transition-colors duration-300 overflow-x-clip sm:overflow-hidden`}
           >
             {renderStorefrontContent()}
           </div>
@@ -984,6 +984,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onDeleteOccasion={handleDeleteOccasion}
                 onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                onClose={() => setActiveView('storefront')}
               />
             </div>
           </AdminAuthGuard>
@@ -1015,6 +1016,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
                 initialTab="sales"
+                onClose={() => setActiveView('storefront')}
               />
             </div>
           </AdminAuthGuard>
@@ -1057,6 +1059,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   onDeleteOccasion={handleDeleteOccasion}
                   onApplyCuratedTemplate={handleApplyCuratedTemplate}
                   onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                  onClose={() => setActiveView('storefront')}
                 />
               </div>
 
@@ -1198,6 +1201,21 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           <div className="bg-stone-900 text-white px-4 py-2 rounded-2xl shadow-xl text-xs font-medium border border-stone-800">
             {toastMessage}
           </div>
+        </div>
+      )}
+
+      {/* 1-Tap Quick Florist Customizer Launcher (Mobile & Desktop) */}
+      {activeView === 'storefront' && !isProductDrawerOpen && !isCartDrawerOpen && !isCustomDrawerOpen && (
+        <div className="fixed bottom-4 start-4 z-40 pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => setActiveView('admin')}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-stone-950/90 hover:bg-black text-amber-300 border border-amber-400/40 shadow-xl backdrop-blur-md text-[11px] font-bold transition-all active:scale-95 hover:scale-105 cursor-pointer ring-1 ring-white/10"
+            title={isAr ? 'لوحة تحكم وتعديل المتجر' : 'Edit Store'}
+          >
+            <Sliders className="w-3.5 h-3.5 text-amber-400" />
+            <span>{isAr ? 'تخصيص المتجر ⚙️' : 'Customize ⚙️'}</span>
+          </button>
         </div>
       )}
     </div>

@@ -29,6 +29,30 @@ function CoolerSpecialsCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef(null);
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+
+  const handleCardTouchStart = (e) => {
+    if (!e.touches || !e.touches[0]) return;
+    touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
+  };
+
+  const handleCardTouchEnd = (e) => {
+    if (!e.changedTouches || !e.changedTouches[0]) return;
+    const diffX = e.changedTouches[0].clientX - touchStartXRef.current;
+    const diffY = e.changedTouches[0].clientY - touchStartYRef.current;
+    // Only switch slide if clearly horizontal swipe and greater than 45px
+    if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+      if (diffX > 0) {
+        // Swiped right
+        isAr ? handleNext() : handlePrev();
+      } else {
+        // Swiped left
+        isAr ? handlePrev() : handleNext();
+      }
+    }
+  };
 
   if (coolerItems.length === 0) return null;
 
@@ -93,11 +117,12 @@ function CoolerSpecialsCarousel({
           <div
             className={`${
               isAr ? 'animate-marquee-rtl' : 'animate-marquee-ltr'
-            } flex items-stretch gap-3 hover-pause cursor-grab active:cursor-grabbing touch-pan-x`}
+            } flex items-stretch gap-3 hover-pause cursor-grab active:cursor-grabbing`}
             style={{
               animationDuration: `${Math.max(motionSpeed, 30)}s`,
               animationPlayState: isPaused ? 'paused' : 'running',
               willChange: 'transform',
+              touchAction: 'pan-y',
             }}
           >
             {marqueeItems.map((product, index) => {
@@ -583,6 +608,7 @@ function CoolerSpecialsCarousel({
               exit={{ scale: 0.88, opacity: 0, x: isAr ? 80 : -80, transition: { duration: 0.22 } }}
               transition={{ type: 'spring', stiffness: 320, damping: 26 }}
               drag="x"
+              dragDirectionLock={true}
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.4}
               onDragEnd={(_e, { offset, velocity }) => {
@@ -594,7 +620,7 @@ function CoolerSpecialsCarousel({
                 }
               }}
               className="absolute inset-x-0 inset-y-0 rounded-[26px] bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden cursor-grab active:cursor-grabbing flex flex-col justify-between"
-              style={{ zIndex: 3 }}
+              style={{ zIndex: 3, touchAction: 'pan-y' }}
             >
               <div
                 onClick={() => onSelectProduct(currentItem)}
@@ -820,7 +846,7 @@ function CoolerSpecialsCarousel({
   const badgeText = getBadgeText(currentItem);
 
   return (
-    <section className="py-2.5 px-4 w-full transition-colors duration-300">
+    <section className="py-2.5 px-4 w-full transition-colors duration-300" style={{ touchAction: 'pan-y' }}>
       <div className="flex items-center justify-between mb-2">
         <div>
           <h2
@@ -872,24 +898,29 @@ function CoolerSpecialsCarousel({
         </div>
       </div>
 
-      {/* 16:9 Ratio Card with Floating Glass Pricing Strip */}
+      {/* 16:9 Ratio Card with Floating Glass Pricing Strip & Mobile Swipe Support */}
       <div
         onClick={() => onSelectProduct(currentItem)}
-        className="w-full overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-all duration-300 relative border"
+        onTouchStart={handleCardTouchStart}
+        onTouchEnd={handleCardTouchEnd}
+        className="w-full overflow-hidden cursor-pointer group shadow-md hover:shadow-xl transition-all duration-300 relative border select-none"
         style={{
           backgroundColor: 'var(--surface-card, #FFFFFF)',
           borderColor: 'var(--border-subtle, #E7E5E4)',
           borderRadius: 'var(--radius-unit, 20px)',
+          touchAction: 'pan-y',
         }}
       >
         <div className="relative aspect-[16/9] w-full overflow-hidden bg-stone-900">
           <img
             src={currentItem.image}
             alt={isAr ? currentItem.titleAr : currentItem.titleEn}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.88]"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.88] pointer-events-none select-none"
+            draggable={false}
             loading="eager"
             decoding="async"
             fetchPriority="high"
+            style={{ WebkitUserDrag: 'none', userSelect: 'none' }}
             onError={(e) => {
               e.currentTarget.onerror = null;
               e.currentTarget.src = './images/products/royal-red-roses.jpg';

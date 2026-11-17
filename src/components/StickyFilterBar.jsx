@@ -36,7 +36,10 @@ function StickyFilterBar({
           : 'bg-[#FAF8F5]/92 border-stone-200/60'
       }`}
     >
-      <div className="overflow-x-auto no-scrollbar scroll-smooth px-3.5 sm:px-4 flex items-center gap-1.5 touch-pan-x">
+      <div
+        className="overflow-x-auto no-scrollbar scroll-smooth px-3.5 sm:px-4 flex items-center gap-1.5"
+        style={{ touchAction: 'pan-y pinch-zoom', WebkitOverflowScrolling: 'touch' }}
+      >
         {/* Count Indicator */}
         <span className="flex-none inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[10px] font-bold bg-stone-200/60 dark:bg-stone-800 text-stone-600 dark:text-stone-400 select-none">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />

@@ -14,13 +14,15 @@ function OccasionStories({
   const isAr = lang === 'ar';
   const scrollContainerRef = useRef(null);
 
-  // Smooth Drag & Touch Handling
+  // Smooth Drag & Touch Handling for Mouse (Without blocking mobile vertical scroll)
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftState, setScrollLeftState] = useState(0);
   const [hasDragged, setHasDragged] = useState(false);
 
   const handleMouseDown = (e) => {
+    // Only handle primary button on mouse devices, never touch
+    if (e.button !== 0 || (e.pointerType && e.pointerType === 'touch')) return;
     if (!scrollContainerRef.current) return;
     setIsMouseDown(true);
     setHasDragged(false);
@@ -30,11 +32,12 @@ function OccasionStories({
 
   const handleMouseMove = (e) => {
     if (!isMouseDown || !scrollContainerRef.current) return;
-    e.preventDefault();
     const x = e.pageX - scrollContainerRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
-    if (Math.abs(walk) > 5) {
+    if (Math.abs(walk) > 6) {
       setHasDragged(true);
+      // Only prevent default on confirmed horizontal drag
+      e.preventDefault();
     }
     scrollContainerRef.current.scrollLeft = scrollLeftState - walk;
   };
@@ -54,7 +57,10 @@ function OccasionStories({
   const visibleOccasions = occasions.filter((occ) => occ.isVisible !== false);
 
   return (
-    <section className="py-2.5 px-4 w-full transition-colors duration-300 select-none">
+    <section
+      className="py-2.5 px-4 w-full transition-colors duration-300 select-none"
+      style={{ touchAction: 'pan-y' }}
+    >
       {/* Section Header */}
       <div className="flex items-center justify-between mb-2.5 px-0.5">
         <div className="flex items-center gap-2">
@@ -82,7 +88,7 @@ function OccasionStories({
         </div>
       </div>
 
-      {/* Horizontal Floward-style Story Reel Container */}
+      {/* Horizontal Floward-style Story Reel Container (Allows native vertical page scroll) */}
       <div
         ref={scrollContainerRef}
         onMouseDown={handleMouseDown}
@@ -91,8 +97,12 @@ function OccasionStories({
         onMouseLeave={handleMouseUpOrLeave}
         className={`flex items-start gap-4 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 scroll-smooth ${
           isMouseDown ? 'cursor-grabbing' : 'cursor-grab'
-        } touch-pan-x`}
-        style={{ WebkitOverflowScrolling: 'touch' }}
+        }`}
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehaviorX: 'contain',
+          touchAction: 'pan-y pinch-zoom',
+        }}
       >
         {/* 1. "All / الكل" Story Disc */}
         <button
