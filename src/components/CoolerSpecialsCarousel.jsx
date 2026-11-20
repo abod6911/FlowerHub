@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, ChevronLeft, ChevronRight, Clock, Sparkles, Layers, Film, Copy } from 'lucide-react';
 import { PRODUCTS, THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
+import { getPlaceholder } from '../data/imagePlaceholders';
 
 // Helper to convert standard digits to Eastern Arabic numerals for luxury typography
 const toArabicDigits = (num) => {
@@ -625,6 +626,11 @@ function CoolerSpecialsCarousel({
               <div
                 onClick={() => onSelectProduct(currentItem)}
                 className="relative flex-1 w-full overflow-hidden bg-stone-900"
+                style={{
+                  backgroundImage: getPlaceholder(currentItem.image) ? `url(${getPlaceholder(currentItem.image)})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
               >
                 <img
                   src={currentItem.image}
@@ -911,7 +917,14 @@ function CoolerSpecialsCarousel({
           touchAction: 'pan-y',
         }}
       >
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-stone-900">
+        <div
+          className="relative aspect-[16/9] w-full overflow-hidden bg-stone-900"
+          style={{
+            backgroundImage: getPlaceholder(currentItem.image) ? `url(${getPlaceholder(currentItem.image)})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
           <img
             src={currentItem.image}
             alt={isAr ? currentItem.titleAr : currentItem.titleEn}

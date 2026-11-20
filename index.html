@@ -8,11 +8,44 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>دار الورد • Maison des Fleurs | متجر الورود والهدايا الفاخرة</title>
-    <!-- Critical Above-the-fold Image Preloads for Instant Visual Rendering -->
-    <link rel="preload" as="image" href="./images/products/royal-red-roses.jpg" fetchpriority="high">
-    <link rel="preload" as="image" href="./images/products/blush-hydrangea-vase.jpg" fetchpriority="high">
-    <link rel="preload" as="image" href="./images/products/sunflowers-spray-roses.jpg" fetchpriority="high">
-    <link rel="preload" as="image" href="./images/products/chocolates-floral-box.jpg">
+    <!-- Critical Above-the-fold Image Preloads for Instant Visual Rendering (WebP Next-Gen) -->
+    <link rel="preload" as="image" href="./images/occasions/occasion-ready-today.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="./images/products/royal-red-roses.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="./images/products/blush-hydrangea-vase.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="./images/products/sunflowers-spray-roses.webp">
+    <!-- Immediate Zero-Latency Image Cache Warmup -->
+    <script>
+      (function() {
+        var imgs = [
+          './images/occasions/occasion-ready-today.webp',
+          './images/occasions/occasion-graduation.webp',
+          './images/occasions/occasion-birthday.webp',
+          './images/occasions/occasion-newborn.webp',
+          './images/occasions/occasion-romance.webp',
+          './images/products/royal-red-roses.webp',
+          './images/products/blush-hydrangea-vase.webp',
+          './images/products/sunflowers-spray-roses.webp',
+          './images/products/acrylic-box-celebration.webp',
+          './images/products/graduation-stand-prestige.webp',
+          './images/products/newborn-blossom-basket.webp',
+          './images/products/chocolates-floral-box.webp',
+          './images/products/eternal-amour-pedestal.webp',
+          './images/products/casablanca-orchid-vase.webp'
+        ];
+        var prefetch = function() {
+          imgs.forEach(function(src) {
+            var im = new Image();
+            im.decoding = 'async';
+            im.src = src;
+          });
+        };
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(prefetch);
+        } else {
+          setTimeout(prefetch, 50);
+        }
+      })();
+    </script>
     <!-- Optimized Non-Blocking Fonts Loading with Font-Display: Swap -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

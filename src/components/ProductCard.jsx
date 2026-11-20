@@ -5,6 +5,7 @@ import { Plus, Check, MessageCircle, Heart, Clock, SlidersHorizontal, Eye, Star,
 import { THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
 import { useStoreTheme } from '../context/StoreThemeContext';
+import { getPlaceholder } from '../data/imagePlaceholders';
 
 // Helper to convert standard digits to Eastern Arabic numerals for luxury typography
 const toArabicDigits = (num) => {
@@ -438,7 +439,14 @@ function ProductCard({
           animationDelay: `${(index % 8) * 0.045}s`,
         }}
       >
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
+        <div
+          className="relative aspect-[4/5] w-full overflow-hidden bg-stone-100 dark:bg-stone-800"
+          style={{
+            backgroundImage: getPlaceholder(product.image) ? `url(${getPlaceholder(product.image)})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
           <img
             src={product.image}
             alt={isAr ? product.titleAr : product.titleEn}
@@ -624,7 +632,14 @@ function ProductCard({
       )}
 
       {/* Dynamic Aspect Ratio Image with Strict Corner Separation */}
-      <div className={`relative ${aspectClass} w-full overflow-hidden bg-stone-100 dark:bg-stone-800`}>
+      <div
+        className={`relative ${aspectClass} w-full overflow-hidden bg-stone-100 dark:bg-stone-800`}
+        style={{
+          backgroundImage: getPlaceholder(product.image) ? `url(${getPlaceholder(product.image)})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         <img
           src={product.image}
           alt={isAr ? product.titleAr : product.titleEn}

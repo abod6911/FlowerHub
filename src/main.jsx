@@ -24,15 +24,26 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('FlowerHub ErrorBoundary caught an error:', error, errorInfo);
+    const isChunkFailure =
+      error?.message?.includes('dynamically imported module') ||
+      error?.message?.includes('ChunkLoadError') ||
+      error?.message?.includes('Loading chunk');
+    if (isChunkFailure && typeof window !== 'undefined' && !sessionStorage.getItem('eb_auto_reloaded')) {
+      sessionStorage.setItem('eb_auto_reloaded', 'true');
+      window.location.reload();
+    }
   }
 
   handleReset = () => {
     try {
       localStorage.clear();
       sessionStorage.clear();
+      if (window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
       window.location.reload();
     } catch {
-      window.location.reload();
+      window.location.href = window.location.pathname;
     }
   };
 

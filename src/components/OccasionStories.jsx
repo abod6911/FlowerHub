@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Layers, Flame, Check } from 'lucide-react';
 import { INITIAL_OCCASIONS, THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
+import { getPlaceholder } from '../data/imagePlaceholders';
 
 function OccasionStories({
   selectedCategory = 'all',
@@ -208,7 +209,14 @@ function OccasionStories({
                     themeTokens.isDark ? 'bg-stone-950' : 'bg-white'
                   }`}
                 >
-                  <div className="w-full h-full rounded-full overflow-hidden bg-stone-100 relative shadow-inner">
+                  <div
+                    className="w-full h-full rounded-full overflow-hidden bg-stone-100 relative shadow-inner"
+                    style={{
+                      backgroundImage: getPlaceholder(occ.image) ? `url(${getPlaceholder(occ.image)})` : undefined,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                    }}
+                  >
                     <img
                       src={occ.image}
                       alt={isAr ? occ.nameAr : occ.nameEn}
