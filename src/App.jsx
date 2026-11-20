@@ -35,6 +35,7 @@ import {
   createOrderSlipFromSingleItem,
   createOrderSlipFromBag,
   createOrderSlipFromCustomOrder,
+  saveOrderToCashierInvoices,
 } from './utils/orderSlipHelper';
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag, Lock } from 'lucide-react';
 import { STUDIO_SYNC_EVENT } from './context/StudioThemeContext';
@@ -536,11 +537,7 @@ export default function App() {
 
     const slipData = createOrderSlipFromSingleItem(sanitizedItem, lang);
     setActiveOrderSlipData(slipData);
-    try {
-      localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
-    } catch (e) {
-      console.warn('Could not cache last order', e);
-    }
+    saveOrderToCashierInvoices(slipData);
 
     setIsProductDrawerOpen(false);
     recordAttempt('checkout_order');
@@ -553,7 +550,23 @@ export default function App() {
     });
     setWhatsAppTicketText(text);
     fireConfetti();
-    setIsWhatsAppModalOpen(true);
+    openWhatsAppDirect(text);
+    showToast(isAr ? 'تم إرسال الطلب! جاري فتح محادثة الواتساب مع المنسق 🌸' : 'Order sent! Opening WhatsApp with florist 🌸');
+  };
+
+  // Direct WhatsApp dispatch helper: opens florist chat directly without any popup modals
+  const openWhatsAppDirect = (messageText) => {
+    const cleanPhone = (shopConfig?.phone || '966500000000').replace(/[^0-9]/g, '');
+    const encoded = encodeURIComponent(messageText);
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encoded}`;
+    try {
+      const opened = window.open(waUrl, '_blank');
+      if (!opened || opened.closed || typeof opened.closed === 'undefined') {
+        window.location.href = waUrl;
+      }
+    } catch {
+      window.location.href = waUrl;
+    }
   };
 
   // Checkout Entire Bag (Server-Side Price Recalculation + Rate Limiter)
@@ -596,13 +609,10 @@ export default function App() {
     const handover = sanitizedItems[0]?.handover || { type: 'gift' };
     const slipData = createOrderSlipFromBag(sanitizedItems, handover, lang);
     setActiveOrderSlipData(slipData);
-    try {
-      localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
-    } catch (e) {
-      console.warn('Could not cache last order', e);
-    }
+    saveOrderToCashierInvoices(slipData);
 
     setIsCartDrawerOpen(false);
+    setBagItems([]); // Reset cart after successful dispatch
     recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
       shopConfig,
@@ -614,17 +624,8 @@ export default function App() {
     });
     setWhatsAppTicketText(text);
     fireConfetti();
-    setIsWhatsAppModalOpen(true);
-
-    // Launch WhatsApp chat directly with full order details
-    const cleanPhone = (shopConfig.phone || '966500000000').replace(/[^0-9]/g, '');
-    const encoded = encodeURIComponent(text);
-    const waUrl = `https://wa.me/${cleanPhone}?text=${encoded}`;
-    try {
-      window.open(waUrl, '_blank');
-    } catch (e) {
-      console.log('Direct popup blocked or handled by preview modal', e);
-    }
+    openWhatsAppDirect(text);
+    showToast(isAr ? 'تم إرسال الطلب! جاري فتح محادثة الواتساب مع المنسق 🌸' : 'Order sent! Opening WhatsApp with florist 🌸');
   };
 
   // Custom Order Submission (Drawer B) (Sanitization + Rate Limiting)
@@ -656,11 +657,7 @@ export default function App() {
 
     const slipData = createOrderSlipFromCustomOrder(sanitizedCustomOrder, sanitizedHandover, lang);
     setActiveOrderSlipData(slipData);
-    try {
-      localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
-    } catch (e) {
-      console.warn('Could not cache last order', e);
-    }
+    saveOrderToCashierInvoices(slipData);
 
     setIsCustomDrawerOpen(false);
     recordAttempt('checkout_order');
@@ -673,7 +670,8 @@ export default function App() {
     });
     setWhatsAppTicketText(text);
     fireConfetti();
-    setIsWhatsAppModalOpen(true);
+    openWhatsAppDirect(text);
+    showToast(isAr ? 'تم إرسال تفاصيل التنسيق الخاص إلى واتساب المنسق 🌸' : 'Custom design sent to florist WhatsApp 🌸');
   };
 
   // Portfolio "Request Similar on WhatsApp"
@@ -694,7 +692,8 @@ Venue: ${portfolioItem.venueEn}
 Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio and would like to request a similar bespoke setup for my upcoming event. Please advise on availability and estimated pricing.`;
 
     setWhatsAppTicketText(text);
-    setIsWhatsAppModalOpen(true);
+    openWhatsAppDirect(text);
+    showToast(isAr ? 'جاري فتح محادثة الواتساب للاستفسار 🌸' : 'Opening WhatsApp with florist...');
   };
 
   // Admin Actions
@@ -1032,6 +1031,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 pastWorks={pastWorks}
                 lang={lang}
                 onOpenOrderSlip={handleOpenOrderSlip}
+                activeOrderSlipData={activeOrderSlipData}
                 themeTokens={themeTokens}
                 formats={formats}
                 onAddFormat={handleAddFormat}
@@ -1063,6 +1063,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 pastWorks={pastWorks}
                 lang={lang}
                 onOpenOrderSlip={handleOpenOrderSlip}
+                activeOrderSlipData={activeOrderSlipData}
                 themeTokens={themeTokens}
                 formats={formats}
                 onAddFormat={handleAddFormat}
@@ -1215,18 +1216,6 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           onCheckout={handleBagCheckout}
           lang={lang}
           theme={themeTokens}
-        />
-      </React.Suspense>
-
-      {/* WhatsApp Message Preview Modal with Order Slip button */}
-      <React.Suspense fallback={null}>
-        <WhatsAppPreviewModal
-          isOpen={isWhatsAppModalOpen}
-          onClose={() => setIsWhatsAppModalOpen(false)}
-          messageText={whatsAppTicketText}
-          lang={lang}
-          onOpenOrderSlip={handleOpenOrderSlip}
-          orderData={activeOrderSlipData}
         />
       </React.Suspense>
 

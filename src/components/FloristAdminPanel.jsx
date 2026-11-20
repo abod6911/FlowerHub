@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles,
@@ -39,10 +39,14 @@ import {
   Globe,
   CheckCircle2,
   Store,
+  Receipt,
+  Printer,
+  MessageCircle,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import { validateUploadedFile } from '../services/uploadSecurity';
 import { sanitizeUrl, sanitizeText } from '../utils/sanitizer';
+import { getCashierInvoices, updateCashierInvoiceStatus } from '../utils/orderSlipHelper';
 import {
   THEME_TOKENS,
   HERO_STYLES,
@@ -123,6 +127,7 @@ export default function FloristAdminPanel({
   pastWorks = [],
   lang = 'ar',
   onOpenOrderSlip,
+  activeOrderSlipData = null,
   themeTokens = THEME_TOKENS.botanical,
   formats = INITIAL_FORMATS,
   onAddFormat,
@@ -143,9 +148,17 @@ export default function FloristAdminPanel({
   const strings = t[lang];
   const isAr = lang === 'ar';
 
-  const [activeTab, setActiveTab] = useState(initialTab); // 'menu' | 'add' | 'sales' | 'design'
+  const [activeTab, setActiveTab] = useState(initialTab); // 'menu' | 'invoices' | 'add' | 'sales' | 'design'
   const [designSection, setDesignSection] = useState('all'); // 'all' | 'quick' | 'style' | 'motion' | 'publish'
   const [menuFilter, setMenuFilter] = useState('all'); // 'all' | 'ready_today' | 'one_time' | 'sold_out' | 'past_work'
+  
+  // Cashier POS Invoices State
+  const [cashierInvoices, setCashierInvoices] = useState(() => getCashierInvoices(lang));
+  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState('all');
+
+  useEffect(() => {
+    setCashierInvoices(getCashierInvoices(lang));
+  }, [lang, activeOrderSlipData, activeTab]);
 
   // Quick Add Form State
   const [newTitleAr, setNewTitleAr] = useState('');
@@ -528,21 +541,23 @@ export default function FloristAdminPanel({
 
             {/* Active Ticket Pill as High-End Order Slip Certificate */}
             <button
-              onClick={onOpenOrderSlip}
+              onClick={() => onOpenOrderSlip && onOpenOrderSlip(activeOrderSlipData || cashierInvoices[0])}
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-50/90 via-white to-amber-50/60 hover:from-amber-100/90 hover:to-white text-stone-800 text-[11px] font-semibold border border-amber-300/70 shadow-[0_2px_8px_rgba(217,119,6,0.08)] hover:shadow-md transition-all active:scale-95 cursor-pointer ring-1 ring-amber-400/20"
-              title={isAr ? 'عرض تذكرة الطلب المباشرة' : 'View live order slip'}
+              title={isAr ? 'عرض وطباعة فاتورة الكاشير' : 'View & Print Cashier Slip'}
             >
               <div className="w-5 h-5 rounded-full bg-amber-100/80 border border-amber-300/60 flex items-center justify-center">
-                <FileText className="w-2.5 h-2.5 text-amber-800" />
+                <Receipt className="w-3 h-3 text-amber-800" />
               </div>
-              <span className="font-mono font-bold text-stone-900 tracking-wider">#8492</span>
+              <span className="font-mono font-bold text-stone-900 tracking-wider">
+                #{activeOrderSlipData?.orderId || cashierInvoices[0]?.orderId || 'FL-9501'}
+              </span>
               <span className="text-amber-300">|</span>
               <span className="text-emerald-800 font-bold flex items-center gap-1">
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
                 </span>
-                <span>{isAr ? 'تذكرة نشطة' : 'Active Slip'}</span>
+                <span>{isAr ? 'فاتورة الكاشير 🧾' : 'Cashier Slip'}</span>
               </span>
             </button>
           </div>
@@ -606,6 +621,21 @@ export default function FloristAdminPanel({
             <span>{isAr ? 'إدارة المعروض والجاهز' : 'Menu & Ready Today'}</span>
             <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${activeTab === 'menu' ? 'bg-stone-800 text-amber-300' : 'bg-stone-200 text-stone-700'}`}>
               {products.length}
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('invoices')}
+            className={`flex items-center gap-2 py-2 px-4 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer active:scale-95 ${
+              activeTab === 'invoices'
+                ? 'bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 text-amber-200 shadow-md border border-amber-500/30 ring-1 ring-amber-400/20 font-bold'
+                : 'text-stone-600 hover:text-stone-950 hover:bg-white/80 border border-transparent hover:border-stone-200/70'
+            }`}
+          >
+            <Receipt className="w-3.5 h-3.5 text-amber-400" />
+            <span>{isAr ? 'فواتير الكاشير والطلبات' : 'Cashier Invoices'}</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-md font-mono ${activeTab === 'invoices' ? 'bg-stone-800 text-amber-300' : 'bg-stone-200 text-stone-700'}`}>
+              {cashierInvoices.length}
             </span>
           </button>
 
@@ -3120,6 +3150,266 @@ export default function FloristAdminPanel({
   </div>
 </div>
         )}
+
+      {/* ========================================================= */}
+      {/* TAB: Cashier Invoices & POS Thermal System               */}
+      {/* ========================================================= */}
+      {activeTab === 'invoices' && (
+        <div className="p-4 sm:p-6 space-y-6">
+          {/* POS Status & Quick Launch Ribbon */}
+          <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-white shadow-xl border border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center shrink-0 shadow-inner">
+                <Receipt className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-serif font-black text-sm sm:text-base text-amber-100">
+                    {isAr ? 'نظام فواتير الكاشير وطابعة الإيصالات الحرارية (POS)' : 'Cashier Invoices & POS Thermal System'}
+                  </h3>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    {isAr ? 'طابعة 80mm جاهزة' : '80mm Ready'}
+                  </span>
+                </div>
+                <p className="text-xs text-stone-400 mt-1 max-w-xl">
+                  {isAr
+                    ? 'جميع طلبات الزبائن الصادرة من المتجر مسجلة هنا مباشرة مع خيار المعاينة والطباعة الفورية للكاشير.'
+                    : 'Customer orders are logged here live with instant thermal slip printing for cashier & florist.'}
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => onOpenOrderSlip && onOpenOrderSlip(activeOrderSlipData || cashierInvoices[0])}
+              className="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer self-start sm:self-auto shrink-0"
+            >
+              <Printer className="w-4 h-4 text-stone-950" />
+              <span>{isAr ? 'فتح طابعة الفواتير (80mm) 🖨️' : 'Launch 80mm Printer 🖨️'}</span>
+            </button>
+          </div>
+
+          {/* Featured Active Invoice Spotlight Card */}
+          {(() => {
+            const activeInv = activeOrderSlipData || cashierInvoices[0];
+            if (!activeInv) return null;
+            const bouquetTitle = isAr
+              ? (activeInv.bouquet?.titleAr || activeInv.items?.[0]?.titleAr || 'باقة أزهار فاخرة')
+              : (activeInv.bouquet?.titleEn || activeInv.items?.[0]?.titleEn || 'Luxury Flower Bouquet');
+            const total = activeInv.totalAmount || activeInv.subtotal || 450;
+            const customer = activeInv.customerName || (isAr ? 'عميل المتجر' : 'Client');
+            const phone = activeInv.customerPhone || '';
+            const recipient = activeInv.recipientName || '';
+            const district = activeInv.district || (isAr ? 'الرياض' : 'Riyadh');
+            const cardMsg = activeInv.greetingCard?.message || '';
+
+            return (
+              <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200/90 shadow-md space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-stone-100">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono font-bold text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                      #{activeInv.orderId || 'FL-9501'}
+                    </span>
+                    <div>
+                      <span className="text-xs font-bold text-stone-900 block font-serif">
+                        {isAr ? 'أحدث فاتورة نشطة بالكاشير' : 'Active Cashier Invoice'}
+                      </span>
+                      <span className="text-[11px] text-stone-500">
+                        {activeInv.date || 'اليوم'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onOpenOrderSlip && onOpenOrderSlip(activeInv)}
+                      className="py-2 px-3.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'معاينة وطباعة الفاتورة 📄' : 'Print Slip'}</span>
+                    </button>
+                    {phone && (
+                      <button
+                        type="button"
+                        onClick={() => window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}`, '_blank')}
+                        className="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{isAr ? 'واتساب العميل' : 'Chat'}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Invoice Details Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  <div className="p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200/70 space-y-1.5">
+                    <span className="text-stone-500 font-medium block">{isAr ? 'العميل والمستلم:' : 'Customer & Recipient:'}</span>
+                    <p className="font-bold text-stone-900">{customer} {phone ? `(${phone})` : ''}</p>
+                    {recipient && <p className="text-stone-600 font-medium">{isAr ? 'المُهدى له:' : 'To:'} {recipient}</p>}
+                    <p className="text-stone-500 text-[11px]">{district} {activeInv.addressDetails ? `• ${activeInv.addressDetails}` : ''}</p>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-stone-50/80 border border-stone-200/70 space-y-1.5">
+                    <span className="text-stone-500 font-medium block">{isAr ? 'الباقة والتنسيق:' : 'Bouquet & Recipe:'}</span>
+                    <p className="font-bold text-stone-900">{bouquetTitle}</p>
+                    <p className="text-stone-600 text-[11px]">{activeInv.bouquet?.recipe || activeInv.deliveryType || ''}</p>
+                    {cardMsg && (
+                      <p className="text-stone-500 text-[11px] italic bg-white/80 p-1.5 rounded-lg border border-stone-200/60 mt-1">
+                        "{cardMsg}"
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200/70 flex flex-col justify-between">
+                    <div>
+                      <span className="text-amber-900 font-medium block">{isAr ? 'المبلغ والحساب الإجمالي:' : 'Total Amount:'}</span>
+                      <div className="flex items-baseline gap-1 mt-1">
+                        <span className="text-2xl font-serif font-black text-amber-950">{total}</span>
+                        <span className="text-xs font-bold text-amber-800">{strings.sar}</span>
+                      </div>
+                      <span className="text-[11px] text-amber-800 block mt-0.5">
+                        {activeInv.paymentMethod || (isAr ? 'كاشير / واتساب' : 'Cashier')}
+                      </span>
+                    </div>
+
+                    <div className="pt-2">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        ✓ {isAr ? 'طلب مؤكد ومسجل' : 'Confirmed Slip'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Ledger Table Header & Filters */}
+          <div className="space-y-3 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-stone-700" />
+                <h4 className="font-serif font-bold text-sm text-stone-900">
+                  {isAr ? 'سجل جميع فواتير الكاشير والطلبات' : 'All Cashier Invoices Ledger'}
+                </h4>
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-stone-200 text-stone-800">
+                  {cashierInvoices.length}
+                </span>
+              </div>
+
+              {/* Status Filter Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                {[
+                  { id: 'all', label: isAr ? 'الكل' : 'All' },
+                  { id: 'in_prep', label: isAr ? 'قيد التجهيز ⏳' : 'In Prep' },
+                  { id: 'ready', label: isAr ? 'جاهز للتسليم 📦' : 'Ready' },
+                  { id: 'delivered', label: isAr ? 'تم التسليم ✓' : 'Delivered' },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setInvoiceStatusFilter(f.id)}
+                    className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      invoiceStatusFilter === f.id
+                        ? 'bg-stone-900 text-white shadow-xs font-bold'
+                        : 'bg-white text-stone-600 hover:text-stone-900 border border-stone-200'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Invoices Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              {cashierInvoices
+                .filter((inv) => invoiceStatusFilter === 'all' || (inv.status || 'in_prep') === invoiceStatusFilter)
+                .map((inv) => {
+                  const bTitle = isAr
+                    ? (inv.bouquet?.titleAr || inv.items?.[0]?.titleAr || 'باقة أزهار')
+                    : (inv.bouquet?.titleEn || inv.items?.[0]?.titleEn || 'Bouquet');
+                  const tot = inv.totalAmount || inv.subtotal || 0;
+                  const st = inv.status || 'in_prep';
+
+                  return (
+                    <div
+                      key={inv.orderId}
+                      className="bg-white rounded-2xl p-4 border border-stone-200 shadow-xs hover:border-amber-400/50 transition-all space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-xs px-2.5 py-0.5 rounded-lg bg-stone-100 text-stone-900 border border-stone-300">
+                            #{inv.orderId}
+                          </span>
+                          <span className="text-[11px] text-stone-500 font-sans">
+                            {inv.date || 'اليوم'}
+                          </span>
+                        </div>
+
+                        {/* Status Switcher */}
+                        <select
+                          value={st}
+                          onChange={(e) => {
+                            const updated = updateCashierInvoiceStatus(inv.orderId, e.target.value);
+                            setCashierInvoices(updated);
+                          }}
+                          className={`text-[11px] font-bold py-1 px-2.5 rounded-lg border cursor-pointer outline-none transition-all ${
+                            st === 'delivered'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              : st === 'ready'
+                              ? 'bg-sky-50 text-sky-800 border-sky-300'
+                              : 'bg-amber-50 text-amber-800 border-amber-300'
+                          }`}
+                        >
+                          <option value="in_prep">{isAr ? 'قيد التجهيز ⏳' : 'In Prep'}</option>
+                          <option value="ready">{isAr ? 'جاهز للتسليم 📦' : 'Ready'}</option>
+                          <option value="delivered">{isAr ? 'تم التسليم ✓' : 'Delivered'}</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1 text-xs">
+                        <div className="flex justify-between items-baseline">
+                          <span className="font-bold text-stone-900 truncate max-w-[200px]">{bTitle}</span>
+                          <span className="font-serif font-black text-amber-700 text-sm">{tot} {strings.sar}</span>
+                        </div>
+                        <p className="text-[11px] text-stone-600">
+                          {isAr ? 'العميل:' : 'Customer:'} <span className="font-semibold text-stone-800">{inv.customerName || (isAr ? 'عميل المتجر' : 'Client')}</span>
+                          {inv.recipientName ? ` • ${isAr ? 'المستلم:' : 'To:'} ${inv.recipientName}` : ''}
+                        </p>
+                      </div>
+
+                      {/* Card Actions */}
+                      <div className="pt-2 border-t border-stone-100 flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onOpenOrderSlip && onOpenOrderSlip(inv)}
+                          className="flex-1 py-1.5 px-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>{isAr ? 'طباعة الفاتورة (80mm)' : 'Print 80mm'}</span>
+                        </button>
+
+                        {inv.customerPhone && (
+                          <button
+                            type="button"
+                            onClick={() => window.open(`https://wa.me/${inv.customerPhone.replace(/[^0-9]/g, '')}`, '_blank')}
+                            className="p-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-700 active:scale-95 transition-all cursor-pointer"
+                            title={isAr ? 'محادثة واتساب' : 'WhatsApp'}
+                          >
+                            <MessageCircle className="w-4 h-4 text-emerald-600" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================= */}
       {/* TAB 4: Sales & Net Profits Analytics Dashboard */}

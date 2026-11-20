@@ -290,3 +290,148 @@ export function createOrderSlipFromTransaction(tx = {}, lang = 'ar') {
     },
   };
 }
+
+/**
+ * Persists an order slip to Cashier POS Invoices in localStorage
+ */
+export function saveOrderToCashierInvoices(slipData) {
+  if (!slipData || !slipData.orderId) return;
+  try {
+    localStorage.setItem('flowerhub_last_order', JSON.stringify(slipData));
+    const raw = localStorage.getItem('flowerhub_cashier_invoices');
+    let invoices = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(invoices)) invoices = [];
+    const filtered = invoices.filter((inv) => inv.orderId !== slipData.orderId);
+    invoices = [{ ...slipData, status: slipData.status || 'in_prep' }, ...filtered];
+    localStorage.setItem('flowerhub_cashier_invoices', JSON.stringify(invoices));
+  } catch (e) {
+    console.warn('Could not save cashier invoice', e);
+  }
+}
+
+/**
+ * Retrieves all Cashier POS Invoices, seeded with realistic boutique orders if empty
+ */
+export function getCashierInvoices(lang = 'ar') {
+  const isAr = lang === 'ar';
+  try {
+    const raw = localStorage.getItem('flowerhub_cashier_invoices');
+    let invoices = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(invoices) || invoices.length === 0) {
+      invoices = [
+        {
+          orderId: 'FL-9501',
+          date: formatDateTime(lang),
+          status: 'in_prep',
+          customerName: isAr ? 'سارة المنصور' : 'Sarah Al-Mansoor',
+          customerPhone: '+966 54 888 7766',
+          recipientName: isAr ? 'نورة عبدالله' : 'Noura Abdullah',
+          recipientPhone: '+966 50 123 4567',
+          district: isAr ? 'حي النرجس، شمال الرياض' : 'Al-Narjis Dist., North Riyadh',
+          addressDetails: isAr ? 'فيلا 14، شارع وادي الساحل' : 'Villa 14, Wadi Al-Sahel St.',
+          deliveryType: isAr ? 'إهداء ومفاجأة (سيارة مبردة خاصة)' : 'Surprise Gift Delivery',
+          deliveryWindow: isAr ? 'الليلة (قبل ٩:٠٠ م)' : 'Tonight (Before 9:00 PM)',
+          paymentMethod: isAr ? 'تأكيد مباشر عبر واتساب (كاشير)' : 'Direct WhatsApp / Cashier',
+          subtotal: 450,
+          deliveryFee: 0,
+          totalAmount: 450,
+          bouquet: {
+            titleAr: 'فازة الجوري الأحمر الفاخرة',
+            titleEn: 'Luxury Red Rose Vase',
+            price: 450,
+            image: './images/products/royal-red-roses.jpg',
+            recipe: isAr ? 'جوري أحمر هولندي فاخر، كالبتوس مجفف' : 'Dutch Red Roses, Dried Eucalyptus',
+            wrapTweak: isAr ? 'فازة سيراميك ملكية مطفية' : 'Matte Obsidian Ceramic Vase',
+            ribbonText: isAr ? 'مبارك المولود الجديد' : 'Congratulations',
+          },
+          items: [
+            {
+              titleAr: 'فازة الجوري الأحمر الفاخرة',
+              titleEn: 'Luxury Red Rose Vase',
+              price: 450,
+              quantity: 1,
+              recipe: isAr ? 'جوري أحمر هولندي فاخر' : 'Dutch Red Roses',
+              wrapTweak: isAr ? 'فازة سيراميك ملكية' : 'Ceramic Vase',
+              ribbonText: '',
+              addons: [],
+            },
+          ],
+          greetingCard: {
+            to: isAr ? 'نورة' : 'Noura',
+            from: isAr ? 'سارة' : 'Sarah',
+            message: isAr ? 'ألف مبارك المولود الجديد جعله الله من مواليد السعادة 🤍' : 'Congratulations on the new baby 🤍',
+            songTitle: isAr ? 'أغنية التهنئة' : 'Celebration Track',
+          },
+        },
+        {
+          orderId: 'FLW-8492',
+          date: formatDateTime(lang),
+          status: 'ready',
+          customerName: isAr ? 'فهد العبدالله' : 'Fahad Al-Abdullah',
+          customerPhone: '+966 50 111 2233',
+          recipientName: isAr ? 'د. ريم بنت عبدالعزيز' : 'Dr. Reem Al-Aziz',
+          recipientPhone: '+966 55 123 4567',
+          district: isAr ? 'حي الصحافة، شمال الرياض' : 'Al-Sahafa Dist., North Riyadh',
+          addressDetails: isAr ? 'برج النخبة - الطابق الرابع' : 'Elite Tower - 4th Flr',
+          deliveryType: isAr ? 'إهداء ومفاجأة (سيارة مبردة خاصة)' : 'Surprise Gift Delivery',
+          deliveryWindow: isAr ? 'الليلة (قبل ٩:٣٠ م)' : 'Tonight (Before 9:30 PM)',
+          paymentMethod: isAr ? 'مدفوع إلكترونياً (Apple Pay)' : 'Apple Pay',
+          subtotal: 405,
+          deliveryFee: 25,
+          totalAmount: 430,
+          bouquet: {
+            titleAr: 'بوكيه كولكشن الروز المخملي الملكي',
+            titleEn: 'Royal Velvet Red Rose Bouquet',
+            price: 245,
+            image: './images/products/royal-red-roses.jpg',
+            recipe: isAr ? '٣٥ غصن جوري كيني أحمر مخملي' : '35 Kenyan Grand Prix Red Roses',
+            wrapTweak: isAr ? 'ورق كريب أسود مطفي فاخر' : 'Matte obsidian paper',
+            ribbonText: isAr ? 'ألف مبروك التخرج د. ريم' : 'Congratulations Dr. Reem',
+          },
+          items: [
+            {
+              titleAr: 'بوكيه كولكشن الروز المخملي الملكي',
+              titleEn: 'Royal Velvet Red Rose Bouquet',
+              price: 245,
+              quantity: 1,
+              recipe: isAr ? '٣٥ غصن جوري كيني' : '35 Kenyan Roses',
+              wrapTweak: isAr ? 'ورق كريب أسود' : 'Black Crepe Paper',
+              ribbonText: '',
+              addons: [],
+            },
+          ],
+          greetingCard: {
+            to: isAr ? 'دكتورة ريم' : 'Dr. Reem',
+            from: isAr ? 'فهد العبدالله' : 'Fahad Al-Abdullah',
+            message: isAr ? 'ألف ألف مبروك التخرج يا دكتورة ريم ومنها للأعلى يا رب 🤍' : 'Congratulations Dr. Reem 🤍',
+            songTitle: isAr ? 'موسيقى التخرج الرسمية' : 'Graduation Theme',
+          },
+        },
+      ];
+      localStorage.setItem('flowerhub_cashier_invoices', JSON.stringify(invoices));
+    }
+    return invoices;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Updates an invoice status in Cashier POS storage
+ */
+export function updateCashierInvoiceStatus(orderId, newStatus) {
+  try {
+    const raw = localStorage.getItem('flowerhub_cashier_invoices');
+    let invoices = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(invoices)) return [];
+    invoices = invoices.map((inv) =>
+      inv.orderId === orderId ? { ...inv, status: newStatus } : inv
+    );
+    localStorage.setItem('flowerhub_cashier_invoices', JSON.stringify(invoices));
+    return invoices;
+  } catch (e) {
+    console.warn('Could not update cashier invoice status', e);
+    return [];
+  }
+}
+
