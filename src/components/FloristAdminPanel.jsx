@@ -143,6 +143,7 @@ export default function FloristAdminPanel({
   onPublishBotanicalConfig,
   onOpenBotanicalTypography,
   initialTab = 'menu',
+  onOpenNetworkHub,
   onClose,
 }) {
   const strings = t[lang];
@@ -525,6 +526,19 @@ export default function FloristAdminPanel({
                 </span>
               </div>
             </div>
+
+            {/* Multi-Store Network Hub Secret Link for Owner */}
+            {onOpenNetworkHub && (
+              <button
+                type="button"
+                onClick={onOpenNetworkHub}
+                className="flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 via-amber-400/20 to-amber-500/10 hover:from-amber-500/30 text-amber-900 border border-amber-400/50 font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer ring-1 ring-amber-400/30"
+                title={isAr ? 'منصة إدارة شبكة المتاجر وقوقل ماب' : 'Multi-Store Network Hub'}
+              >
+                <Globe className="w-3.5 h-3.5 text-amber-700" />
+                <span>{isAr ? 'شبكة المتاجر 🌐' : 'Stores Hub 🌐'}</span>
+              </button>
+            )}
 
             {/* Back to Storefront Button */}
             {onClose && (

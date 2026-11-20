@@ -157,12 +157,17 @@ function ShopHeader({
   const rawStudio = storeThemeCtx?.rawConfig || storeThemeCtx?.config;
   const brand = storeThemeCtx?.config?.brand;
 
-  // Real-time prioritization of shopConfig values set by Florist in admin
-  const shopName = isAr
+  // Real-time prioritization of shopConfig values set by Florist in admin or from store branches
+  const isBranchStore = Boolean(shopConfig?.isGoogleMapsBranch || shopConfig?.slug);
+  const shopName = isBranchStore
+    ? (isAr ? (shopConfig?.shopNameAr || 'متجر الزهور') : (shopConfig?.shopNameEn || 'Flower Boutique'))
+    : isAr
     ? (shopConfig?.shopNameAr || rawStudio?.storeName || brand?.storeName || 'دار الورد للمناسبات')
     : (shopConfig?.shopNameEn || rawStudio?.storeName || brand?.storeName || 'Dar Alward Florist');
 
-  const shopTagline = isAr
+  const shopTagline = isBranchStore
+    ? (isAr ? (shopConfig?.taglineAr || '') : (shopConfig?.taglineEn || ''))
+    : isAr
     ? (shopConfig?.taglineAr || rawStudio?.storeSubtitle || brand?.subtitle || 'أزهار طبيعية وهدايا فاخرة تُنسق يومياً بحب')
     : (shopConfig?.taglineEn || rawStudio?.storeSubtitle || brand?.subtitle || strings.shopTagline);
 

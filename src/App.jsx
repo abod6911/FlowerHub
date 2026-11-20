@@ -21,7 +21,7 @@ import { lazyWithRetry } from './utils/lazyWithRetry';
 const ProductConfiguratorDrawer = lazyWithRetry(() => import('./components/ProductConfiguratorDrawer'));
 const CustomOrderDrawer = lazyWithRetry(() => import('./components/CustomOrderDrawer'));
 const CartDrawer = lazyWithRetry(() => import('./components/CartDrawer'));
-const WhatsAppPreviewModal = lazyWithRetry(() => import('./components/WhatsAppPreviewModal'));
+const MultiStoreManagerPage = lazyWithRetry(() => import('./components/MultiStoreManagerPage'));
 const FloristAdminPanel = lazyWithRetry(() => import('./components/FloristAdminPanel'));
 const FloristOrderSlipModal = lazyWithRetry(() => import('./components/FloristOrderSlipModal'));
 const FlowerStorefrontPage = lazyWithRetry(() => import('./components/FlowerStorefrontPage'));
@@ -37,7 +37,13 @@ import {
   createOrderSlipFromCustomOrder,
   saveOrderToCashierInvoices,
 } from './utils/orderSlipHelper';
-import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag, Lock } from 'lucide-react';
+import {
+  getAllStores,
+  getStoreBySlugOrId,
+  mapStoreToShopConfig,
+  getPrimaryStore,
+} from './utils/storesManager';
+import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag, Lock, MapPin, Globe } from 'lucide-react';
 import { STUDIO_SYNC_EVENT } from './context/StudioThemeContext';
 
 class SafeErrorBoundary extends React.Component {
@@ -58,6 +64,31 @@ class SafeErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+// Helper to decode active store branch slug from URL hash or query (Google Maps & Direct URLs)
+const parseStoreSlugFromUrl = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const hash = window.location.hash || '';
+    const searchParams = new URLSearchParams(window.location.search || '');
+
+    if (searchParams.get('store')) return searchParams.get('store');
+    if (searchParams.get('branch')) return searchParams.get('branch');
+    if (searchParams.get('shop')) return searchParams.get('shop');
+
+    if (hash.includes('store=')) {
+      const match = hash.match(/store=([^&]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+    }
+    if (hash.includes('branch=')) {
+      const match = hash.match(/branch=([^&]+)/);
+      if (match && match[1]) return decodeURIComponent(match[1]);
+    }
+  } catch (e) {
+    console.warn('Failed to parse store slug', e);
+  }
+  return null;
+};
 
 // Helper to decode universal live published theme from URL hash/query
 const parseUrlThemeConfig = () => {
@@ -108,8 +139,17 @@ export default function App() {
   // Live Design Customizer Studio Modal State
   const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
 
-  // Multi-Tenant Shop Config & Theme State (Hydrated from URL param or localStorage)
+  // Multi-Tenant Shop Config & Theme State (Hydrated from Store URL, Theme Param, or localStorage)
   const [shopConfig, setShopConfig] = useState(() => {
+    // 1. Check for specific branch/store link (Google Maps or ?store=SLUG)
+    const storeSlug = parseStoreSlugFromUrl();
+    if (storeSlug) {
+      const matchedStore = getStoreBySlugOrId(storeSlug);
+      if (matchedStore) {
+        return { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(matchedStore) };
+      }
+    }
+
     const urlConfig = parseUrlThemeConfig();
     try {
       const saved = localStorage.getItem('flowerhub_shop_config');
@@ -137,9 +177,21 @@ export default function App() {
     }
   }, [shopConfig]);
 
-  // Reactive listener to URL hash/query changes for instant live theme sharing
+  // Reactive listener to URL hash/query changes for instant store branch and theme switching
   useEffect(() => {
     const handleHashOrUrl = () => {
+      const storeSlug = parseStoreSlugFromUrl();
+      if (storeSlug) {
+        const matchedStore = getStoreBySlugOrId(storeSlug);
+        if (matchedStore) {
+          setShopConfig((prev) => ({
+            ...prev,
+            ...mapStoreToShopConfig(matchedStore),
+          }));
+          return;
+        }
+      }
+
       const urlConfig = parseUrlThemeConfig();
       if (urlConfig) {
         setShopConfig((prev) => ({
@@ -161,43 +213,46 @@ export default function App() {
     const handleSync = (e) => {
       if (e?.detail) {
         const d = e.detail;
-        setShopConfig((prev) => ({
-          ...prev,
-          specialsStyle: d.specialsStyle ?? prev.specialsStyle,
-          shopNameAr: d.storeName || prev.shopNameAr,
-          taglineAr: d.storeSubtitle || prev.taglineAr,
-          phone: d.phone || prev.phone,
-          locationLabel: d.locationLabel || prev.locationLabel,
-          statusText: d.statusText ?? prev.statusText,
-          statusPulse: d.statusPulse ?? prev.statusPulse,
-          rating: d.rating ?? prev.rating,
-          avatarText: d.avatarText ?? prev.avatarText,
-          cardEntranceMotion: d.cardEntranceMotion ?? prev.cardEntranceMotion,
-          staggerDelay: d.staggerDelay ?? prev.staggerDelay,
-          buyButtonPhysics: d.buyButtonPhysics ?? prev.buyButtonPhysics,
-          cardHoverEffect: d.cardHoverEffect ?? prev.cardHoverEffect,
-          cardIdleMotion: d.cardIdleMotion ?? prev.cardIdleMotion,
-          cardImageMotion: d.cardImageMotion ?? prev.cardImageMotion,
-          badgeMotion: d.badgeMotion ?? prev.badgeMotion,
-          gridLayout: d.gridLayout ?? prev.gridLayout,
-          cardBorderRadius: d.cardBorderRadius ?? prev.cardBorderRadius,
-          cardShadow: d.cardShadow ?? prev.cardShadow,
-          cardAspectRatio: d.cardAspectRatio ?? prev.cardAspectRatio,
-          cardSurfaceMaterial: d.cardSurfaceMaterial ?? prev.cardSurfaceMaterial,
-          cardBorderStyle: d.cardBorderStyle ?? prev.cardBorderStyle,
-          showImageOverlay: d.showImageOverlay ?? prev.showImageOverlay,
-          buyButtonStyle: d.buyButtonStyle ?? prev.buyButtonStyle,
-          fullTitleWrap: d.fullTitleWrap ?? prev.fullTitleWrap,
-          showBadges: d.showBadges ?? prev.showBadges,
-          badgeStyle: d.badgeStyle ?? prev.badgeStyle,
-          showFavoriteButton: d.showFavoriteButton ?? prev.showFavoriteButton,
-          showDeliveryBadge: d.showDeliveryBadge ?? prev.showDeliveryBadge,
-          deliveryBadgeText: d.deliveryBadgeText ?? prev.deliveryBadgeText,
-          showRatingStars: d.showRatingStars ?? prev.showRatingStars,
-          showDiscountBadge: d.showDiscountBadge ?? prev.showDiscountBadge,
-          showQuickView: d.showQuickView ?? prev.showQuickView,
-          sectionDividerStyle: d.sectionDividerStyle ?? prev.sectionDividerStyle,
-        }));
+        setShopConfig((prev) => {
+          const isBranch = Boolean(prev?.isGoogleMapsBranch || parseStoreSlugFromUrl());
+          return {
+            ...prev,
+            specialsStyle: d.specialsStyle ?? prev.specialsStyle,
+            shopNameAr: isBranch ? prev.shopNameAr : (d.storeName || prev.shopNameAr),
+            taglineAr: isBranch ? prev.taglineAr : (d.storeSubtitle || prev.taglineAr),
+            phone: isBranch ? prev.phone : (d.phone || prev.phone),
+            locationLabel: isBranch ? prev.locationLabel : (d.locationLabel || prev.locationLabel),
+            statusText: d.statusText ?? prev.statusText,
+            statusPulse: d.statusPulse ?? prev.statusPulse,
+            rating: d.rating ?? prev.rating,
+            avatarText: d.avatarText ?? prev.avatarText,
+            cardEntranceMotion: d.cardEntranceMotion ?? prev.cardEntranceMotion,
+            staggerDelay: d.staggerDelay ?? prev.staggerDelay,
+            buyButtonPhysics: d.buyButtonPhysics ?? prev.buyButtonPhysics,
+            cardHoverEffect: d.cardHoverEffect ?? prev.cardHoverEffect,
+            cardIdleMotion: d.cardIdleMotion ?? prev.cardIdleMotion,
+            cardImageMotion: d.cardImageMotion ?? prev.cardImageMotion,
+            badgeMotion: d.badgeMotion ?? prev.badgeMotion,
+            gridLayout: d.gridLayout ?? prev.gridLayout,
+            cardBorderRadius: d.cardBorderRadius ?? prev.cardBorderRadius,
+            cardShadow: d.cardShadow ?? prev.cardShadow,
+            cardAspectRatio: d.cardAspectRatio ?? prev.cardAspectRatio,
+            cardSurfaceMaterial: d.cardSurfaceMaterial ?? prev.cardSurfaceMaterial,
+            cardBorderStyle: d.cardBorderStyle ?? prev.cardBorderStyle,
+            showImageOverlay: d.showImageOverlay ?? prev.showImageOverlay,
+            buyButtonStyle: d.buyButtonStyle ?? prev.buyButtonStyle,
+            fullTitleWrap: d.fullTitleWrap ?? prev.fullTitleWrap,
+            showBadges: d.showBadges ?? prev.showBadges,
+            badgeStyle: d.badgeStyle ?? prev.badgeStyle,
+            showFavoriteButton: d.showFavoriteButton ?? prev.showFavoriteButton,
+            showDeliveryBadge: d.showDeliveryBadge ?? prev.showDeliveryBadge,
+            deliveryBadgeText: d.deliveryBadgeText ?? prev.deliveryBadgeText,
+            showRatingStars: d.showRatingStars ?? prev.showRatingStars,
+            showDiscountBadge: d.showDiscountBadge ?? prev.showDiscountBadge,
+            showQuickView: d.showQuickView ?? prev.showQuickView,
+            sectionDividerStyle: d.sectionDividerStyle ?? prev.sectionDividerStyle,
+          };
+        });
       }
     };
     window.addEventListener(STUDIO_SYNC_EVENT, handleSync);
@@ -241,12 +296,26 @@ export default function App() {
     }
   }, [occasions]);
 
-  // View Mode: 'storefront' | 'admin' | 'split' | 'orderslip'
-  // Discreet access: auto-activates if URL contains #admin, #studio, #manage, or ?admin=true
+  // View Mode: 'storefront' | 'admin' | 'split' | 'orderslip' | 'network'
+  // Discreet access: auto-activates if URL contains #admin, #studio, #manage, or #network, #stores
   const [activeView, setActiveView] = useState(() => {
     if (typeof window !== 'undefined') {
       const hash = (window.location.hash || '').toLowerCase();
       const params = new URLSearchParams(window.location.search || '');
+
+      // Check Multi-Store Network Platform
+      if (
+        hash.includes('network') ||
+        hash.includes('stores') ||
+        hash.includes('platform') ||
+        hash.includes('hub') ||
+        params.get('view') === 'network' ||
+        params.get('platform') === 'true'
+      ) {
+        return 'network';
+      }
+
+      // Check Single Store Florist Admin
       if (
         hash.includes('admin') ||
         hash.includes('studio') ||
@@ -260,11 +329,24 @@ export default function App() {
     return 'storefront';
   });
 
-  // Reactive listener to URL hash/query changes for secret admin route entry
+  // Reactive listener to URL hash/query changes for secret routes (Admin & Network Platform)
   useEffect(() => {
-    const handleAdminRoute = () => {
+    const handleSecretRoutes = () => {
       const hash = (window.location.hash || '').toLowerCase();
       const params = new URLSearchParams(window.location.search || '');
+
+      if (
+        hash.includes('network') ||
+        hash.includes('stores') ||
+        hash.includes('platform') ||
+        hash.includes('hub') ||
+        params.get('view') === 'network' ||
+        params.get('platform') === 'true'
+      ) {
+        setActiveView('network');
+        return;
+      }
+
       if (
         hash.includes('admin') ||
         hash.includes('studio') ||
@@ -275,23 +357,36 @@ export default function App() {
         setActiveView('admin');
       }
     };
-    window.addEventListener('hashchange', handleAdminRoute);
-    window.addEventListener('popstate', handleAdminRoute);
+    window.addEventListener('hashchange', handleSecretRoutes);
+    window.addEventListener('popstate', handleSecretRoutes);
     return () => {
-      window.removeEventListener('hashchange', handleAdminRoute);
-      window.removeEventListener('popstate', handleAdminRoute);
+      window.removeEventListener('hashchange', handleSecretRoutes);
+      window.removeEventListener('popstate', handleSecretRoutes);
     };
   }, []);
 
-  // Secret Keyboard Shortcut for Florist (Ctrl + Shift + A or Alt + A)
+  // Secret Keyboard Shortcut:
+  // - Ctrl + Shift + A or Alt + A: Toggle Store Admin
+  // - Ctrl + Shift + S or Alt + S: Toggle Multi-Store Platform Hub
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Toggle Admin
       if (
         (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) ||
         (e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش'))
       ) {
         e.preventDefault();
         setActiveView((prev) => (prev === 'admin' ? 'storefront' : 'admin'));
+        return;
+      }
+
+      // Toggle Multi-Store Platform
+      if (
+        (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's')) ||
+        (e.altKey && (e.key === 's' || e.key === 'S' || e.key === 'س'))
+      ) {
+        e.preventDefault();
+        setActiveView((prev) => (prev === 'network' ? 'storefront' : 'network'));
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -758,6 +853,18 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         onSecretAdminTrigger={() => setActiveView('admin')}
       />
 
+      {/* Google Maps Verified Store Branch Ribbon */}
+      {shopConfig?.isGoogleMapsBranch && (
+        <div className="bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/15 border-b border-amber-500/25 py-2 px-4 text-center text-xs text-stone-900 dark:text-amber-100 flex items-center justify-center gap-2 font-medium animate-fade-in shadow-2xs">
+          <MapPin className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+          <span>
+            {isAr
+              ? `📍 طلب مباشر عبر خرائط قوقل • فرع: ${shopConfig.shopNameAr} (${shopConfig.locationLabel}) 🌸`
+              : `📍 Google Maps Order • Branch: ${shopConfig.shopNameEn} (${shopConfig.locationLabel}) 🌸`}
+          </span>
+        </div>
+      )}
+
       {/* Floward-Style Circular Occasion Stories */}
       {shopConfig.showStories !== false && (
         <OccasionStories
@@ -1016,6 +1123,26 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         </React.Suspense>
       )}
 
+      {/* VIEW NETWORK: Multi-Store Platform & Google Maps Hub (RBAC Protected) */}
+      {activeView === 'network' && (
+        <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
+          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+            <MultiStoreManagerPage
+              lang={lang}
+              onClose={() => setActiveView('storefront')}
+              onOpenStoreAdmin={() => setActiveView('admin')}
+              onSwitchToStore={(store) => {
+                const mapped = mapStoreToShopConfig(store);
+                setShopConfig(mapped);
+                setActiveView('storefront');
+                showToast(isAr ? `تم فتح متجر: ${store.nameAr} 🌸` : `Switched to: ${store.nameEn}`);
+              }}
+              activeStoreId={shopConfig?.id}
+            />
+          </AdminAuthGuard>
+        </React.Suspense>
+      )}
+
       {/* VIEW B: Florist Admin Panel (RBAC Protected) */}
       {activeView === 'admin' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
@@ -1041,6 +1168,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onDeleteOccasion={handleDeleteOccasion}
                 onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                onOpenNetworkHub={() => setActiveView('network')}
                 onClose={() => setActiveView('storefront')}
               />
             </div>
@@ -1073,6 +1201,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onDeleteOccasion={handleDeleteOccasion}
                 onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                onOpenNetworkHub={() => setActiveView('network')}
                 initialTab="sales"
                 onClose={() => setActiveView('storefront')}
               />
@@ -1108,6 +1237,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   pastWorks={pastWorks}
                   lang={lang}
                   onOpenOrderSlip={handleOpenOrderSlip}
+                  activeOrderSlipData={activeOrderSlipData}
                   themeTokens={themeTokens}
                   formats={formats}
                   onAddFormat={handleAddFormat}
@@ -1117,6 +1247,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                   onDeleteOccasion={handleDeleteOccasion}
                   onApplyCuratedTemplate={handleApplyCuratedTemplate}
                   onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
+                  onOpenNetworkHub={() => setActiveView('network')}
                   onClose={() => setActiveView('storefront')}
                 />
               </div>
