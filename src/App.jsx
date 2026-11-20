@@ -36,7 +36,7 @@ import {
   createOrderSlipFromBag,
   createOrderSlipFromCustomOrder,
 } from './utils/orderSlipHelper';
-import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag } from 'lucide-react';
+import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag, Lock } from 'lucide-react';
 import { STUDIO_SYNC_EVENT } from './context/StudioThemeContext';
 
 class SafeErrorBoundary extends React.Component {
@@ -241,7 +241,61 @@ export default function App() {
   }, [occasions]);
 
   // View Mode: 'storefront' | 'admin' | 'split' | 'orderslip'
-  const [activeView, setActiveView] = useState('storefront');
+  // Discreet access: auto-activates if URL contains #admin, #studio, #manage, or ?admin=true
+  const [activeView, setActiveView] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const hash = (window.location.hash || '').toLowerCase();
+      const params = new URLSearchParams(window.location.search || '');
+      if (
+        hash.includes('admin') ||
+        hash.includes('studio') ||
+        hash.includes('manage') ||
+        params.get('admin') === 'true' ||
+        params.get('manage') === 'florist'
+      ) {
+        return 'admin';
+      }
+    }
+    return 'storefront';
+  });
+
+  // Reactive listener to URL hash/query changes for secret admin route entry
+  useEffect(() => {
+    const handleAdminRoute = () => {
+      const hash = (window.location.hash || '').toLowerCase();
+      const params = new URLSearchParams(window.location.search || '');
+      if (
+        hash.includes('admin') ||
+        hash.includes('studio') ||
+        hash.includes('manage') ||
+        params.get('admin') === 'true' ||
+        params.get('manage') === 'florist'
+      ) {
+        setActiveView('admin');
+      }
+    };
+    window.addEventListener('hashchange', handleAdminRoute);
+    window.addEventListener('popstate', handleAdminRoute);
+    return () => {
+      window.removeEventListener('hashchange', handleAdminRoute);
+      window.removeEventListener('popstate', handleAdminRoute);
+    };
+  }, []);
+
+  // Secret Keyboard Shortcut for Florist (Ctrl + Shift + A or Alt + A)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (
+        (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) ||
+        (e.altKey && (e.key === 'a' || e.key === 'A' || e.key === 'ش'))
+      ) {
+        e.preventDefault();
+        setActiveView((prev) => (prev === 'admin' ? 'storefront' : 'admin'));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Order Slip Modal State & Active Order Data (for dynamic invoice presentation)
   const [isOrderSlipModalOpen, setIsOrderSlipModalOpen] = useState(false);
@@ -702,6 +756,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         onSearchChange={setSearchQuery}
         bagCount={bagItems.reduce((s, it) => s + (it.quantity || 1), 0)}
         onOpenBag={() => setIsCartDrawerOpen(true)}
+        onSecretAdminTrigger={() => setActiveView('admin')}
       />
 
       {/* Floward-Style Circular Occasion Stories */}
@@ -865,21 +920,20 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             </span>
           </div>
 
-          <div className={`text-[10px] pt-1 ${themeTokens.textMuted}`}>
-            {isAr
-              ? 'سجل تجاري رقم: ١٠١٠٨٩٢٠٠ • المركز السعودي للأعمال'
-              : 'Commercial Registration: 1010849200'}
-          </div>
-
-          {/* Discreet Coordinator Entrance Link */}
-          <div className="pt-3">
+          <div className={`text-[10px] pt-1 ${themeTokens.textMuted} flex items-center justify-center gap-1.5`}>
+            <span>
+              {isAr
+                ? 'سجل تجاري رقم: ١٠١٠٨٩٢٠٠ • المركز السعودي للأعمال'
+                : 'Commercial Registration: 1010849200'}
+            </span>
             <button
               type="button"
               onClick={() => setActiveView('admin')}
-              className="inline-flex items-center gap-1.5 text-[11px] font-medium text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors cursor-pointer"
+              className="opacity-20 hover:opacity-80 transition-opacity p-0.5 text-stone-400 hover:text-amber-500 cursor-pointer"
+              title="Portal"
+              aria-label="Portal"
             >
-              <Sliders className="w-3 h-3" />
-              <span>{isAr ? 'لوحة تحكم المنسق' : 'Florist Admin'}</span>
+              <Lock className="w-2.5 h-2.5" />
             </button>
           </div>
         </footer>
@@ -930,14 +984,16 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
     <div
       className={`min-h-screen bg-[#F6F5F2] dark:bg-[#0A0A0B] flex flex-col justify-start items-center selection:bg-stone-900 selection:text-white transition-colors duration-300 w-full overflow-x-hidden`}
     >
-      {/* 1. Executive Management Bar (Desktop Only) */}
-      <ThemeSwitcherBar
-        activeView={activeView}
-        setActiveView={setActiveView}
-        lang={lang}
-        setLang={setLang}
-        onLogout={handleAdminLogout}
-      />
+      {/* 1. Executive Management Bar (Hidden from normal visitors, shown ONLY when actively inside admin/sales) */}
+      {activeView !== 'storefront' && (
+        <ThemeSwitcherBar
+          activeView={activeView}
+          setActiveView={setActiveView}
+          lang={lang}
+          setLang={setLang}
+          onLogout={handleAdminLogout}
+        />
+      )}
 
       {/* 2. Main View Canvas */}
       {/* VIEW A: Storefront (Dedicated Mobile Phone Architecture) */}
@@ -1202,21 +1258,6 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           <div className="bg-stone-900 text-white px-4 py-2 rounded-2xl shadow-xl text-xs font-medium border border-stone-800">
             {toastMessage}
           </div>
-        </div>
-      )}
-
-      {/* 1-Tap Quick Florist Customizer Launcher (Mobile & Desktop) */}
-      {activeView === 'storefront' && !isProductDrawerOpen && !isCartDrawerOpen && !isCustomDrawerOpen && (
-        <div className="fixed bottom-4 start-4 z-40 pointer-events-auto">
-          <button
-            type="button"
-            onClick={() => setActiveView('admin')}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-stone-950/90 hover:bg-black text-amber-300 border border-amber-400/40 shadow-xl backdrop-blur-md text-[11px] font-bold transition-all active:scale-95 hover:scale-105 cursor-pointer ring-1 ring-white/10"
-            title={isAr ? 'لوحة تحكم وتعديل المتجر' : 'Edit Store'}
-          >
-            <Sliders className="w-3.5 h-3.5 text-amber-400" />
-            <span>{isAr ? 'تخصيص المتجر ⚙️' : 'Customize ⚙️'}</span>
-          </button>
         </div>
       )}
     </div>

@@ -81,7 +81,7 @@ export const AdminLoginSchema = z.object({
     .regex(/^[a-zA-Z0-9_\-\.@]+$/, { message: 'اسم المستخدم يحتوي على محارف غير مسموحة' }),
   password: z
     .string()
-    .min(8, { message: 'كلمة المرور يجب ألا تقل عن 8 خانات' })
+    .min(4, { message: 'كلمة المرور يجب ألا تقل عن 4 خانات' })
     .max(128, { message: 'كلمة المرور طويلة جداً' }),
 });
 

@@ -46,6 +46,7 @@ function ShopHeader({
   onSearchChange,
   bagCount = 0,
   onOpenBag,
+  onSecretAdminTrigger,
 }) {
   const strings = t[lang] || t.ar;
   const isAr = lang === 'ar';
@@ -190,13 +191,34 @@ function ShopHeader({
   const locationUrl = brand?.locationUrl || 'https://maps.google.com';
   const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
 
+  // Secret 3-tap gesture on store hallmark to discreetly open florist portal
+  const tapCountRef = useRef(0);
+  const lastTapTimeRef = useRef(0);
+
+  const handleHallmarkTap = (e) => {
+    e?.preventDefault();
+    const now = Date.now();
+    if (now - lastTapTimeRef.current < 650) {
+      tapCountRef.current += 1;
+      if (tapCountRef.current >= 3) {
+        tapCountRef.current = 0;
+        if (onSecretAdminTrigger) {
+          onSecretAdminTrigger();
+        }
+      }
+    } else {
+      tapCountRef.current = 1;
+    }
+    lastTapTimeRef.current = now;
+  };
+
   // Render Refined Boutique Royal Seal / Medallion Logo
   const renderAvatarButton = (sizeClass = 'w-12 h-12') => (
     <button
       type="button"
-      onClick={() => setIsAvatarModalOpen(true)}
+      onClick={handleHallmarkTap}
       className={`relative ${sizeClass} rounded-[18px] p-0.5 flex items-center justify-center shadow-[0_4px_16px_rgba(2,44,34,0.18)] border border-amber-400/40 ring-1 ring-amber-400/20 bg-gradient-to-br from-stone-950 via-[#022C22] to-stone-900 cursor-pointer select-none group/avatar hover:scale-105 active:scale-95 transition-all duration-300 shrink-0`}
-      title={isAr ? 'شعار وهوية المتجر الملكية (انقر للتعديل)' : 'Store royal hallmark (click to edit)'}
+      title={shopName}
     >
       {/* Outer Golden Hallmark Ring */}
       <div className="w-full h-full rounded-[15px] flex items-center justify-center overflow-hidden relative bg-gradient-to-br from-stone-900/95 via-[#03261E]/95 to-stone-950">
@@ -216,11 +238,6 @@ function ShopHeader({
             </span>
           </div>
         )}
-
-        {/* Subtle Camera Overlay on Hover */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-amber-200 z-10 backdrop-blur-2xs">
-          <Camera className="w-4 h-4 text-amber-300 drop-shadow-xs" />
-        </div>
       </div>
     </button>
   );
