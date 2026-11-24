@@ -398,6 +398,10 @@ ${divider}
         msg += `\n  • التنسيق والتغليف: مطابقة للصورة بدقة`;
       }
 
+      if (item.ribbonText && item.ribbonText.trim().length > 0) {
+        msg += `\n  • الطباعة المخصصة على البوكس/الشريط: "${item.ribbonText.trim()}"`;
+      }
+
       // Add-ons
       if (item.addons && item.addons.length > 0) {
         const addonsList = item.addons
@@ -454,6 +458,10 @@ ${divider}
         msg += `\n  • Prep & Wrap: Custom color/wrapping adjustment`;
       } else {
         msg += `\n  • Prep & Wrap: Exactly as shown in photo`;
+      }
+
+      if (item.ribbonText && item.ribbonText.trim().length > 0) {
+        msg += `\n  • Custom Print / Ribbon Text: "${item.ribbonText.trim()}"`;
       }
 
       // Add-ons

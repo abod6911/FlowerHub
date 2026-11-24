@@ -620,6 +620,11 @@ export default function App() {
     const baseVerified = verified.verifiedItems[0];
     const sanitizedItem = {
       ...baseVerified,
+      stemCount: configuredItem.stemCount,
+      flowerType: configuredItem.flowerType,
+      orderStyle: configuredItem.orderStyle,
+      modificationNote: configuredItem.modificationNote ? sanitizeText(configuredItem.modificationNote) : null,
+      ribbonText: configuredItem.ribbonText ? sanitizeText(configuredItem.ribbonText) : null,
       giftCardMessage: configuredItem.giftCardMessage ? sanitizeText(configuredItem.giftCardMessage) : '',
       handover: configuredItem.handover ? {
         ...configuredItem.handover,
@@ -690,6 +695,11 @@ export default function App() {
       const orig = bagItems[idx] || {};
       return {
         ...item,
+        stemCount: orig.stemCount,
+        flowerType: orig.flowerType,
+        orderStyle: orig.orderStyle,
+        modificationNote: orig.modificationNote ? sanitizeText(orig.modificationNote) : null,
+        ribbonText: orig.ribbonText ? sanitizeText(orig.ribbonText) : null,
         giftCardMessage: orig.giftCardMessage ? sanitizeText(orig.giftCardMessage) : '',
         handover: orig.handover ? {
           ...orig.handover,
