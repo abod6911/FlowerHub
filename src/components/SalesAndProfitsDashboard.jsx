@@ -33,6 +33,7 @@ import {
   formatCurrency,
 } from '../data/mockSalesData';
 import { createOrderSlipFromTransaction } from '../utils/orderSlipHelper';
+import WhatsAppIcon from './WhatsAppIcon';
 
 /**
  * High-Precision 60fps Exponential Ease-Out Animated Counter Component
@@ -1299,7 +1300,7 @@ export default function SalesAndProfitsDashboard({
                     rel="noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold hover:underline"
                   >
-                    <MessageCircle className="w-3 h-3 text-emerald-600" />
+                    <WhatsAppIcon className="w-3 h-3 fill-current text-emerald-600 shrink-0" />
                     <span>{isAr ? 'واتساب' : 'WhatsApp'}</span>
                   </a>
                 </div>

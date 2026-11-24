@@ -21,6 +21,7 @@ import {
   GIFT_CARD_TEMPLATES,
 } from '../data/mockData';
 import { t } from '../utils/translations';
+import WhatsAppIcon from './WhatsAppIcon';
 
 export default function ProductConfiguratorDrawer({
   product,
@@ -938,7 +939,7 @@ export default function ProductConfiguratorDrawer({
               backgroundColor: 'var(--accent-primary, #022C22)',
             }}
           >
-            <MessageCircle className="w-4 h-4 fill-current text-emerald-400" />
+            <WhatsAppIcon className="w-4 h-4 fill-current text-emerald-400 shrink-0" />
             <span className="truncate">
               {isAr ? 'طلب فوري عبر واتساب' : 'Instant WhatsApp Order'}
             </span>

@@ -13,6 +13,7 @@ import {
   Store,
 } from 'lucide-react';
 import { t } from '../utils/translations';
+import WhatsAppIcon from './WhatsAppIcon';
 import { validateUploadedFile } from '../services/uploadSecurity';
 
 const INSPIRATION_PHOTOS = [
@@ -585,7 +586,7 @@ export default function CustomOrderDrawer({
               borderRadius: 'var(--radius-btn, 9999px)',
             }}
           >
-            <MessageCircle className="w-5 h-5 fill-current" />
+            <WhatsAppIcon className="w-5 h-5 fill-current shrink-0" />
             <span>{strings.sendCustomTicketBtn}</span>
           </button>
         </div>

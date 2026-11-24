@@ -10,6 +10,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { t } from '../utils/translations';
+import WhatsAppIcon from './WhatsAppIcon';
 
 export default function WhatsAppPreviewModal({
   isOpen,
@@ -180,7 +181,7 @@ export default function WhatsAppPreviewModal({
             onClick={handleOpenWhatsApp}
             className="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-extrabold text-sm flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
           >
-            <MessageCircle className="w-5 h-5 fill-white" />
+            <WhatsAppIcon className="w-5 h-5 fill-current shrink-0" />
             <span>{strings.openWhatsAppDirect}</span>
             <ExternalLink className="w-4 h-4" />
           </button>

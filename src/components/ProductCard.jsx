@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Check, MessageCircle, Heart, Clock, SlidersHorizontal, Eye, Star, Sparkles } from 'lucide-react';
 import { THEME_TOKENS } from '../data/mockData';
 import { t } from '../utils/translations';
+import WhatsAppIcon from './WhatsAppIcon';
 import { useStoreTheme } from '../context/StoreThemeContext';
 import { getPlaceholder } from '../data/imagePlaceholders';
 
@@ -505,7 +506,7 @@ function ProductCard({
             }}
             className="w-full py-2 px-3 bg-[var(--accent-primary,#123524)] hover:opacity-90 text-white font-bold text-xs flex items-center justify-center gap-1.5 rounded-full transition-all active:scale-95 shadow-xs"
           >
-            <MessageCircle className="w-3.5 h-3.5" />
+            <WhatsAppIcon className="w-3.5 h-3.5 fill-current shrink-0" />
             <span>{strings.requestSimilar}</span>
           </button>
         </div>

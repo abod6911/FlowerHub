@@ -44,6 +44,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
+import WhatsAppIcon from './WhatsAppIcon';
 import { validateUploadedFile } from '../services/uploadSecurity';
 import { sanitizeUrl, sanitizeText } from '../utils/sanitizer';
 import { getCashierInvoices, updateCashierInvoiceStatus } from '../utils/orderSlipHelper';
@@ -3250,7 +3251,7 @@ export default function FloristAdminPanel({
                         onClick={() => window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}`, '_blank')}
                         className="py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
                       >
-                        <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        <WhatsAppIcon className="w-3.5 h-3.5 fill-current text-emerald-600 shrink-0" />
                         <span>{isAr ? 'واتساب العميل' : 'Chat'}</span>
                       </button>
                     )}
@@ -3413,7 +3414,7 @@ export default function FloristAdminPanel({
                             className="p-1.5 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-700 active:scale-95 transition-all cursor-pointer"
                             title={isAr ? 'محادثة واتساب' : 'WhatsApp'}
                           >
-                            <MessageCircle className="w-4 h-4 text-emerald-600" />
+                            <WhatsAppIcon className="w-4 h-4 fill-current text-emerald-600 shrink-0" />
                           </button>
                         )}
                       </div>
