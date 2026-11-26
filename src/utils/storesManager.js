@@ -831,6 +831,7 @@ export function getStorePortableShareUrl(store) {
       ds: store.district,
       ad: store.address,
       cr: store.crNumber || '',
+      vt: store.vatNumber || '',
       wh: store.workingHours || '',
       gm: store.googleMapsUrl || '',
       ig: store.instagramUrl || '',
@@ -853,6 +854,37 @@ export function getStorePortableShareUrl(store) {
     return `${base}&s=${encodeURIComponent(b64)}`;
   } catch {
     return base;
+  }
+}
+
+/**
+ * Generates a private Owner Admin Portal Invite URL (`#admin&invite=...`).
+ * Puts ONLY non-plaintext PBKDF2 hash/salt verifier inside URL hash fragment (never sent to HTTP logs).
+ */
+export function getStoreOwnerAdminInviteUrl(store) {
+  const storefrontUrl = getStorePortableShareUrl(store);
+  if (!store?.account?.passwordHash || !store?.account?.passwordSalt) {
+    return `${storefrontUrl}#admin`;
+  }
+  try {
+    const invitePayload = {
+      sid: store.id,
+      u: store.account.username,
+      h: store.account.passwordHash,
+      s: store.account.passwordSalt,
+      n: store.account.ownerName || '',
+      e: store.account.ownerEmail || '',
+      st: store.account.status || 'active',
+    };
+    const bytes = new TextEncoder().encode(JSON.stringify(invitePayload));
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += 1) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    const b64 = btoa(binary);
+    return `${storefrontUrl}#admin&invite=${encodeURIComponent(b64)}`;
+  } catch {
+    return `${storefrontUrl}#admin`;
   }
 }
 
@@ -889,6 +921,7 @@ export function decodePortableStoreFromUrl(searchString = '') {
       district: stripHtml(String(parsed.ds || '')).slice(0, 80),
       address: stripHtml(String(parsed.ad || '')).slice(0, 160),
       crNumber: stripHtml(String(parsed.cr || '')).slice(0, 20),
+      vatNumber: stripHtml(String(parsed.vt || '')).slice(0, 20),
       workingHours: stripHtml(String(parsed.wh || '')).slice(0, 80),
       googleMapsUrl: parsed.gm ? sanitizeUrl(String(parsed.gm), '') : '',
       instagramUrl: parsed.ig ? sanitizeUrl(String(parsed.ig), '') : '',
@@ -904,6 +937,140 @@ export function decodePortableStoreFromUrl(searchString = '') {
   } catch {
     return null;
   }
+}
+
+/**
+ * Decodes portable store snapshot (?s=...) + optional Owner Admin invite (#admin&invite=...)
+ * and upserts the store (with hashed verifier if invited) into localStorage on any device.
+ */
+export function decodeAndImportPortableInviteFromUrl(searchString = '', hashString = '') {
+  if (typeof window === 'undefined') return null;
+  const portableStore = decodePortableStoreFromUrl(searchString);
+  const rawHash = hashString || window.location.hash || '';
+  const inviteMatch = rawHash.match(/invite=([^&]+)/);
+
+  let hydrated = portableStore;
+
+  if (inviteMatch && inviteMatch[1]) {
+    try {
+      const binary = atob(decodeURIComponent(inviteMatch[1]));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const inv = JSON.parse(new TextDecoder().decode(bytes));
+      const validHash = typeof inv?.h === 'string' && /^[a-f0-9]{64}$/i.test(inv.h);
+      const validSalt = typeof inv?.s === 'string' && /^[a-f0-9]{32}$/i.test(inv.s);
+      const validUser = typeof inv?.u === 'string' && /^[a-zA-Z0-9_.-]{3,32}$/.test(inv.u);
+
+      if (validHash && validSalt && validUser) {
+        const baseStore =
+          hydrated ||
+          getStoreBySlugOrId(new URLSearchParams(searchString || window.location.search).get('store'));
+        if (baseStore) {
+          hydrated = migrateStoreRecord({
+            ...baseStore,
+            id: inv.sid ? sanitizeText(String(inv.sid)).slice(0, 64) : baseStore.id,
+            account: {
+              ...baseStore.account,
+              ownerName: stripHtml(String(inv.n || baseStore.nameAr || 'Owner')).slice(0, 80),
+              ownerEmail: stripHtml(String(inv.e || '')).slice(0, 120),
+              username: inv.u.toLowerCase(),
+              role: 'store_owner',
+              status: ['active', 'suspended', 'pending'].includes(inv.st) ? inv.st : 'active',
+              passwordHash: inv.h,
+              passwordSalt: inv.s,
+              hasCredentials: true,
+            },
+          });
+        }
+      }
+    } catch {
+      // ignore malformed invite fragment
+    }
+  }
+
+  if (hydrated) {
+    try {
+      const existing = getAllStores();
+      const idx = existing.findIndex(
+        (s) => s.slug.toLowerCase() === hydrated.slug.toLowerCase() || s.id === hydrated.id
+      );
+      const nextList = [...existing];
+      if (idx >= 0) {
+        const prev = existing[idx];
+        const keepCreds = prev.account?.hasCredentials && !hydrated.account?.hasCredentials;
+        nextList[idx] = {
+          ...prev,
+          ...hydrated,
+          isPrimary: prev.isPrimary,
+          account: keepCreds ? prev.account : hydrated.account,
+        };
+      } else {
+        nextList.push(hydrated);
+      }
+      localStorage.setItem(STORES_STORAGE_KEY, JSON.stringify(nextList));
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  return hydrated;
+}
+
+/**
+ * Syncs store owner edits made in FloristAdminPanel back into stores registry
+ * and returns a fresh portable storefront share URL.
+ */
+export function syncStoreCustomizationBySlug(slugOrId, shopConfig) {
+  if (!slugOrId || !shopConfig) return null;
+  const stores = getAllStores();
+  const clean = slugOrId.toString().trim().toLowerCase();
+  const idx = stores.findIndex(
+    (s) => s.slug.toLowerCase() === clean || s.id.toLowerCase() === clean
+  );
+  if (idx < 0) return null;
+
+  const target = stores[idx];
+  const updated = migrateStoreRecord({
+    ...target,
+    nameAr: shopConfig.shopNameAr || target.nameAr,
+    nameEn: shopConfig.shopNameEn || target.nameEn,
+    taglineAr: shopConfig.taglineAr ?? target.taglineAr,
+    taglineEn: shopConfig.taglineEn ?? target.taglineEn,
+    phone: shopConfig.phone ? normalizePhone(shopConfig.phone) : target.phone,
+    theme: resolveStoreTheme(shopConfig.theme || target.theme),
+    heroStyle: resolveHeroStyle(shopConfig.heroStyle || target.heroStyle),
+    specialsStyle: resolveSpecialsStyle(shopConfig.specialsStyle || target.specialsStyle),
+    status:
+      shopConfig.status === 'closed'
+        ? 'closed'
+        : shopConfig.status === 'busy_60m'
+        ? 'busy_60m'
+        : 'open',
+    deliveryFee: shopConfig.deliveryFee ?? target.deliveryFee,
+    minOrderFreeDelivery: shopConfig.minOrderFreeDelivery ?? target.minOrderFreeDelivery,
+    workingHours: shopConfig.workingHours ?? target.workingHours,
+    crNumber: shopConfig.crNumber ?? target.crNumber,
+    vatNumber: shopConfig.vatNumber ?? target.vatNumber,
+    googleMapsUrl: shopConfig.googleMapsUrl ?? target.googleMapsUrl,
+    instagramUrl: shopConfig.instagramUrl ?? target.instagramUrl,
+    avatarUrl: shopConfig.avatarUrl ?? target.avatarUrl,
+    logoUrl: shopConfig.logoUrl ?? target.logoUrl,
+  });
+
+  const nextStores = [...stores];
+  nextStores[idx] = updated;
+  try {
+    localStorage.setItem(STORES_STORAGE_KEY, JSON.stringify(nextStores));
+  } catch {
+    // ignore storage errors
+  }
+
+  return {
+    store: updated,
+    portableUrl: getStorePortableShareUrl(updated),
+  };
 }
 
 /**

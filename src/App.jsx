@@ -40,7 +40,9 @@ import {
 import {
   getStoreBySlugOrId,
   mapStoreToShopConfig,
-  decodePortableStoreFromUrl,
+  decodeAndImportPortableInviteFromUrl,
+  getScopedStoreKey,
+  syncStoreCustomizationBySlug,
 } from './utils/storesManager';
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag, Lock, MapPin, Globe } from 'lucide-react';
 import { STUDIO_SYNC_EVENT } from './context/StudioThemeContext';
@@ -131,13 +133,13 @@ const parseUrlThemeConfig = () => {
 };
 
 export default function App() {
-  // Multi-Tenant Shop Config & Theme State (Hydrated from Portable URL, Store Slug, Theme Param, or localStorage)
+  // Multi-Tenant Shop Config & Theme State (Hydrated from Portable/Invite URL, Store Slug, Theme Param, or localStorage)
   const initialStoreBundle = (() => {
-    const portableStore = decodePortableStoreFromUrl();
-    if (portableStore) {
+    const portableOrInvited = decodeAndImportPortableInviteFromUrl();
+    if (portableOrInvited) {
       return {
-        config: { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(portableStore) },
-        lang: portableStore.defaultLang || 'ar',
+        config: { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(portableOrInvited) },
+        lang: portableOrInvited.defaultLang || 'ar',
       };
     }
 
@@ -145,8 +147,19 @@ export default function App() {
     if (storeSlug) {
       const matchedStore = getStoreBySlugOrId(storeSlug);
       if (matchedStore) {
+        const mappedBase = { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(matchedStore) };
+        try {
+          const scopedRaw = localStorage.getItem(getScopedStoreKey('flowerhub_shop_config', matchedStore.slug));
+          const scopedParsed = scopedRaw ? JSON.parse(scopedRaw) : null;
+          if (scopedParsed && typeof scopedParsed === 'object' && !Array.isArray(scopedParsed)) {
+            return {
+              config: { ...mappedBase, ...scopedParsed, id: matchedStore.id, slug: matchedStore.slug },
+              lang: matchedStore.defaultLang || 'ar',
+            };
+          }
+        } catch {}
         return {
-          config: { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(matchedStore) },
+          config: mappedBase,
           lang: matchedStore.defaultLang || 'ar',
         };
       }
@@ -176,16 +189,25 @@ export default function App() {
   const [lang, setLang] = useState(initialStoreBundle.lang || 'ar');
   const isAr = lang === 'ar';
 
+  // Authenticated Coordinator Role State (for clean RBAC UI gating)
+  const [authRole, setAuthRole] = useState(null);
+
   // Live Design Customizer Studio Modal State
   const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
 
   const [shopConfig, setShopConfig] = useState(initialStoreBundle.config);
   const themeTokens = (shopConfig?.theme && THEME_TOKENS[shopConfig.theme]) ? THEME_TOKENS[shopConfig.theme] : THEME_TOKENS.botanical;
 
-  // Persist shopConfig to localStorage
+  // Persist shopConfig scoped per store & sync into multi-store registry
   useEffect(() => {
     try {
-      localStorage.setItem('flowerhub_shop_config', JSON.stringify(shopConfig));
+      const storageKey = shopConfig?.slug
+        ? getScopedStoreKey('flowerhub_shop_config', shopConfig.slug)
+        : 'flowerhub_shop_config';
+      localStorage.setItem(storageKey, JSON.stringify(shopConfig));
+      if (shopConfig?.slug) {
+        syncStoreCustomizationBySlug(shopConfig.slug, shopConfig);
+      }
     } catch (e) {
       console.error('Failed to save shop config to localStorage', e);
     }
@@ -194,7 +216,7 @@ export default function App() {
   // Reactive listener to URL hash/query changes for instant store branch and theme switching
   useEffect(() => {
     const handleHashOrUrl = () => {
-      const portableStore = decodePortableStoreFromUrl();
+      const portableStore = decodeAndImportPortableInviteFromUrl();
       if (portableStore) {
         setShopConfig((prev) => ({
           ...prev,
@@ -294,8 +316,25 @@ export default function App() {
     }
   }, [themeTokens]);
 
-  // Products and Past Work Lifted State
-  const [products, setProducts] = useState(PRODUCTS);
+  // Products and Past Work Lifted State (Scoped per store slug so owners customize safely)
+  const [products, setProducts] = useState(() => {
+    try {
+      const key = getScopedStoreKey('flowerhub_products', initialStoreBundle.config?.slug);
+      const saved = localStorage.getItem(key);
+      const parsed = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : PRODUCTS;
+    } catch {
+      return PRODUCTS;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      const key = getScopedStoreKey('flowerhub_products', shopConfig?.slug);
+      localStorage.setItem(key, JSON.stringify(products));
+    } catch {}
+  }, [products, shopConfig?.slug]);
+
   const [pastWorks, setPastWorks] = useState(PORTFOLIO_ITEMS);
 
   // Dynamic Formats & Occasions Lifted State
@@ -1161,8 +1200,9 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
     try {
       sessionStorage.removeItem('flowerhub_florist_session');
     } catch {}
+    setAuthRole(null);
     setActiveView('storefront');
-    showToast(isAr ? 'تم تسجيل الخروج بنجاح من جلسة المنسق' : 'Logged out from florist session');
+    showToast(isAr ? 'تم تسجيل الخروج بنجاح' : 'Logged out successfully');
   };
 
   return (
@@ -1177,6 +1217,8 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           lang={lang}
           setLang={setLang}
           onLogout={handleAdminLogout}
+          userRole={authRole}
+          storeName={isAr ? shopConfig.shopNameAr : shopConfig.shopNameEn}
         />
       )}
 
@@ -1209,6 +1251,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             lang={lang}
             requiredRole="super_admin"
             showTopBar={true}
+            onAuthChange={(payload) => setAuthRole(payload?.role || null)}
             onClose={() => setActiveView('storefront')}
           >
             <MultiStoreManagerPage
@@ -1219,6 +1262,13 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
               onSwitchToStore={(store) => {
                 const mapped = mapStoreToShopConfig(store);
                 setShopConfig(mapped);
+                try {
+                  const savedProds = localStorage.getItem(getScopedStoreKey('flowerhub_products', store.slug));
+                  const parsedProds = savedProds ? JSON.parse(savedProds) : null;
+                  setProducts(Array.isArray(parsedProds) && parsedProds.length > 0 ? parsedProds : PRODUCTS);
+                } catch {
+                  setProducts(PRODUCTS);
+                }
                 if (store.defaultLang === 'en' || store.defaultLang === 'ar') {
                   setLang(store.defaultLang);
                 }
@@ -1234,7 +1284,12 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {/* VIEW B: Florist Admin Panel (Store-Scoped RBAC Protected) */}
       {activeView === 'admin' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} storeContext={shopConfig} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard
+            lang={lang}
+            storeContext={shopConfig}
+            onAuthChange={(payload) => setAuthRole(payload?.role || null)}
+            onClose={() => setActiveView('storefront')}
+          >
             <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
               <FloristAdminPanel
                 shopConfig={shopConfig}
@@ -1256,7 +1311,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onDeleteOccasion={handleDeleteOccasion}
                 onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
-                onOpenNetworkHub={() => setActiveView('network')}
+                onOpenNetworkHub={authRole === 'super_admin' ? () => setActiveView('network') : undefined}
                 onClose={() => setActiveView('storefront')}
               />
             </div>
@@ -1267,7 +1322,12 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {/* VIEW SALES: Direct Coordinator Sales & Profits View (RBAC Protected) */}
       {activeView === 'sales' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} storeContext={shopConfig} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard
+            lang={lang}
+            storeContext={shopConfig}
+            onAuthChange={(payload) => setAuthRole(payload?.role || null)}
+            onClose={() => setActiveView('storefront')}
+          >
             <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
               <FloristAdminPanel
                 shopConfig={shopConfig}
@@ -1289,7 +1349,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
                 onDeleteOccasion={handleDeleteOccasion}
                 onApplyCuratedTemplate={handleApplyCuratedTemplate}
                 onOpenDesignStudio={() => setIsDesignStudioOpen(true)}
-                onOpenNetworkHub={() => setActiveView('network')}
+                onOpenNetworkHub={authRole === 'super_admin' ? () => setActiveView('network') : undefined}
                 initialTab="sales"
                 onClose={() => setActiveView('storefront')}
               />
@@ -1301,7 +1361,12 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {/* VIEW C: Split Studio (Side-by-side Live Florist Admin + Live Customer Storefront) (RBAC Protected) */}
       {activeView === 'split' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} storeContext={shopConfig} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard
+            lang={lang}
+            storeContext={shopConfig}
+            onAuthChange={(payload) => setAuthRole(payload?.role || null)}
+            onClose={() => setActiveView('storefront')}
+          >
             <div className="w-full max-w-6xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Left Column: Florist Management Workspace */}
               <div className="w-full bg-[#FAF9F6] rounded-3xl border border-stone-200 shadow-xl overflow-hidden">

@@ -20,15 +20,11 @@ import {
   RotateCcw,
   Upload,
   Image as ImageIcon,
-  Shuffle,
-  Wind,
-  Type,
   TrendingUp,
   Search,
   Wifi,
   Battery,
   MapPin,
-  Phone,
   Lock,
   Layers,
   Play,
@@ -41,13 +37,13 @@ import {
   Store,
   Receipt,
   Printer,
-  MessageCircle,
 } from 'lucide-react';
 import SalesAndProfitsDashboard from './SalesAndProfitsDashboard';
 import WhatsAppIcon from './WhatsAppIcon';
 import { validateUploadedFile } from '../services/uploadSecurity';
-import { sanitizeUrl, sanitizeText } from '../utils/sanitizer';
+import { sanitizeUrl } from '../utils/sanitizer';
 import { getCashierInvoices, updateCashierInvoiceStatus } from '../utils/orderSlipHelper';
+import { syncStoreCustomizationBySlug } from '../utils/storesManager';
 import {
   THEME_TOKENS,
   HERO_STYLES,
@@ -202,47 +198,54 @@ export default function FloristAdminPanel({
 
   const handlePublishAndShareLink = () => {
     try {
-      const payload = {
-        theme: shopConfig.theme,
-        heroStyle: shopConfig.heroStyle,
-        specialsStyle: shopConfig.specialsStyle,
-        cardEntranceMotion: shopConfig.cardEntranceMotion,
-        staggerDelay: shopConfig.staggerDelay,
-        buyButtonPhysics: shopConfig.buyButtonPhysics,
-        cardHoverEffect: shopConfig.cardHoverEffect,
-        cardIdleMotion: shopConfig.cardIdleMotion,
-        cardImageMotion: shopConfig.cardImageMotion,
-        badgeMotion: shopConfig.badgeMotion,
-        gridLayout: shopConfig.gridLayout,
-        cardBorderRadius: shopConfig.cardBorderRadius,
-        cardShadow: shopConfig.cardShadow,
-        cardAspectRatio: shopConfig.cardAspectRatio,
-        cardSurfaceMaterial: shopConfig.cardSurfaceMaterial,
-        cardBorderStyle: shopConfig.cardBorderStyle,
-        showImageOverlay: shopConfig.showImageOverlay,
-        buyButtonStyle: shopConfig.buyButtonStyle,
-        shopNameAr: shopConfig.shopNameAr,
-        taglineAr: shopConfig.taglineAr,
-        locationLabel: shopConfig.locationLabel,
-      };
-      const jsonStr = JSON.stringify(payload);
-      const encoded = encodeURIComponent(jsonStr);
-      const baseUrl = window.location.href.split('#')[0].split('?')[0];
-      const liveShareUrl = `${baseUrl}#theme=${encoded}`;
+      let liveShareUrl = '';
+      if (shopConfig?.slug) {
+        const synced = syncStoreCustomizationBySlug(shopConfig.slug, shopConfig);
+        if (synced?.portableUrl) {
+          liveShareUrl = synced.portableUrl;
+        }
+      }
 
-      window.history.replaceState(null, '', liveShareUrl);
+      if (!liveShareUrl) {
+        const payload = {
+          theme: shopConfig.theme,
+          heroStyle: shopConfig.heroStyle,
+          specialsStyle: shopConfig.specialsStyle,
+          cardEntranceMotion: shopConfig.cardEntranceMotion,
+          staggerDelay: shopConfig.staggerDelay,
+          buyButtonPhysics: shopConfig.buyButtonPhysics,
+          cardHoverEffect: shopConfig.cardHoverEffect,
+          cardIdleMotion: shopConfig.cardIdleMotion,
+          cardImageMotion: shopConfig.cardImageMotion,
+          badgeMotion: shopConfig.badgeMotion,
+          gridLayout: shopConfig.gridLayout,
+          cardBorderRadius: shopConfig.cardBorderRadius,
+          cardShadow: shopConfig.cardShadow,
+          cardAspectRatio: shopConfig.cardAspectRatio,
+          cardSurfaceMaterial: shopConfig.cardSurfaceMaterial,
+          cardBorderStyle: shopConfig.cardBorderStyle,
+          showImageOverlay: shopConfig.showImageOverlay,
+          buyButtonStyle: shopConfig.buyButtonStyle,
+          shopNameAr: shopConfig.shopNameAr,
+          taglineAr: shopConfig.taglineAr,
+          locationLabel: shopConfig.locationLabel,
+        };
+        const encoded = encodeURIComponent(JSON.stringify(payload));
+        const baseUrl = window.location.href.split('#')[0].split('?')[0];
+        liveShareUrl = `${baseUrl}#theme=${encoded}`;
+      }
 
       if (navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(liveShareUrl);
       }
 
       setCopiedPublishLink(true);
-      setTimeout(() => setCopiedPublishLink(false), 3500);
+      setTimeout(() => setCopiedPublishLink(false), 3000);
 
       triggerDesignFeedback(
         isAr
-          ? '🚀 تم نشر وتعميم رابط المتجر بنجاح! تم نسخ الرابط المباشر إلى الحافظة لمشاركته مع العملاء.'
-          : '🚀 Store customizations published! Live share link copied to clipboard.'
+          ? 'تم حفظ ونشر التعديلات ونسخ رابط المتجر المحدّث.'
+          : 'Saved & copied live storefront link.'
       );
     } catch (e) {
       console.error('Failed to generate publish link', e);
@@ -541,6 +544,21 @@ export default function FloristAdminPanel({
               </button>
             )}
 
+            {/* Direct Copy Live Storefront Link */}
+            <button
+              type="button"
+              onClick={handlePublishAndShareLink}
+              className={`flex items-center gap-1.5 py-1.5 px-3 rounded-xl font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer border ${
+                copiedPublishLink
+                  ? 'bg-emerald-600 text-white border-emerald-500'
+                  : 'bg-white hover:bg-amber-50 text-stone-800 border-stone-200'
+              }`}
+              title={isAr ? 'نسخ رابط المتجر المحدّث للعملاء' : 'Copy Updated Storefront Link'}
+            >
+              {copiedPublishLink ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5 text-amber-600" />}
+              <span>{copiedPublishLink ? (isAr ? 'تم النسخ!' : 'Copied!') : isAr ? 'رابط المتجر' : 'Share Link'}</span>
+            </button>
+
             {/* Back to Storefront Button */}
             {onClose && (
               <button
@@ -550,7 +568,7 @@ export default function FloristAdminPanel({
                 title={isAr ? 'الرجوع لمعاينة المتجر كعميل' : 'Back to Storefront'}
               >
                 <Store className="w-3.5 h-3.5 text-amber-300" />
-                <span>{isAr ? 'الرجوع للمتجر ↩️' : 'Storefront ↩️'}</span>
+                <span>{isAr ? 'معاينة المتجر' : 'Storefront'}</span>
               </button>
             )}
 
@@ -1405,157 +1423,49 @@ export default function FloristAdminPanel({
             </div>
           )}
 
-          {/* 0. Universal Storefront Publishing & Share Action Bar */}
-          <div className="p-4 rounded-3xl bg-gradient-to-br from-emerald-950 via-stone-950 to-stone-900 border border-emerald-500/40 text-white flex flex-col sm:flex-row items-center justify-between gap-3.5 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 end-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center gap-3 relative z-10">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-stone-950 flex items-center justify-center font-bold shrink-0 shadow-md">
+          {/* 0. Compact Storefront Publish & Visual Studio Bar */}
+          <div className="p-4 rounded-2xl bg-stone-950 border border-stone-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0">
                 <Globe className="w-5 h-5" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-xs sm:text-sm text-emerald-300">
-                    {isAr ? 'نشر التعديلات وتعميم الرابط المباشر' : 'Universal Storefront Publishing'}
-                  </h4>
-                  <span className="text-[9px] font-mono font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
-                    Live Link
-                  </span>
-                </div>
-                <p className="text-[11px] text-stone-300 mt-0.5">
-                  {isAr ? 'اضغط لنشر التعديلات فوراً وتعميمها على رابط المتجر ليفتح عند أي شخص بنفس المظهر والحركات' : 'Publish changes & copy direct link so any visitor sees the exact live customizations'}
+                <h4 className="font-bold text-xs sm:text-sm text-amber-100">
+                  {isAr ? 'نشر وتخصيص مظهر المتجر' : 'Storefront Theme & Live Link'}
+                </h4>
+                <p className="text-[11px] text-stone-400">
+                  {isAr ? 'تُحفظ التعديلات تلقائياً لمتجرك الحالي.' : 'Changes sync directly to your storefront.'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto relative z-10 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {onOpenDesignStudio && (
+                <button
+                  type="button"
+                  onClick={onOpenDesignStudio}
+                  className="px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{isAr ? 'استوديو التصميم' : 'Design Studio'}</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={handlePublishAndShareLink}
-                className={`w-full sm:w-auto px-4 py-2.5 rounded-2xl font-bold text-xs shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer ${
+                className={`px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer ${
                   copiedPublishLink
-                    ? 'bg-emerald-500 text-stone-950 shadow-emerald-500/30'
-                    : 'bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950'
+                    ? 'bg-emerald-500 text-stone-950'
+                    : 'bg-amber-400 hover:bg-amber-300 text-stone-950'
                 }`}
               >
-                {copiedPublishLink ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                    <span>{isAr ? 'تم نسخ الرابط المنشور! ✓' : 'Live Link Copied! ✓'}</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-4 h-4 stroke-[2.5]" />
-                    <span>{isAr ? 'نشر ونسخ رابط المتجر الحي' : 'Publish & Copy Link'}</span>
-                  </>
-                )}
+                {copiedPublishLink ? <CheckCircle2 className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+                <span>{copiedPublishLink ? (isAr ? 'تم نسخ الرابط' : 'Link Copied') : isAr ? 'نسخ رابط المتجر الحي' : 'Copy Live Link'}</span>
               </button>
             </div>
           </div>
 
-          {/* 0.1 Live Customizer Studio Quick Launch Banner */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-stone-950 via-stone-900 to-amber-950 border border-amber-500/30 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 text-stone-950 flex items-center justify-center font-bold shrink-0 shadow-sm">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="font-bold text-xs sm:text-sm text-amber-300 flex items-center gap-1.5">
-                  <span>{isAr ? 'استوديو التخصيص البصري الحي' : 'Live Design Customizer Studio'}</span>
-                  <span className="text-[9px] uppercase px-1.5 py-0.2 rounded font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                    Live
-                  </span>
-                </h4>
-                <p className="text-[11px] text-stone-300">
-                  {isAr ? 'تخصيص متقدم للألوان، تأثيرات الزجاج، الخطوط، والحركات لحظياً' : 'Advanced visual tokens, glassmorphism, fonts & motion'}
-                </p>
-              </div>
-            </div>
-            {onOpenDesignStudio && (
-              <button
-                type="button"
-                onClick={onOpenDesignStudio}
-                className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-stone-950 font-bold text-xs shadow-md transition-all active:scale-95 shrink-0 text-center cursor-pointer"
-              >
-                {isAr ? 'فتح الاستوديو الكامل' : 'Open Studio'}
-              </button>
-            )}
-          </div>
-
-          {/* 0.2 Human-Centered 3-Step Storefront Customization Guide */}
-          <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-300/40 space-y-2.5 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">💡</span>
-                <div>
-                  <h4 className="font-bold text-xs sm:text-sm text-stone-900">
-                    {isAr ? 'دليل التعديل السريع في ٣ خطوات بسيطة:' : 'Easy 3-Step Storefront Setup:'}
-                  </h4>
-                  <p className="text-[11px] text-stone-500">
-                    {isAr ? 'كل تعديل تجريه يظهر فوراً في المعاينة على اليمين ويتم حفظه تلقائياً' : 'Every change reflects live on the preview and saves instantly'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-600 text-white shadow-2xs self-start sm:self-auto">
-                {isAr ? '⚡ مربوط مباشرة بالمتجر الحي' : 'Live Syncing'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs text-stone-800">
-              <button
-                type="button"
-                onClick={() => setDesignSection('quick')}
-                className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-center gap-2.5 shadow-2xs ${
-                  designSection === 'quick'
-                    ? 'bg-amber-50 border-amber-400 ring-2 ring-amber-300/60 font-bold'
-                    : 'bg-white/90 border-stone-200/90 hover:bg-white'
-                }`}
-              >
-                <span className="w-6 h-6 rounded-xl bg-amber-500 text-stone-950 font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">١</span>
-                <div className="min-w-0">
-                  <span className="block font-bold text-xs">{isAr ? '١. الهوية والواتساب' : '1. Name & WhatsApp'}</span>
-                  <span className="block text-[10px] text-stone-500 truncate">{isAr ? 'اسم المتجر، رقم الطلبات، الشعار' : 'Store name, WhatsApp & Logo'}</span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDesignSection('style')}
-                className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-center gap-2.5 shadow-2xs ${
-                  designSection === 'style'
-                    ? 'bg-emerald-50 border-emerald-400 ring-2 ring-emerald-300/60 font-bold'
-                    : 'bg-white/90 border-stone-200/90 hover:bg-white'
-                }`}
-              >
-                <span className="w-6 h-6 rounded-xl bg-emerald-600 text-white font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">٢</span>
-                <div className="min-w-0">
-                  <span className="block font-bold text-xs">{isAr ? '٢. القوالب والألوان' : '2. Theme & Colors'}</span>
-                  <span className="block text-[10px] text-stone-500 truncate">{isAr ? 'قوالب ملكية بنقرة واحدة' : '1-tap luxury presets & colors'}</span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDesignSection('publish')}
-                className={`p-3 rounded-2xl border text-start transition-all cursor-pointer flex items-center gap-2.5 shadow-2xs ${
-                  designSection === 'publish'
-                    ? 'bg-stone-900 border-stone-900 text-white ring-2 ring-amber-400/60 font-bold'
-                    : 'bg-white/90 border-stone-200/90 hover:bg-white'
-                }`}
-              >
-                <span className={`w-6 h-6 rounded-xl font-black flex items-center justify-center text-xs shrink-0 shadow-2xs ${
-                  designSection === 'publish' ? 'bg-amber-400 text-stone-950' : 'bg-stone-900 text-amber-300'
-                }`}>٣</span>
-                <div className="min-w-0">
-                  <span className="block font-bold text-xs">{isAr ? '٣. نشر الرابط لجميع الزوار' : '3. Publish & Share'}</span>
-                  <span className={`block text-[10px] truncate ${designSection === 'publish' ? 'text-stone-300' : 'text-stone-500'}`}>
-                    {isAr ? 'تعميم التعديلات على الرابط الحي' : 'Publish changes live for all'}
-                  </span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* 0.3 Human-Friendly Category Selector Pills */}
+          {/* 0.1 Clean Design Section Selector Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar p-1 bg-stone-100/90 rounded-2xl border border-stone-200/80 shadow-inner">
             <button
               type="button"

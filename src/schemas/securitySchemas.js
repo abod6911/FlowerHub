@@ -143,7 +143,9 @@ export const StoreAccountSchema = z.object({
     .string()
     .trim()
     .email({ message: 'البريد الإلكتروني لصاحب المحل غير صالح' })
-    .max(120),
+    .max(120)
+    .optional()
+    .or(z.literal('')),
   ownerPhone: z
     .string()
     .trim()

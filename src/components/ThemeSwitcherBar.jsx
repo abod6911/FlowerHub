@@ -15,6 +15,8 @@ export default function ThemeSwitcherBar({
   lang = 'ar',
   setLang,
   onLogout,
+  userRole = null, // 'super_admin' | 'store_owner' | null
+  storeName = null,
 }) {
   const strings = t[lang] || t.ar;
   const isAr = lang === 'ar';
@@ -24,6 +26,8 @@ export default function ThemeSwitcherBar({
     activeView === 'sales' ||
     activeView === 'split' ||
     activeView === 'network';
+
+  const showNetworkTab = userRole === 'super_admin' || activeView === 'network';
 
   const handleLogoutClick = () => {
     if (onLogout) {
@@ -43,7 +47,7 @@ export default function ThemeSwitcherBar({
         <div className="flex items-center gap-2.5">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-gradient-to-r from-stone-900 via-stone-900 to-stone-950 border border-amber-500/30 text-amber-200 font-serif font-bold text-[11px] shadow-2xs">
             <span className="text-amber-400 text-xs">✦</span>
-            <span>{isAr ? 'دار الورد • استوديو الإدارة' : 'Dar Alward • Boutique Studio'}</span>
+            <span>{storeName || (isAr ? 'استوديو الإدارة' : 'Boutique Studio')}</span>
           </div>
 
           {/* View Switcher Segmented Control */}
@@ -87,31 +91,40 @@ export default function ThemeSwitcherBar({
               <span>{isAr ? 'المبيعات والأرباح' : 'Sales & Profits'}</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveView('network')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
-                activeView === 'network'
-                  ? 'bg-stone-800 text-amber-300 shadow-xs font-bold border border-amber-500/20'
-                  : 'text-stone-400 hover:text-stone-200'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5 text-sky-400" />
-              <span>{isAr ? 'إنشاء مواقع المتاجر' : 'Store Builder'}</span>
-            </button>
+            {showNetworkTab && (
+              <button
+                type="button"
+                onClick={() => setActiveView('network')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                  activeView === 'network'
+                    ? 'bg-stone-800 text-amber-300 shadow-xs font-bold border border-amber-500/20'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+              >
+                <Building2 className="w-3.5 h-3.5 text-sky-400" />
+                <span>{isAr ? 'منشئ المتاجر' : 'Store Builder'}</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Right: Session indicator, Logout & Language switch */}
         <div className="flex items-center gap-2">
-          {/* Authenticated Florist Session Pill */}
-          {isCoordinatorView && (
+          {isCoordinatorView && userRole && (
             <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
               </span>
-              <span>{isAr ? 'جلسة منسق موثقة' : 'Verified Florist'}</span>
+              <span>
+                {userRole === 'super_admin'
+                  ? isAr
+                    ? 'مدير المنصة'
+                    : 'Super Admin'
+                  : isAr
+                  ? 'صاحب المتجر'
+                  : 'Store Owner'}
+              </span>
             </div>
           )}
 

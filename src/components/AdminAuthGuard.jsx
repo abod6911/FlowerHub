@@ -8,7 +8,6 @@ import {
   EyeOff,
   LogOut,
   KeyRound,
-  Sparkles,
   User,
   Wand2,
   Check,
@@ -26,7 +25,7 @@ import {
   appendAuditLog,
 } from '../services/authService';
 import { AdminLoginSchema, StrongPasswordSchema } from '../schemas/securitySchemas';
-import { verifyStoreOwnerLogin } from '../utils/storesManager';
+import { verifyStoreOwnerLogin, getStoreBySlugOrId } from '../utils/storesManager';
 import { stripHtml } from '../utils/sanitizer';
 
 export const AUTH_STORAGE_KEY = 'flowerhub_florist_session';
@@ -108,6 +107,7 @@ export default function AdminAuthGuard({
   children,
   lang = 'ar',
   onClose,
+  onAuthChange,
   showTopBar = false,
   requiredRole = 'any', // 'super_admin' | 'any'
   storeContext = null, // { id, slug, shopNameAr, shopNameEn }
@@ -134,10 +134,14 @@ export default function AdminAuthGuard({
     async function checkAuth() {
       try {
         const superAdmin = getSuperAdminRecord();
-        setNeedsInitialSetup(!superAdmin);
+        const storeHasCredentials = Boolean(
+          storeContext?.slug && getStoreBySlugOrId(storeContext.slug)?.account?.hasCredentials
+        );
+        const allowStoreLoginWithoutVault = requiredRole !== 'super_admin' && storeHasCredentials;
+        setNeedsInitialSetup(!superAdmin && !allowStoreLoginWithoutVault);
 
         const token = sessionStorage.getItem(AUTH_STORAGE_KEY);
-        if (token && superAdmin) {
+        if (token) {
           const payload = await validateSessionToken(token);
           if (payload && (payload.role === 'super_admin' || payload.role === 'store_owner' || payload.role === 'admin')) {
             // Check RBAC scope
@@ -149,6 +153,7 @@ export default function AdminAuthGuard({
               );
               setSessionPayload(payload);
               setIsAuthenticated(false);
+              if (onAuthChange) onAuthChange(payload);
             } else if (
               payload.role === 'store_owner' &&
               storeContext?.id &&
@@ -162,23 +167,27 @@ export default function AdminAuthGuard({
               );
               setSessionPayload(payload);
               setIsAuthenticated(false);
+              if (onAuthChange) onAuthChange(payload);
             } else {
               setSessionPayload(payload);
               setIsAuthenticated(true);
               setAccessDeniedReason('');
+              if (onAuthChange) onAuthChange(payload);
             }
           } else {
             sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            if (onAuthChange) onAuthChange(null);
           }
         }
       } catch {
         sessionStorage.removeItem(AUTH_STORAGE_KEY);
+        if (onAuthChange) onAuthChange(null);
       } finally {
         setIsLoading(false);
       }
     }
     checkAuth();
-  }, [requiredRole, storeContext?.id, isAr]);
+  }, [requiredRole, storeContext?.id, storeContext?.slug, isAr, onAuthChange]);
 
   // Countdown timer for lockout
   useEffect(() => {
@@ -386,9 +395,11 @@ export default function AdminAuthGuard({
         details: `Authenticated session started with role=${matchedRole}.`,
       });
 
-      setSessionPayload({ sub: cleanUser, role: matchedRole, storeId: matchedStoreId, storeSlug: matchedStoreSlug });
+      const nextPayload = { sub: cleanUser, role: matchedRole, storeId: matchedStoreId, storeSlug: matchedStoreSlug };
+      setSessionPayload(nextPayload);
       setIsAuthenticated(true);
       setPassword('');
+      if (onAuthChange) onAuthChange(nextPayload);
     } catch {
       setErrorMsg(isAr ? 'حدث خطأ أثناء المصادقة الأمنية.' : 'Authentication error occurred.');
     } finally {
@@ -407,6 +418,7 @@ export default function AdminAuthGuard({
     setSessionPayload(null);
     setIsAuthenticated(false);
     setAccessDeniedReason('');
+    if (onAuthChange) onAuthChange(null);
     if (onClose) onClose();
   };
 
@@ -561,33 +573,29 @@ export default function AdminAuthGuard({
                     ? 'تسجيل الدخول الآمن'
                     : 'Secure Sign In'}
                 </h2>
-                <p className="text-xs text-stone-400 mt-1.5 leading-relaxed">
+                <p className="text-xs text-stone-400 mt-1">
                   {needsInitialSetup
                     ? isAr
-                      ? 'أنشئ اسم مستخدم وكلمة مرور قوية (تُحفظ بتشفير PBKDF2-SHA256 بدون أي رموز افتراضية).'
-                      : 'Set a strong Super Admin username & password (stored strictly as PBKDF2-SHA256 hash).'
+                      ? 'عيّن اسم مستخدم وكلمة مرور قوية لمدير المنصة.'
+                      : 'Create Super Admin username & strong password.'
                     : storeContext?.shopNameAr && requiredRole !== 'super_admin'
                     ? isAr
-                      ? `متجر: ${storeContext.shopNameAr} — سجل بحساب المالك أو مدير المنصة`
-                      : `Store: ${storeContext.shopNameEn || storeContext.shopNameAr} — Owner or Super Admin`
+                      ? `${storeContext.shopNameAr}`
+                      : `${storeContext.shopNameEn || storeContext.shopNameAr}`
                     : isAr
-                    ? 'دخول محمي بتشفير PBKDF2-SHA256 وتوكنات جلسة HMAC-SHA256.'
-                    : 'Protected by PBKDF2-SHA256 & HMAC-SHA256 signed sessions.'}
+                    ? 'سجّل الدخول بحسابك المعتمد.'
+                    : 'Sign in with your verified account.'}
                 </p>
               </div>
 
-              {/* Security Badges */}
-              <div className="flex items-center justify-center gap-2 pt-1 flex-wrap">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300">
+              {/* Compact Security Pill */}
+              <div className="flex items-center justify-center gap-2 pt-0.5 flex-wrap">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300">
                   <ShieldCheck className="w-3 h-3" />
-                  <span>{isAr ? 'RBAC & عزل المتاجر' : 'RBAC & Tenant Isolation'}</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 border border-amber-500/25 text-amber-300">
-                  <Sparkles className="w-3 h-3" />
-                  <span>PBKDF2 · 100k</span>
+                  <span>PBKDF2 · HMAC · RBAC</span>
                 </span>
                 {storeContext?.slug && requiredRole !== 'super_admin' && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-mono bg-stone-800 border border-stone-700 text-stone-300">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-stone-800 border border-stone-700 text-stone-300" dir="ltr">
                     <Store className="w-3 h-3 text-amber-400" />
                     <span>{storeContext.slug}</span>
                   </span>
