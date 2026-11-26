@@ -30,7 +30,7 @@ import AdminAuthGuard from './components/AdminAuthGuard';
 import AmbientRosePetals from './components/AmbientRosePetals';
 import { verifyAndRecalculateOrder } from './services/priceVerificationService';
 import { checkRateLimit, recordAttempt } from './services/rateLimiter';
-import { sanitizeText } from './utils/sanitizer';
+import { sanitizeText, sanitizeUrl } from './utils/sanitizer';
 import {
   createOrderSlipFromSingleItem,
   createOrderSlipFromBag,
@@ -38,10 +38,9 @@ import {
   saveOrderToCashierInvoices,
 } from './utils/orderSlipHelper';
 import {
-  getAllStores,
   getStoreBySlugOrId,
   mapStoreToShopConfig,
-  getPrimaryStore,
+  decodePortableStoreFromUrl,
 } from './utils/storesManager';
 import { Sliders, Store, ArrowLeft, ArrowRight, ShoppingBag, Lock, MapPin, Globe } from 'lucide-react';
 import { STUDIO_SYNC_EVENT } from './context/StudioThemeContext';
@@ -132,21 +131,24 @@ const parseUrlThemeConfig = () => {
 };
 
 export default function App() {
-  // Language & RTL State
-  const [lang, setLang] = useState('ar');
-  const isAr = lang === 'ar';
+  // Multi-Tenant Shop Config & Theme State (Hydrated from Portable URL, Store Slug, Theme Param, or localStorage)
+  const initialStoreBundle = (() => {
+    const portableStore = decodePortableStoreFromUrl();
+    if (portableStore) {
+      return {
+        config: { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(portableStore) },
+        lang: portableStore.defaultLang || 'ar',
+      };
+    }
 
-  // Live Design Customizer Studio Modal State
-  const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
-
-  // Multi-Tenant Shop Config & Theme State (Hydrated from Store URL, Theme Param, or localStorage)
-  const [shopConfig, setShopConfig] = useState(() => {
-    // 1. Check for specific branch/store link (Google Maps or ?store=SLUG)
     const storeSlug = parseStoreSlugFromUrl();
     if (storeSlug) {
       const matchedStore = getStoreBySlugOrId(storeSlug);
       if (matchedStore) {
-        return { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(matchedStore) };
+        return {
+          config: { ...INITIAL_SHOP_CONFIG, ...mapStoreToShopConfig(matchedStore) },
+          lang: matchedStore.defaultLang || 'ar',
+        };
       }
     }
 
@@ -158,14 +160,26 @@ export default function App() {
         ? { ...INITIAL_SHOP_CONFIG, ...parsed }
         : INITIAL_SHOP_CONFIG;
 
-      if (urlConfig) {
-        return { ...base, ...urlConfig };
-      }
-      return base;
+      return {
+        config: urlConfig ? { ...base, ...urlConfig } : base,
+        lang: 'ar',
+      };
     } catch {
-      return urlConfig ? { ...INITIAL_SHOP_CONFIG, ...urlConfig } : INITIAL_SHOP_CONFIG;
+      return {
+        config: urlConfig ? { ...INITIAL_SHOP_CONFIG, ...urlConfig } : INITIAL_SHOP_CONFIG,
+        lang: 'ar',
+      };
     }
-  });
+  })();
+
+  // Language & RTL State
+  const [lang, setLang] = useState(initialStoreBundle.lang || 'ar');
+  const isAr = lang === 'ar';
+
+  // Live Design Customizer Studio Modal State
+  const [isDesignStudioOpen, setIsDesignStudioOpen] = useState(false);
+
+  const [shopConfig, setShopConfig] = useState(initialStoreBundle.config);
   const themeTokens = (shopConfig?.theme && THEME_TOKENS[shopConfig.theme]) ? THEME_TOKENS[shopConfig.theme] : THEME_TOKENS.botanical;
 
   // Persist shopConfig to localStorage
@@ -180,6 +194,15 @@ export default function App() {
   // Reactive listener to URL hash/query changes for instant store branch and theme switching
   useEffect(() => {
     const handleHashOrUrl = () => {
+      const portableStore = decodePortableStoreFromUrl();
+      if (portableStore) {
+        setShopConfig((prev) => ({
+          ...prev,
+          ...mapStoreToShopConfig(portableStore),
+        }));
+        return;
+      }
+
       const storeSlug = parseStoreSlugFromUrl();
       if (storeSlug) {
         const matchedStore = getStoreBySlugOrId(storeSlug);
@@ -303,13 +326,16 @@ export default function App() {
       const hash = (window.location.hash || '').toLowerCase();
       const params = new URLSearchParams(window.location.search || '');
 
-      // Check Multi-Store Network Platform
+      // Check Multi-Store Network & Builder Platform
       if (
         hash.includes('network') ||
         hash.includes('stores') ||
         hash.includes('platform') ||
         hash.includes('hub') ||
+        hash.includes('builder') ||
+        hash.includes('create-store') ||
         params.get('view') === 'network' ||
+        params.get('view') === 'builder' ||
         params.get('platform') === 'true'
       ) {
         return 'network';
@@ -340,7 +366,10 @@ export default function App() {
         hash.includes('stores') ||
         hash.includes('platform') ||
         hash.includes('hub') ||
+        hash.includes('builder') ||
+        hash.includes('create-store') ||
         params.get('view') === 'network' ||
+        params.get('view') === 'builder' ||
         params.get('platform') === 'true'
       ) {
         setActiveView('network');
@@ -642,6 +671,7 @@ export default function App() {
     setIsProductDrawerOpen(false);
     recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
+      shopConfig,
       lang,
       items: [sanitizedItem],
       handover: sanitizedItem.handover,
@@ -767,6 +797,7 @@ export default function App() {
     setIsCustomDrawerOpen(false);
     recordAttempt('checkout_order');
     const text = generateWhatsAppMessage({
+      shopConfig,
       lang,
       customOrder: sanitizedCustomOrder,
       handover: sanitizedHandover,
@@ -1018,6 +1049,39 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             {isAr ? shopConfig.taglineAr : shopConfig.taglineEn}
           </p>
 
+          {(shopConfig.locationLabel || shopConfig.workingHours || shopConfig.googleMapsUrl || shopConfig.instagramUrl) && (
+            <div className={`flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px] ${themeTokens.textMuted}`}>
+              {shopConfig.locationLabel && (
+                <span>{shopConfig.locationLabel}</span>
+              )}
+              {shopConfig.workingHours && (
+                <span className="font-mono text-[10px] opacity-85">• {shopConfig.workingHours}</span>
+              )}
+              {shopConfig.googleMapsUrl && sanitizeUrl(shopConfig.googleMapsUrl, '') && (
+                <a
+                  href={sanitizeUrl(shopConfig.googleMapsUrl, '')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold underline decoration-amber-500/50 hover:text-amber-600 transition-colors"
+                >
+                  <MapPin className="w-3 h-3 text-amber-500" />
+                  <span>{isAr ? 'موقعنا على الخريطة' : 'Google Maps'}</span>
+                </a>
+              )}
+              {shopConfig.instagramUrl && sanitizeUrl(shopConfig.instagramUrl, '') && (
+                <a
+                  href={sanitizeUrl(shopConfig.instagramUrl, '')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold underline decoration-amber-500/50 hover:text-amber-600 transition-colors"
+                >
+                  <Globe className="w-3 h-3 text-amber-500" />
+                  <span>Instagram</span>
+                </a>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center justify-center gap-1.5 pt-2 text-[10px] flex-wrap">
             <span
               className={`px-2 py-0.5 rounded-md font-medium ${themeTokens.badge} ${themeTokens.textMain}`}
@@ -1036,12 +1100,17 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
             </span>
           </div>
 
-          <div className={`text-[10px] pt-1 ${themeTokens.textMuted} flex items-center justify-center gap-1.5`}>
+          <div className={`text-[10px] pt-1 ${themeTokens.textMuted} flex flex-wrap items-center justify-center gap-1.5`}>
             <span>
               {isAr
-                ? 'سجل تجاري رقم: ١٠١٠٨٩٢٠٠ • المركز السعودي للأعمال'
-                : 'Commercial Registration: 1010849200'}
+                ? `سجل تجاري رقم: ${shopConfig.crNumber || '١٠١٠٨٩٢٠٠'} • المركز السعودي للأعمال`
+                : `Commercial Registration: ${shopConfig.crNumber || '1010849200'}`}
             </span>
+            {shopConfig.vatNumber && (
+              <span className="font-mono opacity-85">
+                • {isAr ? `الرقم الضريبي: ${shopConfig.vatNumber}` : `VAT: ${shopConfig.vatNumber}`}
+              </span>
+            )}
             <button
               type="button"
               onClick={() => setActiveView('admin')}
@@ -1133,17 +1202,26 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         </React.Suspense>
       )}
 
-      {/* VIEW NETWORK: Multi-Store Platform & Google Maps Hub (RBAC Protected) */}
+      {/* VIEW NETWORK: Multi-Store Platform & Website Builder (Super Admin RBAC Protected) */}
       {activeView === 'network' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard
+            lang={lang}
+            requiredRole="super_admin"
+            showTopBar={true}
+            onClose={() => setActiveView('storefront')}
+          >
             <MultiStoreManagerPage
               lang={lang}
+              onToggleLang={() => setLang((prev) => (prev === 'ar' ? 'en' : 'ar'))}
               onClose={() => setActiveView('storefront')}
               onOpenStoreAdmin={() => setActiveView('admin')}
               onSwitchToStore={(store) => {
                 const mapped = mapStoreToShopConfig(store);
                 setShopConfig(mapped);
+                if (store.defaultLang === 'en' || store.defaultLang === 'ar') {
+                  setLang(store.defaultLang);
+                }
                 setActiveView('storefront');
                 showToast(isAr ? `تم فتح متجر: ${store.nameAr} 🌸` : `Switched to: ${store.nameEn}`);
               }}
@@ -1153,10 +1231,10 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
         </React.Suspense>
       )}
 
-      {/* VIEW B: Florist Admin Panel (RBAC Protected) */}
+      {/* VIEW B: Florist Admin Panel (Store-Scoped RBAC Protected) */}
       {activeView === 'admin' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard lang={lang} storeContext={shopConfig} onClose={() => setActiveView('storefront')}>
             <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
               <FloristAdminPanel
                 shopConfig={shopConfig}
@@ -1189,7 +1267,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {/* VIEW SALES: Direct Coordinator Sales & Profits View (RBAC Protected) */}
       {activeView === 'sales' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard lang={lang} storeContext={shopConfig} onClose={() => setActiveView('storefront')}>
             <div className="w-full max-w-6xl bg-[#FAF9F6] min-h-screen shadow-2xl flex flex-col relative mx-auto transition-all">
               <FloristAdminPanel
                 shopConfig={shopConfig}
@@ -1223,7 +1301,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
       {/* VIEW C: Split Studio (Side-by-side Live Florist Admin + Live Customer Storefront) (RBAC Protected) */}
       {activeView === 'split' && (
         <React.Suspense fallback={<div className="w-full py-20 flex justify-center"><div className="w-7 h-7 border-2 border-stone-300 border-t-stone-800 rounded-full animate-spin" /></div>}>
-          <AdminAuthGuard lang={lang} onClose={() => setActiveView('storefront')}>
+          <AdminAuthGuard lang={lang} storeContext={shopConfig} onClose={() => setActiveView('storefront')}>
             <div className="w-full max-w-6xl mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Left Column: Florist Management Workspace */}
               <div className="w-full bg-[#FAF9F6] rounded-3xl border border-stone-200 shadow-xl overflow-hidden">
@@ -1356,6 +1434,7 @@ Hello ${shopConfig.shopNameEn} team! I saw this arrangement in your portfolio an
           onRemoveItem={handleRemoveBagItem}
           onCheckout={handleBagCheckout}
           lang={lang}
+          shopConfig={shopConfig}
           theme={themeTokens}
         />
       </React.Suspense>

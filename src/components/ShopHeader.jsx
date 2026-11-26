@@ -9,6 +9,7 @@ import {
   Upload,
   Trash2,
   Globe,
+  Crown,
 } from 'lucide-react';
 import { t } from '../utils/translations';
 import WhatsAppIcon from './WhatsAppIcon';
@@ -179,7 +180,9 @@ function ShopHeader({
     ? (isAr ? 'مغلق مؤقتاً' : 'Temporarily Closed')
     : isBusy
     ? (isAr ? 'مشغول • تجهيز خلال ٦٠ د' : 'Busy • 60m prep')
-    : (rawStudio?.statusText || brand?.statusText || (isAr ? 'مفتوح الآن • تجهيز فوري' : 'Open Now • Instant Prep'));
+    : isAr
+    ? (rawStudio?.statusText || brand?.statusText || 'مفتوح الآن • تجهيز فوري')
+    : 'Open Now • Instant Prep';
 
   const statusColorClasses = isClosed
     ? 'bg-stone-500/10 dark:bg-stone-900/60 text-stone-700 dark:text-stone-300 border-stone-500/25 dark:border-stone-700'
@@ -191,11 +194,15 @@ function ShopHeader({
   const radarPingClasses = isClosed ? 'bg-stone-400' : isBusy ? 'bg-amber-400' : 'bg-emerald-400';
   const radarRingClasses = isClosed ? 'ring-stone-300' : isBusy ? 'ring-amber-200/80' : 'ring-emerald-200/80';
 
-  const avatarText = rawStudio?.avatarText || brand?.avatarText || 'د.و';
+  const branchInitials = isBranchStore && shopName
+    ? (isAr ? shopName.trim().slice(0, 3) : shopName.trim().slice(0, 2).toUpperCase())
+    : null;
+  const avatarText = branchInitials || rawStudio?.avatarText || brand?.avatarText || 'د.و';
   const avatarUrl = shopConfig?.avatarUrl || shopConfig?.logoUrl || customAvatar || brand?.avatarUrl;
   const locationLabel = shopConfig?.locationLabel || rawStudio?.locationLabel || brand?.locationLabel || (isAr ? 'الرياض • التوصيل لكافة الأحياء' : strings.location);
-  const locationUrl = brand?.locationUrl || 'https://maps.google.com';
-  const phone = rawStudio?.phone || brand?.phone || shopConfig?.phone || '966500000000';
+  const locationUrl = sanitizeUrl(shopConfig?.googleMapsUrl || brand?.locationUrl || 'https://maps.google.com', 'https://maps.google.com');
+  const instagramUrl = shopConfig?.instagramUrl ? sanitizeUrl(shopConfig.instagramUrl, '') : '';
+  const phone = (rawStudio?.phone || brand?.phone || shopConfig?.whatsapp || shopConfig?.phone || '966500000000').replace(/[^\d+]/g, '');
 
   // Secret 3-tap gesture on store hallmark to discreetly open florist portal
   const tapCountRef = useRef(0);
@@ -458,6 +465,44 @@ function ShopHeader({
             <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight select-text text-stone-900 dark:text-stone-50 leading-tight py-0.5">
               {shopName}
             </h1>
+
+            {/* Compact Shop Status, Location & Social Strip */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2">
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ring-1 ${statusColorClasses} ${radarRingClasses}`}>
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${radarPingClasses}`} />
+                  <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${radarDotClasses}`} />
+                </span>
+                <span>{statusText}</span>
+              </span>
+
+              <a
+                href={locationUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-stone-100/90 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 hover:border-amber-400/60 transition-colors"
+              >
+                <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="truncate max-w-[190px]">{locationLabel}</span>
+              </a>
+
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-stone-100/90 dark:bg-stone-800/80 text-stone-700 dark:text-stone-300 border border-stone-200/80 dark:border-stone-700 hover:border-amber-400/60 transition-colors"
+                >
+                  <span>Instagram</span>
+                </a>
+              )}
+            </div>
+
+            {shopTagline && (
+              <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 max-w-md mt-1.5 line-clamp-2">
+                {shopTagline}
+              </p>
+            )}
 
             {/* Subtle Royal Accent Line */}
             <div className="flex items-center justify-center gap-1.5 mt-2 mb-0.5 opacity-60 select-none">

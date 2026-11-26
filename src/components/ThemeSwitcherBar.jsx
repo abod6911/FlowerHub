@@ -4,14 +4,13 @@ import {
   Sliders,
   TrendingUp,
   Globe,
-  Smartphone,
+  Building2,
   LogOut,
-  ShieldCheck,
 } from 'lucide-react';
 import { t } from '../utils/translations';
 
 export default function ThemeSwitcherBar({
-  activeView = 'storefront', // 'storefront' | 'admin' | 'sales'
+  activeView = 'storefront', // 'storefront' | 'admin' | 'sales' | 'network'
   setActiveView,
   lang = 'ar',
   setLang,
@@ -20,7 +19,11 @@ export default function ThemeSwitcherBar({
   const strings = t[lang] || t.ar;
   const isAr = lang === 'ar';
 
-  const isCoordinatorView = activeView === 'admin' || activeView === 'sales' || activeView === 'split';
+  const isCoordinatorView =
+    activeView === 'admin' ||
+    activeView === 'sales' ||
+    activeView === 'split' ||
+    activeView === 'network';
 
   const handleLogoutClick = () => {
     if (onLogout) {
@@ -82,6 +85,19 @@ export default function ThemeSwitcherBar({
             >
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
               <span>{isAr ? 'المبيعات والأرباح' : 'Sales & Profits'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveView('network')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all cursor-pointer ${
+                activeView === 'network'
+                  ? 'bg-stone-800 text-amber-300 shadow-xs font-bold border border-amber-500/20'
+                  : 'text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5 text-sky-400" />
+              <span>{isAr ? 'إنشاء مواقع المتاجر' : 'Store Builder'}</span>
             </button>
           </div>
         </div>

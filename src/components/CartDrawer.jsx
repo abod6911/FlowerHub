@@ -66,12 +66,17 @@ export default function CartDrawer({
   const totalItemsCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
   const subtotal = items.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
-  // Delivery fee logic: free over 300 SAR or if pickup
+  // Delivery fee logic: honors store-configured fee & free-delivery threshold
   const hasDelivery = items.some(
     (item) => item.handover?.type === 'delivery' || item.handover?.type === 'gift'
   );
-  const deliveryFee = !hasDelivery ? 0 : subtotal >= 300 ? 0 : 25;
-  const originalDeliveryFee = 95; // Displayed crossed-out for high-converting marketing value
+  const parsedFee = Number(_shopConfig?.deliveryFee);
+  const parsedFreeMin = Number(_shopConfig?.minOrderFreeDelivery);
+  const baseDeliveryFee = Number.isFinite(parsedFee) && parsedFee >= 0 ? parsedFee : 25;
+  const freeDeliveryThreshold = Number.isFinite(parsedFreeMin) && parsedFreeMin >= 0 ? parsedFreeMin : 300;
+  const deliveryFee = !hasDelivery ? 0 : subtotal >= freeDeliveryThreshold ? 0 : baseDeliveryFee;
+  const originalDeliveryFee = Math.max(95, baseDeliveryFee); // Displayed crossed-out when waived
+  const cartShopTitle = isAr ? (_shopConfig?.shopNameAr || 'دار الورد') : (_shopConfig?.shopNameEn || 'Maison des Fleurs');
   const grandTotal = subtotal + deliveryFee;
   const vatAmount = Math.round(grandTotal * (15 / 115));
 
@@ -346,7 +351,7 @@ export default function CartDrawer({
                         </span>
                       </div>
                       <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium block mt-0.5">
-                        {isAr ? 'دار الورد • تنسيق وتوصيل فوري' : 'Maison des Fleurs • Express Delivery'}
+                        {cartShopTitle} • {isAr ? 'تنسيق وتوصيل فوري' : 'Express Delivery'}
                       </span>
                     </div>
                   </div>
