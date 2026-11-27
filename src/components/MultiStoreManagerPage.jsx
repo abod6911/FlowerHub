@@ -494,20 +494,20 @@ export default function MultiStoreManagerPage({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FAF8F5] text-stone-900 flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
-      {/* Compact Executive Header */}
-      <header className="sticky top-0 z-40 bg-stone-950/95 backdrop-blur-xl text-white px-4 sm:px-6 py-3 border-b border-amber-500/20 shadow-md">
+    <div className="min-h-screen w-full bg-[#F6F4EF] text-[#151413] flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* Architectural Matte Header */}
+      <header className="sticky top-0 z-40 bg-[#141312] text-[#FCFBF8] px-4 sm:px-6 py-3.5 border-b border-white/10">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/10 text-[#C5A572] border border-white/10 flex items-center justify-center shrink-0">
               <Building2 className="w-4.5 h-4.5" />
             </div>
             <div>
-              <h1 className="font-serif font-black text-sm sm:text-base text-amber-100 leading-tight">
+              <h1 className="font-serif font-bold text-sm sm:text-base text-[#FCFBF8] leading-tight">
                 {isAr ? 'منشئ مواقع المتاجر' : 'FlowerHub Store Builder'}
               </h1>
-              <span className="text-[10px] font-mono text-emerald-400">
-                PBKDF2 · HMAC · RBAC
+              <span className="text-[11px] text-stone-400">
+                {isAr ? 'إدارة الفروع والروابط' : 'Store & Account Directory'}
               </span>
             </div>
           </div>
@@ -517,9 +517,9 @@ export default function MultiStoreManagerPage({
               <button
                 type="button"
                 onClick={onToggleLang}
-                className="py-1.5 px-3 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-stone-200 border border-white/10 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
               >
-                <Globe className="w-3.5 h-3.5 text-amber-400" />
+                <Globe className="w-3.5 h-3.5 text-[#C5A572]" />
                 <span>{isAr ? 'English' : 'العربية'}</span>
               </button>
             )}
@@ -527,9 +527,9 @@ export default function MultiStoreManagerPage({
             <button
               type="button"
               onClick={handleOpenCreateModal}
-              className="py-1.5 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+              className="py-1.5 px-4 rounded-xl bg-[#FCFBF8] hover:bg-[#EFECE4] text-[#141312] font-bold text-xs flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
             >
-              <Plus className="w-4 h-4 stroke-[2.5]" />
+              <Plus className="w-4 h-4 stroke-[2.2]" />
               <span>{isAr ? 'إنشاء موقع وحساب محل' : 'New Store & Account'}</span>
             </button>
 
@@ -537,9 +537,9 @@ export default function MultiStoreManagerPage({
               <button
                 type="button"
                 onClick={onOpenStoreAdmin}
-                className="py-1.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                className="py-1.5 px-3 rounded-xl bg-white/8 hover:bg-white/15 text-[#F6F4EF] border border-white/10 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
               >
-                <Sliders className="w-3.5 h-3.5 text-amber-400" />
+                <Sliders className="w-3.5 h-3.5 text-[#C5A572]" />
                 <span className="hidden sm:inline">{isAr ? 'لوحة المنسق' : 'Store Admin'}</span>
               </button>
             )}
@@ -561,33 +561,33 @@ export default function MultiStoreManagerPage({
       <main className="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-5">
         {/* Minimal 3 KPI Pills */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
-              <Store className="w-4 h-4" />
+          <div className="p-3.5 rounded-2xl bg-[#FCFBF8] border border-[#E5DFD3] flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#F3EFE6] text-[#151413] flex items-center justify-center shrink-0">
+              <Store className="w-4 h-4 text-[#8C7148]" />
             </div>
             <div>
-              <div className="text-[11px] text-stone-500">{isAr ? 'المتاجر' : 'Stores'}</div>
-              <div className="text-lg font-black text-stone-900">{stats.total}</div>
+              <div className="text-[11px] text-[#6E6A64]">{isAr ? 'المتاجر' : 'Stores'}</div>
+              <div className="text-lg font-bold text-[#151413]">{stats.total}</div>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+          <div className="p-3.5 rounded-2xl bg-[#FCFBF8] border border-[#E5DFD3] flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
               <UserCheck className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-[11px] text-stone-500">{isAr ? 'نشطة' : 'Active'}</div>
-              <div className="text-lg font-black text-emerald-700">{stats.active}</div>
+              <div className="text-[11px] text-[#6E6A64]">{isAr ? 'نشطة' : 'Active'}</div>
+              <div className="text-lg font-bold text-emerald-800">{stats.active}</div>
             </div>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-stone-200 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center shrink-0">
-              <KeyRound className="w-4 h-4" />
+          <div className="p-3.5 rounded-2xl bg-[#FCFBF8] border border-[#E5DFD3] flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#F3EFE6] text-[#151413] flex items-center justify-center shrink-0">
+              <KeyRound className="w-4 h-4 text-[#8C7148]" />
             </div>
             <div>
-              <div className="text-[11px] text-stone-500">{isAr ? 'محمية PBKDF2' : 'Secured'}</div>
-              <div className="text-lg font-black text-stone-900">{stats.secured}/{stats.total}</div>
+              <div className="text-[11px] text-[#6E6A64]">{isAr ? 'حسابات مؤمّنة' : 'Secured'}</div>
+              <div className="text-lg font-bold text-[#151413]">{stats.secured}/{stats.total}</div>
             </div>
           </div>
         </div>
@@ -600,8 +600,8 @@ export default function MultiStoreManagerPage({
               onClick={() => setActiveTab('stores')}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
                 activeTab === 'stores'
-                  ? 'bg-stone-950 text-amber-300 shadow-sm'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                  ? 'bg-[#141312] text-[#FCFBF8] shadow-xs'
+                  : 'bg-[#FCFBF8] text-[#5C564E] border border-[#E5DFD3] hover:bg-white'
               }`}
             >
               <Store className="w-3.5 h-3.5" />
@@ -616,8 +616,8 @@ export default function MultiStoreManagerPage({
               }}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
                 activeTab === 'security'
-                  ? 'bg-stone-950 text-amber-300 shadow-sm'
-                  : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-50'
+                  ? 'bg-[#141312] text-[#FCFBF8] shadow-xs'
+                  : 'bg-[#FCFBF8] text-[#5C564E] border border-[#E5DFD3] hover:bg-white'
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -732,31 +732,31 @@ export default function MultiStoreManagerPage({
                   </div>
 
                   {/* Card Footer: Dedicated Customer Site + Owner Admin Panel Links */}
-                  <div className="px-4 py-3 bg-stone-50/90 border-t border-stone-200/80 space-y-2.5">
+                  <div className="px-4 py-3 bg-[#F9F7F2] border-t border-[#EAE5DA] space-y-2.5">
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => handleCopy(portableUrl, `site-${store.id}`)}
-                        className={`py-2 px-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                        className={`py-2 px-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors ${
                           isCopiedSite
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-stone-900 hover:bg-stone-800 text-amber-300'
+                            ? 'bg-emerald-700 text-white'
+                            : 'bg-[#151413] hover:bg-[#272522] text-[#FCFBF8]'
                         }`}
                       >
-                        {isCopiedSite ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {isCopiedSite ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5 text-[#C5A572]" />}
                         <span>{isCopiedSite ? (isAr ? 'تم!' : 'Copied') : isAr ? 'رابط الموقع' : 'Store Link'}</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => handleCopy(adminInviteUrl, `admin-${store.id}`)}
-                        className={`py-2 px-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 border cursor-pointer transition-all ${
+                        className={`py-2 px-2.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 border cursor-pointer transition-colors ${
                           isCopiedAdmin
-                            ? 'bg-emerald-600 text-white border-emerald-600'
-                            : 'bg-white hover:bg-amber-50 text-stone-900 border-stone-300'
+                            ? 'bg-emerald-700 text-white border-emerald-700'
+                            : 'bg-white hover:bg-[#F3EFE6] text-[#151413] border-[#DED8CC]'
                         }`}
                       >
-                        {isCopiedAdmin ? <Check className="w-3.5 h-3.5" /> : <KeyRound className="w-3.5 h-3.5 text-amber-600" />}
+                        {isCopiedAdmin ? <Check className="w-3.5 h-3.5" /> : <KeyRound className="w-3.5 h-3.5 text-[#8C7148]" />}
                         <span>{isCopiedAdmin ? (isAr ? 'تم!' : 'Copied') : isAr ? 'رابط لوحة المالك' : 'Owner Panel'}</span>
                       </button>
                     </div>
@@ -765,9 +765,9 @@ export default function MultiStoreManagerPage({
                       <button
                         type="button"
                         onClick={() => onSwitchToStore && onSwitchToStore(store)}
-                        className="py-1.5 px-2.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                        className="py-1.5 px-2.5 rounded-lg bg-[#EFECE4] hover:bg-[#E4DEC9] text-[#151413] font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-colors"
                       >
-                        <Eye className="w-3.5 h-3.5" />
+                        <Eye className="w-3.5 h-3.5 text-[#8C7148]" />
                         <span>{isAr ? 'معاينة' : 'Preview'}</span>
                       </button>
 
@@ -960,17 +960,17 @@ export default function MultiStoreManagerPage({
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-4">
-            <div className="fixed inset-0 bg-black/75 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
+            <div className="fixed inset-0 bg-[#121110]/80 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
 
             <motion.div
               initial={{ scale: 0.96, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.96, opacity: 0, y: 10 }}
-              className="relative z-10 w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col max-h-[92vh]"
+              className="relative z-10 w-full max-w-xl bg-[#FCFBF8] rounded-3xl shadow-[0_32px_64px_-20px_rgba(0,0,0,0.45)] border border-[#E5DFD3] overflow-hidden flex flex-col max-h-[92vh]"
             >
               {/* Modal Header */}
-              <div className="bg-stone-950 text-white px-5 py-3.5 flex items-center justify-between shrink-0">
-                <h3 className="font-serif font-bold text-sm text-amber-100">
+              <div className="px-5 py-4 border-b border-[#EAE5DA] flex items-center justify-between shrink-0">
+                <h3 className="font-serif font-bold text-base text-[#151413]">
                   {editingStore
                     ? isAr
                       ? 'تعديل المتجر'
@@ -979,18 +979,18 @@ export default function MultiStoreManagerPage({
                     ? 'إنشاء متجر وحساب مالك'
                     : 'New Store & Owner Account'}
                 </h3>
-                <button type="button" onClick={() => setIsModalOpen(false)} className="text-stone-400 hover:text-white cursor-pointer">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="text-[#8E887E] hover:text-[#151413] cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Clean 2-Step Bar */}
-              <div className="flex border-b border-stone-200 bg-stone-50 text-xs font-bold shrink-0">
+              <div className="flex border-b border-[#EAE5DA] bg-[#F5F2EB] text-xs font-bold shrink-0">
                 <button
                   type="button"
                   onClick={() => setFormStep('store')}
                   className={`flex-1 py-2.5 border-b-2 cursor-pointer transition-colors ${
-                    formStep === 'store' ? 'border-amber-500 text-stone-950 bg-white' : 'border-transparent text-stone-500'
+                    formStep === 'store' ? 'border-[#151413] text-[#151413] bg-[#FCFBF8]' : 'border-transparent text-[#7A746B]'
                   }`}
                 >
                   {isAr ? '١. المتجر والتصميم' : '1. Store & Theme'}
@@ -999,7 +999,7 @@ export default function MultiStoreManagerPage({
                   type="button"
                   onClick={() => setFormStep('owner')}
                   className={`flex-1 py-2.5 border-b-2 cursor-pointer transition-colors ${
-                    formStep === 'owner' ? 'border-amber-500 text-stone-950 bg-white' : 'border-transparent text-stone-500'
+                    formStep === 'owner' ? 'border-[#151413] text-[#151413] bg-[#FCFBF8]' : 'border-transparent text-[#7A746B]'
                   }`}
                 >
                   {isAr ? '٢. حساب المالك والأمان' : '2. Owner Account'}
@@ -1392,7 +1392,7 @@ export default function MultiStoreManagerPage({
                     <button
                       type="button"
                       onClick={() => setFormStep('owner')}
-                      className="py-2.5 px-5 rounded-xl bg-stone-950 text-amber-300 text-xs font-black cursor-pointer"
+                      className="py-2.5 px-5 rounded-xl bg-[#141312] hover:bg-[#272522] text-[#FCFBF8] text-xs font-bold cursor-pointer transition-colors"
                     >
                       {isAr ? 'التالي: حساب المالك ←' : 'Next: Owner Account →'}
                     </button>
@@ -1400,9 +1400,9 @@ export default function MultiStoreManagerPage({
                     <button
                       type="submit"
                       disabled={isSaving}
-                      className="py-2.5 px-5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="py-2.5 px-5 rounded-xl bg-[#141312] hover:bg-[#272522] text-[#FCFBF8] font-bold text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition-colors"
                     >
-                      <Check className="w-4 h-4 stroke-[2.5]" />
+                      <Check className="w-4 h-4 text-[#C5A572]" />
                       <span>
                         {editingStore
                           ? isAr
@@ -1426,21 +1426,23 @@ export default function MultiStoreManagerPage({
       {/* ========================================================= */}
       <AnimatePresence>
         {handoffInfo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121110]/80 backdrop-blur-md">
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden"
+              exit={{ scale: 0.96, opacity: 0 }}
+              className="w-full max-w-md bg-[#FCFBF8] rounded-3xl shadow-[0_32px_64px_-20px_rgba(0,0,0,0.45)] border border-[#E5DFD3] overflow-hidden"
             >
-              <div className="bg-stone-950 text-white px-5 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  <h4 className="font-serif font-bold text-sm text-amber-100">
+              <div className="px-5 py-4 border-b border-[#EAE5DA] flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+                    <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                  </div>
+                  <h4 className="font-serif font-bold text-base text-[#151413]">
                     {isAr ? handoffInfo.store.nameAr : handoffInfo.store.nameEn}
                   </h4>
                 </div>
-                <button type="button" onClick={() => setHandoffInfo(null)} className="text-stone-400 hover:text-white cursor-pointer">
+                <button type="button" onClick={() => setHandoffInfo(null)} className="text-[#8E887E] hover:text-[#151413] cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -1503,9 +1505,9 @@ export default function MultiStoreManagerPage({
                         : `Your store (${handoffInfo.store.nameEn}) is live!\nCustomer Link:\n${handoffInfo.portableUrl}\n\nOwner Edit Panel:\n${handoffInfo.adminUrl}\nUsername: ${handoffInfo.username}\nPassword: ${handoffInfo.passwordPlain || '(unchanged)'}`;
                       handleCopy(pack, 'handoff-pack');
                     }}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-stone-950 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#151413] hover:bg-[#272522] text-[#FCFBF8] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                   >
-                    {copiedKey === 'handoff-pack' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    {copiedKey === 'handoff-pack' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-[#C5A572]" />}
                     <span>
                       {copiedKey === 'handoff-pack'
                         ? isAr
@@ -1519,7 +1521,7 @@ export default function MultiStoreManagerPage({
                   <button
                     type="button"
                     onClick={() => setHandoffInfo(null)}
-                    className="py-2.5 px-4 rounded-xl border border-stone-300 text-stone-700 font-bold text-xs cursor-pointer"
+                    className="py-2.5 px-4 rounded-xl bg-[#F4F0E8] hover:bg-[#EAE4D7] border border-[#E2DACB] text-[#2C2925] font-bold text-xs cursor-pointer transition-colors"
                   >
                     {isAr ? 'إغلاق' : 'Done'}
                   </button>
@@ -1535,27 +1537,27 @@ export default function MultiStoreManagerPage({
       {/* ========================================================= */}
       <AnimatePresence>
         {qrModalStore && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121110]/80 backdrop-blur-md">
             <motion.div
-              initial={{ scale: 0.94, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.94, opacity: 0 }}
-              className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden"
+              exit={{ scale: 0.96, opacity: 0 }}
+              className="w-full max-w-sm bg-[#FCFBF8] rounded-3xl shadow-[0_32px_64px_-20px_rgba(0,0,0,0.45)] border border-[#E5DFD3] overflow-hidden"
             >
-              <div className="bg-stone-950 text-white px-5 py-3.5 flex items-center justify-between">
+              <div className="px-5 py-4 border-b border-[#EAE5DA] flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-4 h-4 text-amber-400" />
-                  <h4 className="font-serif font-bold text-sm text-amber-100">
+                  <QrCode className="w-4 h-4 text-[#8C7148]" />
+                  <h4 className="font-serif font-bold text-sm text-[#151413]">
                     {isAr ? qrModalStore.nameAr : qrModalStore.nameEn}
                   </h4>
                 </div>
-                <button type="button" onClick={() => setQrModalStore(null)} className="text-stone-400 hover:text-white cursor-pointer">
+                <button type="button" onClick={() => setQrModalStore(null)} className="text-[#8E887E] hover:text-[#151413] cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               <div className="p-5 space-y-4 text-center">
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-stone-100 text-[11px] font-bold">
+                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[#EFECE4] text-[11px] font-bold">
                   {[
                     { id: 'portable', ar: 'موقع المتجر', en: 'Storefront' },
                     { id: 'admin', ar: 'لوحة المالك', en: 'Owner Admin' },
@@ -1565,8 +1567,8 @@ export default function MultiStoreManagerPage({
                       key={m.id}
                       type="button"
                       onClick={() => setQrMode(m.id)}
-                      className={`py-1.5 rounded-lg cursor-pointer ${
-                        qrMode === m.id ? 'bg-white text-stone-950 shadow-xs' : 'text-stone-500'
+                      className={`py-1.5 rounded-lg cursor-pointer transition-colors ${
+                        qrMode === m.id ? 'bg-white text-[#151413] shadow-xs' : 'text-[#6E6A64]'
                       }`}
                     >
                       {isAr ? m.ar : m.en}
@@ -1574,7 +1576,7 @@ export default function MultiStoreManagerPage({
                   ))}
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border-2 border-amber-300/60 inline-block shadow-sm">
+                <div className="p-4 rounded-2xl bg-white border border-[#E2DACB] inline-block shadow-xs">
                   {activeQrSvg ? (
                     <div className="w-56 h-56 mx-auto [&>svg]:w-full [&>svg]:h-full" dangerouslySetInnerHTML={{ __html: activeQrSvg }} />
                   ) : (
@@ -1586,15 +1588,15 @@ export default function MultiStoreManagerPage({
                   <button
                     type="button"
                     onClick={handleDownloadQrSvg}
-                    className="flex-1 py-2.5 px-3 rounded-xl bg-stone-950 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-1 py-2.5 px-3 rounded-xl bg-[#151413] hover:bg-[#272522] text-[#FCFBF8] font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4 text-[#C5A572]" />
                     <span>SVG</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => window.print()}
-                    className="py-2.5 px-3.5 rounded-xl border border-stone-300 text-stone-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                    className="py-2.5 px-3.5 rounded-xl bg-[#F4F0E8] hover:bg-[#EAE4D7] border border-[#E2DACB] text-[#2C2925] font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                   >
                     <Printer className="w-4 h-4" />
                     <span>{isAr ? 'طباعة' : 'Print'}</span>
@@ -1611,31 +1613,31 @@ export default function MultiStoreManagerPage({
       {/* ========================================================= */}
       <AnimatePresence>
         {rotateTargetStore && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121110]/80 backdrop-blur-md">
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden"
+              exit={{ scale: 0.96, opacity: 0 }}
+              className="w-full max-w-sm bg-[#FCFBF8] rounded-3xl shadow-[0_32px_64px_-20px_rgba(0,0,0,0.45)] border border-[#E5DFD3] overflow-hidden"
             >
-              <div className="bg-stone-950 text-white px-5 py-3.5 flex items-center justify-between">
-                <span className="font-bold text-xs text-amber-200">
+              <div className="px-5 py-4 border-b border-[#EAE5DA] flex items-center justify-between">
+                <span className="font-serif font-bold text-sm text-[#151413]">
                   {isAr ? rotateTargetStore.nameAr : rotateTargetStore.nameEn}
                 </span>
-                <button type="button" onClick={() => setRotateTargetStore(null)} className="text-stone-400 hover:text-white cursor-pointer">
+                <button type="button" onClick={() => setRotateTargetStore(null)} className="text-[#8E887E] hover:text-[#151413] cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <form onSubmit={handleRotateStorePasswordSubmit} className="p-5 space-y-3 text-xs">
-                {rotateError && <p className="text-rose-600 font-semibold">{rotateError}</p>}
+                {rotateError && <p className="text-rose-700 font-semibold">{rotateError}</p>}
 
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-stone-700">{isAr ? 'كلمة مرور جديدة للمالك' : 'New Owner Password'}</span>
+                  <span className="font-bold text-[#3C3934]">{isAr ? 'كلمة مرور جديدة للمالك' : 'New Owner Password'}</span>
                   <button
                     type="button"
                     onClick={() => setRotatePwdInput(generateStrongPassword(14))}
-                    className="text-amber-700 font-bold cursor-pointer"
+                    className="text-[#8C7148] hover:text-[#151413] font-bold cursor-pointer"
                   >
                     {isAr ? 'توليد آمن' : 'Generate'}
                   </button>
@@ -1648,12 +1650,12 @@ export default function MultiStoreManagerPage({
                   value={rotatePwdInput}
                   onChange={(e) => setRotatePwdInput(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full px-3 py-2.5 rounded-xl border border-stone-300 font-mono text-left outline-none focus:border-amber-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#DED8CC] font-mono text-left outline-none focus:border-[#151413]"
                 />
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-xl bg-stone-950 text-amber-300 font-bold cursor-pointer"
+                  className="w-full py-2.5 rounded-xl bg-[#151413] hover:bg-[#272522] text-[#FCFBF8] font-bold cursor-pointer transition-colors"
                 >
                   {isAr ? 'حفظ وتحديث الرابط' : 'Save & Update Link'}
                 </button>

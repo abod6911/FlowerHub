@@ -424,16 +424,10 @@ export default function AdminAuthGuard({
 
   if (isLoading) {
     return (
-      <div className="w-full py-24 flex flex-col items-center justify-center gap-4 bg-stone-950 text-stone-200 min-h-screen">
-        <div className="relative w-14 h-14">
-          <div className="absolute inset-0 rounded-full border-2 border-amber-400/20" />
-          <div className="absolute inset-0 rounded-full border-2 border-t-amber-400 border-r-amber-400/40 border-b-transparent border-l-transparent animate-spin" />
-          <div className="absolute inset-2 rounded-full border border-amber-400/10 flex items-center justify-center">
-            <Lock className="w-4 h-4 text-amber-400/70" />
-          </div>
-        </div>
-        <span className="text-[11px] font-mono tracking-[0.2em] text-stone-400 uppercase">
-          {isAr ? 'التحقق من الجلسة الأمنية' : 'Validating Security Session'}
+      <div className="w-full py-24 flex flex-col items-center justify-center gap-4 bg-[#141312] text-[#FCFBF8] min-h-screen">
+        <div className="w-9 h-9 rounded-full border-2 border-white/15 border-t-[#C5A572] animate-spin" />
+        <span className={`text-xs text-stone-400 ${isAr ? 'font-sans' : 'font-mono uppercase tracking-wider'}`}>
+          {isAr ? 'جاري التحقق...' : 'Verifying session'}
         </span>
       </div>
     );
@@ -443,27 +437,24 @@ export default function AdminAuthGuard({
     return (
       <div className="relative w-full">
         {showTopBar && (
-          <div className="bg-stone-950 text-stone-300 px-4 py-2 text-xs flex items-center justify-between border-b border-stone-800 select-none">
+          <div className="bg-[#141312] text-stone-300 px-4 py-2 text-xs flex items-center justify-between border-b border-white/10 select-none">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-bold text-stone-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="font-semibold text-[#FCFBF8]">
                 {sessionPayload?.role === 'super_admin'
                   ? isAr
-                    ? `جلسة مدير المنصة (${sessionPayload?.sub})`
-                    : `Super Admin Session (${sessionPayload?.sub})`
+                    ? `مدير المنصة (${sessionPayload?.sub})`
+                    : `Super Admin (${sessionPayload?.sub})`
                   : isAr
-                  ? `جلسة صاحب المتجر (${sessionPayload?.sub})`
-                  : `Store Owner Session (${sessionPayload?.sub})`}
-              </span>
-              <span className="text-[10px] text-stone-500 font-mono hidden sm:inline">
-                | {isAr ? 'صالحة لمدة 15 دقيقة' : '15-min TTL'}
+                  ? `صاحب المتجر (${sessionPayload?.sub})`
+                  : `Store Owner (${sessionPayload?.sub})`}
               </span>
             </div>
 
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800 hover:bg-stone-700 text-amber-300 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/15 text-[#FCFBF8] text-xs font-semibold transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>{isAr ? 'تسجيل الخروج' : 'Logout'}</span>
@@ -478,26 +469,30 @@ export default function AdminAuthGuard({
   // Render RBAC Access Denied Screen if authenticated with lower privilege
   if (accessDeniedReason) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/95 backdrop-blur-xl select-none">
-        <div className="w-full max-w-sm rounded-[28px] bg-stone-900 border border-rose-500/35 p-7 text-center space-y-5 shadow-2xl">
-          <div className="w-16 h-16 rounded-full bg-rose-500/15 border border-rose-500/35 flex items-center justify-center mx-auto">
-            <ShieldAlert className="w-8 h-8 text-rose-400" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121110]/85 backdrop-blur-md select-none">
+        <div className="w-full max-w-sm rounded-3xl bg-[#FCFBF8] border border-[#E5DFD3] p-7 space-y-5 shadow-[0_32px_64px_-20px_rgba(0,0,0,0.5)]">
+          <div className="flex items-center justify-between border-b border-[#EAE5DA] pb-4">
+            <div className="space-y-1">
+              <span className="inline-block text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-800 border border-rose-200 font-semibold">
+                403 · RBAC
+              </span>
+              <h2 className="text-lg font-serif font-bold text-[#151413]">
+                {isAr ? 'وصول مقيد بالصلاحيات' : 'Access Restricted'}
+              </h2>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0">
+              <ShieldAlert className="w-5 h-5 text-rose-700" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-rose-400 font-bold">
-              403 • RBAC Restricted
-            </span>
-            <h2 className="text-lg font-serif font-bold text-white">
-              {isAr ? 'وصول مقيد بالصلاحيات' : 'Access Restricted'}
-            </h2>
-            <p className="text-xs text-stone-400 leading-relaxed">{accessDeniedReason}</p>
-          </div>
-          <div className="flex gap-2.5">
+
+          <p className="text-xs text-stone-600 leading-relaxed">{accessDeniedReason}</p>
+
+          <div className="flex gap-2.5 pt-1">
             {onClose && (
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold cursor-pointer"
+                className="flex-1 py-2.5 px-4 rounded-xl bg-[#F4F0E8] hover:bg-[#EAE4D7] border border-[#E2DACB] text-[#2C2925] text-xs font-bold cursor-pointer transition-colors"
               >
                 {isAr ? 'العودة للمتجر' : 'Back to Store'}
               </button>
@@ -505,7 +500,7 @@ export default function AdminAuthGuard({
             <button
               type="button"
               onClick={handleLogout}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold cursor-pointer"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-[#151413] hover:bg-[#272522] text-[#FCFBF8] text-xs font-bold cursor-pointer transition-colors"
             >
               {isAr ? 'تبديل الحساب' : 'Switch Account'}
             </button>
@@ -515,91 +510,76 @@ export default function AdminAuthGuard({
     );
   }
 
-  // Render First-Time Setup OR Hardened Login Gate
+  // Render Quiet Architectural Ivory Login & Initial Setup Gate
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none overflow-y-auto">
-      <div className="fixed inset-0 bg-stone-950/95 backdrop-blur-xl" />
+      <div className="fixed inset-0 bg-[#121110]/82 backdrop-blur-md" />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.94, y: 20 }}
+        initial={{ opacity: 0, scale: 0.97, y: 12 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: 'spring', damping: 24, stiffness: 320 }}
+        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 w-full max-w-md my-auto"
       >
-        <div
-          className="rounded-[30px] overflow-hidden"
-          style={{
-            background: 'linear-gradient(145deg, #1c1917 0%, #0c0a09 60%, #111827 100%)',
-            border: '1px solid rgba(217, 175, 55, 0.25)',
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.06)',
-          }}
-        >
-          {/* Gold Top Ribbon */}
-          <div
-            className="h-[3px] w-full"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent, rgba(217,175,55,0.8) 30%, rgba(253,230,138,1) 50%, rgba(217,175,55,0.8) 70%, transparent)',
-            }}
-          />
-
-          <div className="p-6 sm:p-7 space-y-5">
-            {/* Header Medallion */}
-            <div className="text-center space-y-2.5">
-              <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center bg-stone-900 border border-amber-400/35 shadow-lg">
-                <Lock className="w-7 h-7 text-amber-400" />
-              </div>
-
-              <div>
-                <span className="text-[10px] font-mono tracking-[0.25em] text-amber-400/80 uppercase block">
+        <div className="rounded-[28px] bg-[#FCFBF8] border border-[#E4DEC9] shadow-[0_32px_70px_-20px_rgba(0,0,0,0.55)] overflow-hidden text-[#151413]">
+          <div className="p-6 sm:p-8 space-y-6">
+            {/* Editorial Architectural Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-[#EAE5DA] pb-5">
+              <div className="space-y-1 min-w-0">
+                <span
+                  className={`text-[11px] font-semibold text-[#8C7148] block ${
+                    isAr ? 'font-sans' : 'uppercase tracking-[0.14em]'
+                  }`}
+                >
                   {needsInitialSetup
                     ? isAr
-                      ? 'تهيئة الخزنة الأمنية الأولى'
-                      : 'Initial Security Vault Setup'
+                      ? 'إعداد المنصة'
+                      : 'Platform Setup'
                     : requiredRole === 'super_admin'
                     ? isAr
-                      ? 'بوابة مدير المنصة الرئيسي'
-                      : 'Super Admin Portal'
+                      ? 'إدارة المنصة'
+                      : 'Platform Console'
                     : isAr
-                    ? 'بوابة الإدارة المشفرة'
-                    : 'Encrypted Admin Suite'}
+                    ? 'إدارة المتجر'
+                    : 'Store Portal'}
                 </span>
-                <h2 className="text-xl font-serif font-black text-white mt-1">
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#151413] leading-tight">
                   {needsInitialSetup
                     ? isAr
-                      ? 'إعداد حساب مدير المنصة'
-                      : 'Create Super Admin Account'
+                      ? 'تفعيل حساب المدير'
+                      : 'Create Admin Account'
                     : isAr
-                    ? 'تسجيل الدخول الآمن'
-                    : 'Secure Sign In'}
+                    ? 'تسجيل الدخول'
+                    : 'Sign In'}
                 </h2>
-                <p className="text-xs text-stone-400 mt-1">
-                  {needsInitialSetup
-                    ? isAr
-                      ? 'عيّن اسم مستخدم وكلمة مرور قوية لمدير المنصة.'
-                      : 'Create Super Admin username & strong password.'
-                    : storeContext?.shopNameAr && requiredRole !== 'super_admin'
-                    ? isAr
-                      ? `${storeContext.shopNameAr}`
-                      : `${storeContext.shopNameEn || storeContext.shopNameAr}`
-                    : isAr
-                    ? 'سجّل الدخول بحسابك المعتمد.'
-                    : 'Sign in with your verified account.'}
-                </p>
+                <div className="flex items-center gap-2 pt-1 flex-wrap">
+                  <span className="text-xs text-[#6E6A64]">
+                    {needsInitialSetup
+                      ? isAr
+                        ? 'أنشئ بيانات الدخول الرئيسية للمتابعة'
+                        : 'Set up primary administrator credentials'
+                      : storeContext?.shopNameAr && requiredRole !== 'super_admin'
+                      ? isAr
+                        ? storeContext.shopNameAr
+                        : storeContext.shopNameEn || storeContext.shopNameAr
+                      : isAr
+                      ? 'لوحة التحكم والإدارة'
+                      : 'Boutique management suite'}
+                  </span>
+                  {storeContext?.slug && requiredRole !== 'super_admin' && (
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono bg-[#F3EFE6] border border-[#E2DACB] text-[#5C564E]"
+                      dir="ltr"
+                    >
+                      <Store className="w-3 h-3 text-[#8C7148]" />
+                      <span>{storeContext.slug}</span>
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Compact Security Pill */}
-              <div className="flex items-center justify-center gap-2 pt-0.5 flex-wrap">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>PBKDF2 · HMAC · RBAC</span>
-                </span>
-                {storeContext?.slug && requiredRole !== 'super_admin' && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-stone-800 border border-stone-700 text-stone-300" dir="ltr">
-                    <Store className="w-3 h-3 text-amber-400" />
-                    <span>{storeContext.slug}</span>
-                  </span>
-                )}
+              <div className="w-11 h-11 rounded-full bg-[#F5F1E8] border border-[#E2DACB] flex items-center justify-center shrink-0">
+                <Lock className="w-4.5 h-4.5 text-[#151413]" />
               </div>
             </div>
 
@@ -607,17 +587,17 @@ export default function AdminAuthGuard({
             <AnimatePresence>
               {errorMsg && (
                 <motion.div
-                  initial={{ opacity: 0, y: -8 }}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="rounded-2xl p-3.5 bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5"
+                  exit={{ opacity: 0, y: -6 }}
+                  className="rounded-2xl p-3.5 bg-rose-50 border border-rose-200 flex items-start gap-2.5"
                 >
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <div className="text-xs text-rose-200 leading-relaxed flex-1">
+                  <AlertCircle className="w-4 h-4 text-rose-700 shrink-0 mt-0.5" />
+                  <div className="text-xs text-rose-900 leading-relaxed flex-1">
                     <p>{errorMsg}</p>
                     {lockoutRemaining > 0 && (
-                      <p className="font-mono font-bold text-amber-300 mt-1">
-                        {isAr ? `إعادة المحاولة بعد: ${lockoutRemaining} ثانية` : `Retry in: ${lockoutRemaining}s`}
+                      <p className="font-mono font-bold text-rose-700 mt-1">
+                        {isAr ? `المحاولة بعد ${lockoutRemaining} ثانية` : `Retry in ${lockoutRemaining}s`}
                       </p>
                     )}
                   </div>
@@ -626,11 +606,11 @@ export default function AdminAuthGuard({
             </AnimatePresence>
 
             {/* Form */}
-            <form onSubmit={needsInitialSetup ? handleInitialSetup : handleLogin} className="space-y-3.5">
+            <form onSubmit={needsInitialSetup ? handleInitialSetup : handleLogin} className="space-y-4">
               {/* Username */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-stone-300 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-amber-400" />
+                <label className="text-xs font-semibold text-[#3C3934] flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-[#8C7148]" />
                   <span>{isAr ? 'اسم المستخدم' : 'Username'}</span>
                 </label>
                 <input
@@ -638,19 +618,19 @@ export default function AdminAuthGuard({
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={isLoading || lockoutRemaining > 0}
-                  placeholder={needsInitialSetup ? 'e.g. platform_admin' : isAr ? 'اسم المستخدم للمدير أو صاحب المحل' : 'Admin or store username'}
+                  placeholder={needsInitialSetup ? 'platform_admin' : isAr ? 'أدخل اسم المستخدم' : 'Enter username'}
                   autoComplete="username"
                   dir="ltr"
                   required
-                  className="w-full py-3 px-3.5 rounded-xl bg-stone-900/90 border border-stone-700/80 text-white placeholder-stone-500 text-xs font-mono focus:border-amber-400 focus:outline-none text-start"
+                  className="w-full py-3 px-4 rounded-xl bg-white border border-[#DED8CC] text-[#151413] placeholder:text-[#9E978D] placeholder:font-sans text-xs font-sans focus:border-[#151413] focus:ring-2 focus:ring-[#151413]/8 focus:outline-none text-start transition-all"
                 />
               </div>
 
               {/* Password */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-bold text-stone-300 flex items-center gap-1.5">
-                    <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                  <label className="text-xs font-semibold text-[#3C3934] flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-[#8C7148]" />
                     <span>{isAr ? 'كلمة المرور' : 'Password'}</span>
                   </label>
 
@@ -663,10 +643,10 @@ export default function AdminAuthGuard({
                         setConfirmPassword(gen);
                         setShowPassword(true);
                       }}
-                      className="text-[10px] font-bold text-amber-300 hover:text-amber-200 inline-flex items-center gap-1 cursor-pointer"
+                      className="text-[11px] font-semibold text-[#8C7148] hover:text-[#151413] inline-flex items-center gap-1 cursor-pointer transition-colors"
                     >
                       <Wand2 className="w-3 h-3" />
-                      <span>{isAr ? 'توليد كلمة مرور قوية' : 'Generate Strong Password'}</span>
+                      <span>{isAr ? 'توليد كلمة مرور قوية' : 'Generate Strong'}</span>
                     </button>
                   )}
                 </div>
@@ -681,12 +661,12 @@ export default function AdminAuthGuard({
                     autoComplete={needsInitialSetup ? 'new-password' : 'current-password'}
                     dir="ltr"
                     required
-                    className="w-full py-3 ps-3.5 pe-10 rounded-xl bg-stone-900/90 border border-stone-700/80 text-white placeholder-stone-500 text-xs font-mono focus:border-amber-400 focus:outline-none text-left"
+                    className="w-full py-3 ps-4 pe-10 rounded-xl bg-white border border-[#DED8CC] text-[#151413] placeholder:text-[#9E978D] text-xs font-mono focus:border-[#151413] focus:ring-2 focus:ring-[#151413]/8 focus:outline-none text-left transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-amber-300 p-1 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8E887E] hover:text-[#151413] p-1 cursor-pointer transition-colors"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -703,9 +683,9 @@ export default function AdminAuthGuard({
                           className={`h-1 rounded-full transition-colors ${
                             strength.score >= step
                               ? strength.score === 4
-                                ? 'bg-emerald-400'
-                                : 'bg-amber-400'
-                              : 'bg-stone-800'
+                                ? 'bg-emerald-600'
+                                : 'bg-[#B5945B]'
+                              : 'bg-[#E8E2D6]'
                           }`}
                         />
                       ))}
@@ -720,7 +700,7 @@ export default function AdminAuthGuard({
                         <span
                           key={idx}
                           className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded ${
-                            c.ok ? 'text-emerald-300 bg-emerald-500/10' : 'text-stone-500 bg-stone-900'
+                            c.ok ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-[#7A746B] bg-[#F4F0E8]'
                           }`}
                         >
                           {c.ok && <Check className="w-2.5 h-2.5" />}
@@ -735,7 +715,7 @@ export default function AdminAuthGuard({
               {/* Confirm Password on Initial Setup */}
               {needsInitialSetup && (
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-stone-300 block">
+                  <label className="text-xs font-semibold text-[#3C3934] block">
                     {isAr ? 'تأكيد كلمة المرور' : 'Confirm Password'}
                   </label>
                   <input
@@ -746,7 +726,7 @@ export default function AdminAuthGuard({
                     autoComplete="new-password"
                     dir="ltr"
                     required
-                    className="w-full py-3 px-3.5 rounded-xl bg-stone-900/90 border border-stone-700/80 text-white placeholder-stone-500 text-xs font-mono focus:border-amber-400 focus:outline-none text-start"
+                    className="w-full py-3 px-4 rounded-xl bg-white border border-[#DED8CC] text-[#151413] placeholder:text-[#9E978D] text-xs font-mono focus:border-[#151413] focus:ring-2 focus:ring-[#151413]/8 focus:outline-none text-left transition-all"
                   />
                 </div>
               )}
@@ -757,7 +737,7 @@ export default function AdminAuthGuard({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 py-3 rounded-xl bg-stone-800/80 hover:bg-stone-800 border border-stone-700 text-stone-300 text-xs font-bold cursor-pointer"
+                    className="flex-1 py-3 rounded-xl bg-[#F4F0E8] hover:bg-[#EAE4D7] border border-[#E2DACB] text-[#2C2925] text-xs font-bold cursor-pointer transition-colors"
                   >
                     {isAr ? 'العودة للمتجر' : 'Back to Store'}
                   </button>
@@ -766,13 +746,9 @@ export default function AdminAuthGuard({
                 <button
                   type="submit"
                   disabled={isLoading || lockoutRemaining > 0}
-                  className="flex-1 py-3 rounded-xl font-black text-xs shadow-lg active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                  style={{
-                    background: 'linear-gradient(135deg, #d4af37, #f59e0b)',
-                    color: '#0c0a09',
-                  }}
+                  className="flex-1 py-3 rounded-xl bg-[#151413] hover:bg-[#272522] text-[#FCFBF8] font-bold text-xs shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all"
                 >
-                  <ShieldCheck className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4 text-[#C5A572]" />
                   <span>
                     {needsInitialSetup
                       ? isAr
@@ -780,7 +756,7 @@ export default function AdminAuthGuard({
                         : 'Initialize & Enter'
                       : isAr
                       ? 'دخول مشفر'
-                      : 'Sign In Securely'}
+                      : 'Sign In'}
                   </span>
                 </button>
               </div>

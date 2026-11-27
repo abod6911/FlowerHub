@@ -502,21 +502,19 @@ export default function FloristAdminPanel({
           {/* Atelier Brand Title & Active Ticket */}
           <div className="flex items-center justify-between sm:justify-start gap-3">
             <div className="flex items-center gap-3">
-              {/* Royal Atelier Monogram Seal Medallion */}
-              <div className="relative group shrink-0">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1C1917] via-[#292524] to-[#0C0A09] text-amber-200 flex items-center justify-center border border-amber-400/40 shadow-[0_4px_16px_rgba(0,0,0,0.18)] ring-1 ring-amber-400/20 relative overflow-hidden transition-transform duration-300 group-hover:scale-105">
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(251,191,36,0.22),transparent_70%)] pointer-events-none" />
+              {/* Atelier Monogram Seal */}
+              <div className="relative shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-[#151413] text-[#FBF9F5] flex items-center justify-center border border-[#D8CBB8] shadow-xs overflow-hidden">
                   {shopConfig?.avatarUrl || shopConfig?.logoUrl ? (
                     <img
                       src={shopConfig.avatarUrl || shopConfig.logoUrl}
                       alt={currentShopName}
-                      className="w-full h-full object-cover rounded-2xl relative z-10"
+                      className="w-full h-full object-cover rounded-xl"
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center leading-none select-none relative z-10">
-                      <span className="text-[10px] text-amber-400 font-serif -mb-0.5">✦</span>
-                      <span className="text-xs font-serif font-black tracking-widest text-amber-100">{monogram}</span>
-                    </div>
+                    <span className={`text-xs font-serif font-bold text-[#E6D5B8] ${isAr ? '' : 'tracking-wider'}`}>
+                      {monogram}
+                    </span>
                   )}
                 </div>
               </div>
@@ -1423,14 +1421,14 @@ export default function FloristAdminPanel({
             </div>
           )}
 
-          {/* 0. Compact Storefront Publish & Visual Studio Bar */}
-          <div className="p-4 rounded-2xl bg-stone-950 border border-stone-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          {/* 0. Architectural Storefront Publish & Studio Bar */}
+          <div className="p-4 rounded-2xl bg-[#151413] border border-[#2C2924] text-[#FCFBF8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0">
-                <Globe className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-white/10 text-[#C5A572] border border-white/10 flex items-center justify-center shrink-0">
+                <Globe className="w-4.5 h-4.5" />
               </div>
               <div>
-                <h4 className="font-bold text-xs sm:text-sm text-amber-100">
+                <h4 className="font-bold text-xs sm:text-sm text-[#FCFBF8]">
                   {isAr ? 'نشر وتخصيص مظهر المتجر' : 'Storefront Theme & Live Link'}
                 </h4>
                 <p className="text-[11px] text-stone-400">
@@ -1444,9 +1442,9 @@ export default function FloristAdminPanel({
                 <button
                   type="button"
                   onClick={onOpenDesignStudio}
-                  className="px-3.5 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-amber-200 border border-stone-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-2 rounded-xl bg-white/8 hover:bg-white/15 text-[#F6F4EF] border border-white/15 font-semibold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#C5A572]" />
                   <span>{isAr ? 'استوديو التصميم' : 'Design Studio'}</span>
                 </button>
               )}
@@ -1455,8 +1453,8 @@ export default function FloristAdminPanel({
                 onClick={handlePublishAndShareLink}
                 className={`px-4 py-2 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer ${
                   copiedPublishLink
-                    ? 'bg-emerald-500 text-stone-950'
-                    : 'bg-amber-400 hover:bg-amber-300 text-stone-950'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-[#FCFBF8] hover:bg-[#EFECE4] text-[#151413]'
                 }`}
               >
                 {copiedPublishLink ? <CheckCircle2 className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}

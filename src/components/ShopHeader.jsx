@@ -246,7 +246,7 @@ function ShopHeader({
         ) : (
           <div className="flex flex-col items-center justify-center leading-none">
             <span className="text-[8px] text-amber-400/90 font-mono tracking-tighter mb-0.5">✦</span>
-            <span className="font-serif font-black tracking-wider text-sm bg-gradient-to-b from-amber-100 via-amber-200 to-amber-400 bg-clip-text text-transparent drop-shadow-xs">
+            <span className={`font-serif font-black text-sm text-[#F3E5C8] ${isAr ? '' : 'tracking-wider'}`}>
               {avatarText}
             </span>
           </div>
@@ -305,7 +305,9 @@ function ShopHeader({
       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-stone-900/90 dark:bg-stone-800/90 hover:bg-stone-900 text-amber-300 hover:text-amber-200 border border-amber-400/35 transition-all duration-200 active:scale-95 shadow-xs cursor-pointer select-none"
     >
       <Globe className="w-3.5 h-3.5 text-amber-400" />
-      <span className="font-mono text-[11px] font-black tracking-wider">{isAr ? 'EN' : 'عربي'}</span>
+      <span className={isAr ? 'font-mono text-[11px] font-bold tracking-wider' : 'font-sans text-[11px] font-bold'}>
+        {isAr ? 'EN' : 'عربي'}
+      </span>
     </button>
   );
 
